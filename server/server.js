@@ -7,11 +7,11 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: 'http://192.168.100.14:3000',
+    origin: process.env.HOST_CLIENT,
     methods: ['GET', 'POST'],
   },
 });
-
+console.log(process.env.HOST_CLIENT);
 app.use(cors());
 
 let users = {};

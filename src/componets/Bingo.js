@@ -1,7 +1,9 @@
 import { useEffect, useState, useRef } from 'react';
 import { io } from 'socket.io-client';
 
-const socket = io('http://192.168.100.14:4000');
+const socket = io(process.env.HOST_SERVER);
+
+console.log('HOST_SERVER', process.env.HOST_SERVER)
 
 export default function Bingo() {
   const [board, setBoard] = useState([]);
