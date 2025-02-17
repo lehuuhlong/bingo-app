@@ -7,11 +7,10 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: process.env.HOST_CLIENT,
+    origin: 'https://bingo-app-8c71.onrender.com',
     methods: ['GET', 'POST'],
   },
 });
-console.log(process.env.HOST_CLIENT);
 app.use(cors());
 
 let users = {};
