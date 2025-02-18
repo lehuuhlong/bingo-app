@@ -36,10 +36,3 @@
     transform: rotate(360deg);
   }
 }
-
-.number-bingo {
-  width: 40px;
-  height: 40px;
-  border-radius: 50% !important;
-  background-color: #073A4B;
-}

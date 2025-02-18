@@ -1,12 +1,14 @@
 # Copyright by LE HUU HOANG LONG
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This project was deloyed in https://bingo-app-8c71.onrender.com
 
 ## Available Scripts
 
 In the project directory, you can run:
 
 ### `cd server && node server.js`
+
+Runs the app in the server mode
 
 ### `npm start`
 

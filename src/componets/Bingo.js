@@ -5,6 +5,7 @@ const socket = io('https://bingo-app-server-052t.onrender.com');
 
 export default function Bingo() {
   const [board, setBoard] = useState([]);
+  const [usersBoard, setUsersBoard] = useState({});
   const [calledNumbers, setCalledNumbers] = useState(['🌟']);
   const [isBingo, setIsBingo] = useState(false);
   const [message, setMessage] = useState('');
@@ -26,7 +27,6 @@ export default function Bingo() {
 
   useEffect(() => {
     socket.on('numberCalled', (calledNumbers) => {
-      // setCalledNumbers((prev) => [...prev, number]);
       setCalledNumbers(calledNumbers);
     });
 
@@ -39,12 +39,11 @@ export default function Bingo() {
       setOnlineUsers(users);
     });
 
-    socket.on('resetNumber', () => {
+    socket.on('resetNumber', (usersBoard) => {
+      alert('Trò chơi đã được làm mới!!!');
+      setUsersBoard(usersBoard);
       setCalledNumbers(['🌟']);
       setBingoName([]);
-      if (!alert('Trò chơi đã được làm mới. Vui lòng F5 page')) {
-        window.location.reload();
-      }
     });
 
     socket.on('isBingo', (username) => {
@@ -56,11 +55,17 @@ export default function Bingo() {
       setBoard(userBoard);
     });
 
+    socket.on('bingoNames', (bingoNames) => {
+      setBingoName(bingoNames);
+    });
+
     return () => {
       socket.off('numberCalled');
       socket.off('chatMessage');
       socket.off('updateUsers');
       socket.off('isBingo');
+      socket.off('bingoNames');
+      socket.off('userBoard');
       socket.off('resetNumber');
     };
   }, []);
@@ -68,6 +73,15 @@ export default function Bingo() {
   useEffect(() => {
     checkBingo();
   }, [calledNumbers]);
+
+  useEffect(() => {
+    for (let userId in usersBoard) {
+      if (usersBoard[userId]?.username === username) {
+        setBoard(usersBoard[userId]?.board);
+      }
+    }
+    console.log('username', username);
+  }, [usersBoard]);
 
   useEffect(() => {
     if (isBingo) {
@@ -111,14 +125,22 @@ export default function Bingo() {
     }
   }
 
+  function handleConfirm() {
+    if (username) {
+      setIsUsernameSet(true)
+    }
+
+    return;
+  }
+
   if (!isUsernameSet) {
     return (
       <div className="container text-center mt-5">
-        <h2>Vui lòng nhập tên của bạn</h2>
+        <h2>Please enter your account</h2>
         <input
           type="text"
           className="form-control mb-2"
-          placeholder="Vui lòng nhập tên của bạn"
+          placeholder="Please enter your account"
           value={username}
           onKeyPress={(event) => {
             if (event.key === 'Enter') {
@@ -127,103 +149,127 @@ export default function Bingo() {
           }}
           onChange={(e) => setUsername(e.target.value)}
         />
-        <button className="btn btn-primary" onClick={() => setIsUsernameSet(true)}>
-          Xác nhận
+        <button className="btn btn-primary" onClick={handleConfirm}>
+          Confirm
         </button>
       </div>
     );
   }
 
   return (
-    <>
-      {bingoName && bingoName.length > 0 && (
-        <div className="container text-center mt-5">
-          <h2 className="text-secondary">🎉 Danh sách lụm Bingo 🎉</h2>
-          <ul className="list-unstyled mb-3">
-            {bingoName.map((user, index) => (
-              <li className="alert alert-success mt-3" key={index}>
-                {user}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-      <div className="container text-center mt-5 d-flex justify-content-around">
-        <div>
-          <h1 className="mb-4 text-primary">Bingo Game</h1>
+    <div className="container mt-5">
+      <div className="row mb-4 text-center d-block">
+        <h2 className="text-success fw-bold">Bingo Game</h2>
+      </div>
+
+      <div className="row">
+        {bingoName && bingoName.length > 0 && (
+          <div className="col-lg-12 text-center">
+            <h4 className="text-secondary">🎉 List users Bingo! Congratulation! 🎉</h4>
+            <ul className="list-unstyled">
+              {bingoName.map((user, index) => (
+                <li className="alert alert-success mt-2 shadow-sm rounded" key={index}>
+                  {user}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        <div className="col-lg-8">
+          <div className="mb-4 text-center">
+            <h4 className="text-secondary">🎲 Lottery number 🎲</h4>
+            <div className="d-flex flex-wrap gap-2 justify-content-center bg-light p-3 rounded shadow">
+              {calledNumbers.map(
+                (number, index) =>
+                  number !== '🌟' && (
+                    <div
+                      key={index}
+                      className="mr-1 mb-1 rounded-circle bg-info text-white d-flex align-items-center justify-content-center number-ball"
+                      style={{
+                        width: '50px',
+                        height: '50px',
+                        fontSize: '1.2rem',
+                        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+                        animation: 'spin 1s ease-in-out',
+                      }}
+                    >
+                      {number}
+                    </div>
+                  )
+              )}
+            </div>
+          </div>
+          <div className="text-center mb-4">
+            <h4 className="text-secondary">🎲 Ticket Bingo 🎲</h4>
+            <div className="bg-gradient-light p-3 rounded shadow">
+              <div className="d-grid " style={{ gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px', display: 'inline-grid' }}>
+                {board.flat().map((num, index) => (
+                  <div
+                    key={index}
+                    className={`border p-3 rounded-circle fw-bold d-flex align-items-center justify-content-center shadow-sm ${
+                      calledNumbers.includes(num) ? 'bg-success text-white' : 'bg-light text-dark'
+                    }`}
+                    style={{ width: '60px', height: '60px', fontSize: '1.5rem', cursor: 'pointer', transition: 'all 0.3s' }}
+                  >
+                    {num}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+          {isBingo && <div className="alert alert-success mt-4 text-center">🎉 Bingo! Congratulation! 🎉</div>}
+
           {username === 'Admin Bingo' && (
-            <>
-              <button className="btn btn-primary mb-3 mr-2" onClick={() => socket.emit('callNumber')}>
+            <div className="mt-4 d-flex justify-content-between">
+              <button className="btn btn-danger" onClick={() => socket.emit('callNumber')}>
                 Gọi số
               </button>
-              <button className="btn btn-primary mb-3" onClick={() => socket.emit('resetNumber')}>
+              <button className="btn btn-warning" onClick={() => socket.emit('resetNumber')}>
                 Reset
               </button>
-            </>
+            </div>
           )}
-          <div className="d-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px' }}>
-            {board.flat().length &&
-              board.flat().map((num, index) => (
-                <div
-                  key={index}
-                  className={`border p-4 rounded-circle text-lg fw-bold text-center d-flex align-items-center justify-content-center transition ${
-                    calledNumbers.includes(num) ? 'bg-success text-white' : 'bg-light hover:bg-warning text-dark'
-                  }`}
-                  style={{ width: '60px', height: '60px', fontSize: '1.5rem', cursor: 'pointer', transition: 'all 0.3s ease-in-out' }}
-                >
-                  {num}
+        </div>
+
+        <div className="col-lg-4">
+          <div className="mb-4">
+            <h4 className="text-secondary text-center">💬 Chat</h4>
+            <div ref={chatRef} className="chat-box border rounded p-3 bg-light shadow-sm" style={{ height: '250px', overflowY: 'auto' }}>
+              {chat.map((msg, index) => (
+                <div key={index} className="mb-2">
+                  <strong style={{ color: `${msg.username === 'Admin Bingo' ? 'red' : 'black'}` }}>{msg.username}:</strong> {msg.message}
                 </div>
               ))}
+            </div>
+            <input
+              type="text"
+              className="form-control mt-2"
+              placeholder="Enter message"
+              value={message}
+              onKeyPress={(event) => {
+                if (event.key === 'Enter') {
+                  sendMessage();
+                }
+              }}
+              onChange={(e) => setMessage(e.target.value)}
+            />
+            <button className="btn btn-secondary mt-2 w-100" onClick={sendMessage}>
+              Send
+            </button>
           </div>
-          {isBingo && <div className="alert alert-success mt-3">🎉 Bingo! Bạn đã thắng! 🎉</div>}
-        </div>
-        <div>
-          <h2 className="text-secondary">Chat</h2>
-          <div ref={chatRef} className="chat-box border rounded p-2 mb-2" style={{ height: '250px', width: '300px', overflowY: 'auto' }}>
-            {chat.map((msg, index) => (
-              <div key={index} className="text-left p-1 border-bottom">
-                <strong style={{ color: `${username === 'Admin Bingo' ? 'red' : 'black'}` }}>{msg.username}:</strong> {msg.message}
-              </div>
-            ))}
+
+          <div>
+            <h5 className="text-secondary text-center">👥 Members online</h5>
+            <ul className="list-unstyled">
+              {onlineUsers.map((user, index) => (
+                <li key={index} className="alert alert-info p-2 rounded shadow-sm">
+                  {user}
+                </li>
+              ))}
+            </ul>
           </div>
-          <input
-            type="text"
-            className="form-control mb-2"
-            placeholder="Nhập tin nhắn"
-            value={message}
-            onKeyPress={(event) => {
-              if (event.key === 'Enter') {
-                sendMessage();
-              }
-            }}
-            onChange={(e) => setMessage(e.target.value)}
-          />
-          <button className="btn btn-primary" onClick={sendMessage}>
-            Gửi
-          </button>
-        </div>
-        <div style={{ width: '150px' }}>
-          <h5 className="text-secondary">Người đang online</h5>
-          <ul className="list-unstyled mb-3">
-            {onlineUsers.map((user, index) => (
-              <li key={index}>{user}</li>
-            ))}
-          </ul>
         </div>
       </div>
-      <div className="container text-center mt-5">
-        <h2 className="text-secondary">Số đã quay thưởng</h2>
-        <div className="d-flex flex-wrap gap-2">
-          {calledNumbers.map(
-            (number, index) =>
-              number !== '🌟' && (
-                <div key={index} className="number-bingo border p-2 rounded text-white">
-                  {number}
-                </div>
-              )
-          )}
-        </div>
-      </div>
-    </>
+    </div>
   );
 }

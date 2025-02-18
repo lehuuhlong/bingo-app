@@ -39,6 +39,8 @@ io.on('connection', (socket) => {
 
       users[socket.id] = username;
       io.emit('updateUsers', Object.values(users));
+      io.emit('numberCalled', calledNumbers);
+      io.emit('bingoNames', bingoNames);
     }
   });
 
@@ -58,13 +60,14 @@ io.on('connection', (socket) => {
     for (let userId in usersBoard) {
       usersBoard[userId].board = generateBoard();
     }
-    let isReset = true;
-    io.emit('resetNumber', isReset);
+    io.emit('resetNumber', usersBoard);
   });
 
   socket.on('isBingo', (username) => {
-    bingoNames.push(username);
-    io.emit('isBingo', bingoNames);
+    if (checkBingo(usersBoard[username]?.board, calledNumbers) && !bingoNames.includes(username)) {
+      bingoNames.push(username);
+      io.emit('isBingo', bingoNames);
+    }
   });
 
   socket.on('chatMessage', ({ username, message }) => {
@@ -94,6 +97,26 @@ function generateBoard() {
   }
   board[2][2] = '🌟';
   return board;
+}
+
+function checkBingo(board, calledNumbers) {
+  if (board.length) {
+    for (let i = 0; i < 5; i++) {
+      if (board[i].every((num) => num === '🌟' || calledNumbers.includes(num))) {
+        return true;
+      }
+      if (board.map((row) => row[i]).every((num) => num === '🌟' || calledNumbers.includes(num))) {
+        return true;
+      }
+    }
+    if (
+      [0, 1, 2, 3, 4].every((i) => board[i][i] === '🌟' || calledNumbers.includes(board[i][i])) ||
+      [0, 1, 2, 3, 4].every((i) => board[i][4 - i] === '🌟' || calledNumbers.includes(board[i][4 - i]))
+    ) {
+      return true;
+    }
+  }
+  return false;
 }
 
 server.listen(4000, () => {
