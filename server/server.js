@@ -17,35 +17,38 @@ let users = {};
 let usersBoard = {};
 let calledNumbers = ['🌟'];
 let bingoNames = [];
+let chats = [];
+let isBingo = false;
 
 io.on('connection', (socket) => {
   console.log('A user connected:', socket.id);
 
   socket.on('setUsername', (username) => {
     if (username !== 'Admin Bingo') {
-      let userBoard;
+      let userBoard = [];
       for (let userId in usersBoard) {
         if (usersBoard[userId].username === username) {
           userBoard = usersBoard[userId].board;
           break;
         }
       }
-      if (!userBoard) {
+      if (!userBoard.length && !(calledNumbers.length > 5)) {
         userBoard = generateBoard();
       }
 
       usersBoard[username] = { username, board: userBoard };
       socket.emit('userBoard', userBoard);
-
       users[socket.id] = username;
-      io.emit('updateUsers', Object.values(users));
-      io.emit('numberCalled', calledNumbers);
-      io.emit('bingoNames', bingoNames);
     }
+
+    io.emit('updateUsers', Object.values(users));
+    io.emit('numberCalled', calledNumbers);
+    io.emit('bingoNames', bingoNames);
+    io.emit('chats', chats);
   });
 
   socket.on('callNumber', () => {
-    if (calledNumbers.length >= 75) return;
+    if (calledNumbers.length >= 75 || bingoNames.length > 0 || isBingo) return;
     let number;
     do {
       number = Math.floor(Math.random() * 75) + 1;
@@ -57,9 +60,11 @@ io.on('connection', (socket) => {
   socket.on('resetNumber', () => {
     calledNumbers = ['🌟'];
     bingoNames = [];
+    isBingo = false;
     for (let userId in usersBoard) {
       usersBoard[userId].board = generateBoard();
     }
+    sendMessageAuto('Admin Bingo', 'Game Over! Go to the next game');
     io.emit('resetNumber', usersBoard);
   });
 
@@ -67,10 +72,13 @@ io.on('connection', (socket) => {
     if (checkBingo(usersBoard[username]?.board, calledNumbers) && !bingoNames.includes(username)) {
       bingoNames.push(username);
       io.emit('isBingo', bingoNames);
+      isBingo = true;
+      sendMessageAuto('Admin Bingo', 'Bingo: ' + username + ' 🎉');
     }
   });
 
   socket.on('chatMessage', ({ username, message }) => {
+    chats.push({ username, message });
     io.emit('chatMessage', { username, message });
   });
 
@@ -100,7 +108,7 @@ function generateBoard() {
 }
 
 function checkBingo(board, calledNumbers) {
-  if (board.length) {
+  if (board?.length) {
     for (let i = 0; i < 5; i++) {
       if (board[i].every((num) => num === '🌟' || calledNumbers.includes(num))) {
         return true;
@@ -117,6 +125,11 @@ function checkBingo(board, calledNumbers) {
     }
   }
   return false;
+}
+
+function sendMessageAuto(username, message) {
+  chats.push({ username, message });
+  io.emit('chatMessage', { username, message });
 }
 
 server.listen(4000, () => {
