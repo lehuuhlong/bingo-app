@@ -405,7 +405,7 @@ export default function Bingo() {
 
         <div className="col-lg-4">
           <div className="mb-4">
-            <h4 className="text-secondary text-center">💬 Chat</h4>
+            <h4 className="text-secondary text-center">💬 Chat({username})</h4>
             <div ref={chatRef} className="chat-box border rounded p-3 bg-light shadow-sm" style={{ height: '250px', overflowY: 'auto' }}>
               {chat.map((msg, index) => (
                 <div key={index} className="mb-2">
