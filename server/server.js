@@ -19,6 +19,7 @@ let calledNumbers = ['🌟'];
 let bingoNames = [];
 let chats = [];
 let isBingo = false;
+let usersNearlyBingo = [];
 
 io.on('connection', (socket) => {
   console.log('A user connected:', socket.id);
@@ -27,10 +28,12 @@ io.on('connection', (socket) => {
     if (username !== 'Admin Bingo') {
       let userBoard = [];
       let bingoCells = [];
+      let nearlyBingos = [];
       for (let userId in usersBoard) {
         if (usersBoard[userId].username === username) {
           userBoard = usersBoard[userId].board;
           bingoCells = usersBoard[userId].bingoCells;
+          nearlyBingos = usersBoard[userId].nearlyBingos;
           break;
         }
       }
@@ -38,7 +41,7 @@ io.on('connection', (socket) => {
         userBoard = generateBoard();
       }
 
-      usersBoard[username] = { username, board: userBoard, bingoCells };
+      usersBoard[username] = { username, board: userBoard, bingoCells, nearlyBingos };
       socket.emit('userBoard', userBoard);
       users[socket.id] = username;
     }
@@ -63,9 +66,11 @@ io.on('connection', (socket) => {
   socket.on('resetNumber', () => {
     calledNumbers = ['🌟'];
     bingoNames = [];
+    usersNearlyBingo = [];
     isBingo = false;
     for (let userId in usersBoard) {
       usersBoard[userId].board = generateBoard();
+      usersBoard[userId].nearlyBingos = [];
     }
     sendMessageAuto('Admin Bingo', 'Game Over! Go to the next game');
     io.emit('resetNumber', usersBoard);
@@ -102,6 +107,17 @@ io.on('connection', (socket) => {
   socket.on('chatMessage', ({ username, message }) => {
     chats.push({ username, message });
     io.emit('chatMessage', { username, message });
+  });
+
+  socket.on('nearlyBingo', ({ username, nearlyBingoNumbers }) => {
+    if (!username && !nearlyBingoNumbers) return;
+    if (!usersNearlyBingo.includes(username)) {
+      usersNearlyBingo.push(username);
+    }
+    usersBoard[username] = { ...usersBoard[username], nearlyBingos: nearlyBingoNumbers };
+
+    io.emit('nearlyBingo', usersNearlyBingo);
+    io.emit('usersBoard', usersBoard);
   });
 
   socket.on('disconnect', () => {

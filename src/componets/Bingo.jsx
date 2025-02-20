@@ -23,6 +23,8 @@ export default function Bingo() {
   const [bingoCells, setBingoCells] = useState([]);
   const [countResetBingo, setCountResetBingo] = useState(0);
   const [isDisplay, setIsDisplay] = useState(false);
+  const [nearlyBingoNumbers, setNearlyBingoNumbers] = useState([]);
+  const [nearlyBingoName, setNearlyBingoName] = useState([]);
 
   const chatRef = useRef(null);
   const buttonBingoRef = useRef(null);
@@ -77,6 +79,8 @@ export default function Bingo() {
       setBingoName([]);
       setIsBingo(false);
       setCountResetBingo(0);
+      setNearlyBingoName([]);
+      setNearlyBingoNumbers([]);
     });
 
     socket.on('isBingo', (username) => {
@@ -96,6 +100,10 @@ export default function Bingo() {
       setBingoName(bingoNames);
     });
 
+    socket.on('nearlyBingo', (number) => {
+      setNearlyBingoName(number);
+    });
+
     return () => {
       socket.off('numberCalled');
       socket.off('chatMessage');
@@ -105,13 +113,15 @@ export default function Bingo() {
       socket.off('userBoard');
       socket.off('resetNumber');
       socket.off('chats');
+      socket.off('nearlyBingo');
     };
   }, []);
 
   useEffect(() => {
     setTimeout(() => {
       checkBingo();
-    }, 1000);
+      findNearlyBingoNumbers();
+    }, 750);
   }, [calledNumbers]);
 
   useEffect(() => {
@@ -129,39 +139,42 @@ export default function Bingo() {
   }, [isBingo]);
 
   useEffect(() => {
-    if (bingoName.length > 0) {
-      stopAutoCall();
-    }
+    if (!bingoName.length) return;
+    stopAutoCall();
   }, [bingoName]);
 
+  useEffect(() => {
+    if (!nearlyBingoNumbers.length) return;
+    socket.emit('nearlyBingo', { username, nearlyBingoNumbers });
+  }, [nearlyBingoNumbers]);
+
   const checkBingo = () => {
+    if (!board.length) return;
     let newBingoCells = [];
 
-    if (board.length) {
-      for (let i = 0; i < 5; i++) {
-        if (board[i].every((num) => num === '🌟' || calledNumbers.includes(num))) {
-          newBingoCells.push(...board[i]);
-          setIsBingo(true);
-        }
-
-        const column = board.map((row) => row[i]);
-        if (column.every((num) => num === '🌟' || calledNumbers.includes(num))) {
-          newBingoCells.push(...column);
-          setIsBingo(true);
-        }
-      }
-
-      const diagonal1 = [0, 1, 2, 3, 4].map((i) => board[i][i]);
-      if (diagonal1.every((num) => num === '🌟' || calledNumbers.includes(num))) {
-        newBingoCells.push(...diagonal1);
+    for (let i = 0; i < 5; i++) {
+      if (board[i].every((num) => num === '🌟' || calledNumbers.includes(num))) {
+        newBingoCells.push(...board[i]);
         setIsBingo(true);
       }
 
-      const diagonal2 = [0, 1, 2, 3, 4].map((i) => board[i][4 - i]);
-      if (diagonal2.every((num) => num === '🌟' || calledNumbers.includes(num))) {
-        newBingoCells.push(...diagonal2);
+      const column = board.map((row) => row[i]);
+      if (column.every((num) => num === '🌟' || calledNumbers.includes(num))) {
+        newBingoCells.push(...column);
         setIsBingo(true);
       }
+    }
+
+    const diagonal1 = [0, 1, 2, 3, 4].map((i) => board[i][i]);
+    if (diagonal1.every((num) => num === '🌟' || calledNumbers.includes(num))) {
+      newBingoCells.push(...diagonal1);
+      setIsBingo(true);
+    }
+
+    const diagonal2 = [0, 1, 2, 3, 4].map((i) => board[i][4 - i]);
+    if (diagonal2.every((num) => num === '🌟' || calledNumbers.includes(num))) {
+      newBingoCells.push(...diagonal2);
+      setIsBingo(true);
     }
 
     setBingoCells(newBingoCells);
@@ -226,6 +239,39 @@ export default function Bingo() {
     }
   };
 
+  const findNearlyBingoNumbers = () => {
+    if (!board.length) return;
+    let newNearlyBingoNumbers = [];
+
+    for (let i = 0; i < 5; i++) {
+      const row = board[i];
+      const notCalledNumbers = row.filter((num) => num !== '🌟' && !calledNumbers.includes(num));
+      if (notCalledNumbers.length === 1) {
+        newNearlyBingoNumbers.push(notCalledNumbers[0]);
+      }
+
+      const column = board.map((row) => row[i]);
+      const notCalledInColumn = column.filter((num) => num !== '🌟' && !calledNumbers.includes(num));
+      if (notCalledInColumn.length === 1) {
+        newNearlyBingoNumbers.push(notCalledInColumn[0]);
+      }
+    }
+
+    const diagonal1 = [0, 1, 2, 3, 4].map((i) => board[i][i]);
+    const notCalledInDiagonal1 = diagonal1.filter((num) => num !== '🌟' && !calledNumbers.includes(num));
+    if (notCalledInDiagonal1.length === 1) {
+      newNearlyBingoNumbers.push(notCalledInDiagonal1[0]);
+    }
+
+    const diagonal2 = [0, 1, 2, 3, 4].map((i) => board[i][4 - i]);
+    const notCalledInDiagonal2 = diagonal2.filter((num) => num !== '🌟' && !calledNumbers.includes(num));
+    if (notCalledInDiagonal2.length === 1) {
+      newNearlyBingoNumbers.push(notCalledInDiagonal2[0]);
+    }
+
+    setNearlyBingoNumbers(newNearlyBingoNumbers);
+  };
+
   if (!isUsernameSet) {
     return (
       <div className="container text-center mt-5">
@@ -254,7 +300,24 @@ export default function Bingo() {
       <div className="row mb-4 text-center d-block">
         <h2 className="text-success fw-bold">Bingo Game</h2>
       </div>
-
+      {nearlyBingoName.length > 0 && bingoName.length === 0 && (
+        <div className="mt-4">
+          <h5 className="text-warning">⚠️Users with numbers close to Bingo:</h5>
+          <ul className="alert alert-warning shadow-sm rounded p-2">
+            {nearlyBingoName.map((name, index) => (
+              <li key={index} className="ml-5">
+                <strong>{name}</strong>{' '}
+                {usersBoard[name]?.nearlyBingos.map((number) => (
+                  <span key={number} className="text-danger">
+                    {' '}
+                    - {number}
+                  </span>
+                ))}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
       <div className="row">
         {bingoName && bingoName.length > 0 && (
           <div className="col-lg-12">
@@ -405,7 +468,9 @@ export default function Bingo() {
 
         <div className="col-lg-4">
           <div className="mb-4">
-            <h4 className="text-secondary text-center">💬 Chat({username})</h4>
+            <h4 className="text-secondary text-center">
+              💬 Chat(<span className="text-info">{username}</span>)
+            </h4>
             <div ref={chatRef} className="chat-box border rounded p-3 bg-light shadow-sm" style={{ height: '250px', overflowY: 'auto' }}>
               {chat.map((msg, index) => (
                 <div key={index} className="mb-2">
