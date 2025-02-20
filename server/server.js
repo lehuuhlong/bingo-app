@@ -54,7 +54,7 @@ io.on('connection', (socket) => {
     if (isBingo || calledNumbers.length >= 75 || bingoNames.length > 0) return;
     let number;
     do {
-      number = Math.floor(Math.random() * 25) + 1;
+      number = Math.floor(Math.random() * 75) + 1;
     } while (calledNumbers.includes(number));
     calledNumbers.push(number);
     io.emit('numberCalled', calledNumbers);
@@ -117,7 +117,7 @@ function generateBoard() {
   for (let i = 0; i < 5; i++) {
     let row = [];
     while (row.length < 5) {
-      let num = Math.floor(Math.random() * 25) + 1;
+      let num = Math.floor(Math.random() * 75) + 1;
       if (!numbers.has(num)) {
         numbers.add(num);
         row.push(num);
