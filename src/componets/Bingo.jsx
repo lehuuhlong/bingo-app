@@ -1,5 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { io } from 'socket.io-client';
+import ModalBingoName from '../modal/ModalBingoName';
+import ModalReset from '../modal/ModalReset';
 
 const socket = io('https://bingo-app-server-052t.onrender.com');
 
@@ -20,13 +22,15 @@ export default function Bingo() {
   const [bingoCells, setBingoCells] = useState([]);
 
   const chatRef = useRef(null);
+  const buttonBingoRef = useRef(null);
+  const buttonResetRef = useRef(null);
 
   useEffect(() => {
     if (isUsernameSet) {
-      if (username === 'admin123456') {
+      if (username === 'admin') {
         setUsername('Admin Bingo');
       }
-      socket.emit('setUsername', username === 'admin123456' ? 'Admin Bingo' : username);
+      socket.emit('setUsername', username === 'admin' ? 'Admin Bingo' : username);
     }
   }, [isUsernameSet]);
 
@@ -63,7 +67,7 @@ export default function Bingo() {
     });
 
     socket.on('resetNumber', (usersBoard) => {
-      alert('Trò chơi đã được làm mới!!!');
+      buttonResetRef.current.click();
       setUsersBoard(usersBoard);
       setCalledNumbers(['🌟']);
       setBingoName([]);
@@ -71,12 +75,16 @@ export default function Bingo() {
     });
 
     socket.on('isBingo', (username) => {
-      alert('Đã có người trúng Bingo');
+      buttonBingoRef.current.click();
       setBingoName(username);
     });
 
     socket.on('userBoard', (userBoard) => {
       setBoard(userBoard);
+    });
+
+    socket.on('usersBoard', (usersBoard) => {
+      setUsersBoard(usersBoard);
     });
 
     socket.on('bingoNames', (bingoNames) => {
@@ -111,7 +119,7 @@ export default function Bingo() {
 
   useEffect(() => {
     if (isBingo) {
-      socket.emit('isBingo', username);
+      socket.emit('isBingo', { username, bingoCells });
     }
   }, [isBingo]);
 
@@ -152,20 +160,20 @@ export default function Bingo() {
     }
 
     setBingoCells(newBingoCells);
-  }
+  };
 
   const sendMessage = () => {
     if (message) {
       socket.emit('chatMessage', { username, message });
       setMessage('');
     }
-  }
+  };
 
   const scrollToBottom = () => {
     if (chatRef.current) {
       chatRef.current.scrollTop = chatRef.current.scrollHeight;
     }
-  }
+  };
 
   const handleConfirm = () => {
     if (username) {
@@ -173,7 +181,7 @@ export default function Bingo() {
     }
 
     return;
-  }
+  };
 
   const startAutoCall = () => {
     let username = 'Admin Bingo';
@@ -228,15 +236,40 @@ export default function Bingo() {
 
       <div className="row">
         {bingoName && bingoName.length > 0 && (
-          <div className="col-lg-12 text-center">
-            <h4 className="text-secondary">🎉 List users Bingo! 🎉</h4>
-            <ul className="list-unstyled">
-              {bingoName.map((user, index) => (
-                <li className="alert alert-success mt-2 shadow-sm rounded" key={index}>
-                  {user}
-                </li>
-              ))}
-            </ul>
+          <div className="col-lg-12">
+            <div className="text-center mb-4">
+              <h4 className="text-secondary">🎉 List users Bingo! 🎉</h4>
+              <div className="bg-gradient-light p-3 rounded shadow">
+                <div className="row">
+                  {bingoName.map((name, index) => (
+                    <div className={bingoName.length > 1 ? 'col-lg-6' : 'col'} key={index}>
+                      <h6>Account: {name} 🎉</h6>
+                      <div className="d-grid" style={{ gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px', display: 'inline-grid' }}>
+                        {usersBoard[name]?.board.flat().map((num, index) => (
+                          <div
+                            key={index}
+                            className={`border p-3 rounded-circle fw-bold d-flex align-items-center justify-content-center shadow-sm ${
+                              bingoName.length > 0
+                                ? usersBoard[name]?.bingoCells.includes(num)
+                                  ? 'bg-success text-white'
+                                  : calledNumbers.includes(num)
+                                  ? 'bg-secondary text-white'
+                                  : 'bg-light text-dark'
+                                : calledNumbers.includes(num)
+                                ? 'bg-success text-white'
+                                : 'bg-light text-dark'
+                            }`}
+                            style={{ width: '60px', height: '60px', fontSize: '1.5rem', cursor: 'pointer', transition: 'all 0.3s' }}
+                          >
+                            {num}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         )}
         <div className="col-lg-8">
@@ -247,6 +280,9 @@ export default function Bingo() {
               </button>
               <button className="btn btn-danger" onClick={stopAutoCall} disabled={!isAutoCalling}>
                 Stop
+              </button>
+              <button className="btn btn-danger" onClick={() => socket.emit('testBingo')}>
+                Test Bingo
               </button>
               <button className="btn btn-warning" onClick={() => socket.emit('resetNumber')}>
                 Reset
@@ -290,7 +326,7 @@ export default function Bingo() {
                     fontSize: '1.2rem',
                     borderRadius: '50%',
                     backgroundColor: '#ffc107',
-                    color: '#fff',
+                    color: '#000000',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -312,7 +348,7 @@ export default function Bingo() {
                   <div
                     key={index}
                     className={`border p-3 rounded-circle fw-bold d-flex align-items-center justify-content-center shadow-sm ${
-                      isBingo
+                      bingoName.length > 0
                         ? bingoCells.includes(num)
                           ? 'bg-success text-white'
                           : calledNumbers.includes(num)
@@ -376,6 +412,27 @@ export default function Bingo() {
           </div>
         </div>
       </div>
+
+      <ModalBingoName bingoName={bingoName} />
+      <ModalReset />
+
+      <button
+        ref={buttonBingoRef}
+        style={{ display: 'none' }}
+        type="button"
+        className="btn btn-primary"
+        data-toggle="modal"
+        data-target="#bingoModal"
+      ></button>
+
+      <button
+        ref={buttonResetRef}
+        style={{ display: 'none' }}
+        type="button"
+        className="btn btn-primary"
+        data-toggle="modal"
+        data-target="#resetModal"
+      ></button>
     </div>
   );
 }
