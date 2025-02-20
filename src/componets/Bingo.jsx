@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { io } from 'socket.io-client';
 import ModalBingoName from '../modal/ModalBingoName';
 import ModalReset from '../modal/ModalReset';
+import ToastReset from '../toast/ToastReset';
 
 const socket = io('https://bingo-app-server-052t.onrender.com');
 
@@ -20,6 +21,8 @@ export default function Bingo() {
   const [isAutoCalling, setIsAutoCalling] = useState(false);
   const autoCallInterval = useRef(null);
   const [bingoCells, setBingoCells] = useState([]);
+  const [countResetBingo, setCountResetBingo] = useState(0);
+  const [isDisplay, setIsDisplay] = useState(false);
 
   const chatRef = useRef(null);
   const buttonBingoRef = useRef(null);
@@ -36,9 +39,9 @@ export default function Bingo() {
 
   useEffect(() => {
     socket.on('numberCalled', (newCalledNumbers) => {
+      if (newCalledNumbers?.length === 1) return;
       const latestNumber = newCalledNumbers[newCalledNumbers.length - 1];
 
-      setCurrentSpinningNumber('🌟');
       let randomInterval = setInterval(() => {
         setCurrentSpinningNumber(Math.floor(Math.random() * 75) + 1);
       }, 100);
@@ -70,8 +73,10 @@ export default function Bingo() {
       buttonResetRef.current.click();
       setUsersBoard(usersBoard);
       setCalledNumbers(['🌟']);
+      setCurrentSpinningNumber('🌟');
       setBingoName([]);
       setIsBingo(false);
+      setCountResetBingo(0);
     });
 
     socket.on('isBingo', (username) => {
@@ -183,6 +188,16 @@ export default function Bingo() {
     return;
   };
 
+  const handleResetBingo = () => {
+    if (!username || countResetBingo === 2 || bingoName.length > 0 || calledNumbers.length > 1) return;
+    setIsDisplay(true);
+    setCountResetBingo(countResetBingo + 1);
+    socket.emit('resetBingo', username);
+    setTimeout(() => {
+      setIsDisplay(false);
+    }, 3000);
+  };
+
   const startAutoCall = () => {
     let username = 'Admin Bingo';
     let message = 'Game start!';
@@ -203,6 +218,12 @@ export default function Bingo() {
   const stopAutoCall = () => {
     clearInterval(autoCallInterval.current);
     setIsAutoCalling(false);
+  };
+
+  const numberBingCells = (num) => {
+    for (let name of bingoName) {
+      return usersBoard[name]?.bingoCells.includes(num);
+    }
   };
 
   if (!isUsernameSet) {
@@ -297,7 +318,9 @@ export default function Bingo() {
                   number !== '🌟' && (
                     <div
                       key={index}
-                      className="mr-1 mb-1 rounded-circle bg-info text-white d-flex align-items-center justify-content-center number-ball"
+                      className={`mr-1 mb-1 rounded-circle d-flex align-items-center justify-content-center number-ball ${
+                        bingoName.length > 0 ? (numberBingCells(number) ? 'bg-success text-white' : 'bg-secondary text-white') : 'bg-info text-white'
+                      }`}
                       style={{
                         width: '50px',
                         height: '50px',
@@ -317,7 +340,7 @@ export default function Bingo() {
                     </div>
                   )
               )}
-              {currentSpinningNumber && (
+              {currentSpinningNumber && bingoName.length === 0 && (
                 <div
                   className="number-ball"
                   style={{
@@ -341,7 +364,14 @@ export default function Bingo() {
           </div>
           <div className="text-center mb-4">
             <h4 className="text-secondary">🎲 Ticket Bingo 🎲</h4>
-            {isBingo && <div className="alert alert-success mt-4 text-center">🎉 Bingo! 🎉</div>}
+            <button
+              className="btn btn-warning mb-2"
+              onClick={handleResetBingo}
+              disabled={countResetBingo === 2 || bingoName.length > 0 || calledNumbers.length > 1}
+            >
+              Reset your bingo!
+            </button>
+            {isBingo && <div className="alert alert-success text-center">🎉 Bingo! 🎉</div>}
             <div className="bg-gradient-light p-3 rounded shadow">
               <div className="d-grid" style={{ gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px', display: 'inline-grid' }}>
                 {board.flat().map((num, index) => (
@@ -415,6 +445,7 @@ export default function Bingo() {
 
       <ModalBingoName bingoName={bingoName} />
       <ModalReset />
+      <ToastReset isDisplay={isDisplay} countResetBingo={countResetBingo} />
 
       <button
         ref={buttonBingoRef}

@@ -60,3 +60,9 @@
     transform: scale(1);
   }
 }
+
+.toast-reset {
+  z-index: 5;
+  right: 0;
+  bottom: 0;
+}

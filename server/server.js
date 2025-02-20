@@ -26,7 +26,7 @@ io.on('connection', (socket) => {
   socket.on('setUsername', (username) => {
     if (username !== 'Admin Bingo') {
       let userBoard = [];
-      let bingoCells = []
+      let bingoCells = [];
       for (let userId in usersBoard) {
         if (usersBoard[userId].username === username) {
           userBoard = usersBoard[userId].board;
@@ -71,7 +71,7 @@ io.on('connection', (socket) => {
     io.emit('resetNumber', usersBoard);
   });
 
-  socket.on('isBingo', ({username , bingoCells}) => {
+  socket.on('isBingo', ({ username, bingoCells }) => {
     if (checkBingo(usersBoard[username]?.board, calledNumbers) && !bingoNames.includes(username)) {
       isBingo = true;
       bingoNames.push(username);
@@ -83,11 +83,20 @@ io.on('connection', (socket) => {
   });
 
   socket.on('testBingo', () => {
-    let username = 'UserTest'
+    let username = 'UserTest';
     bingoNames.push(username);
     io.emit('isBingo', bingoNames);
     isBingo = true;
     sendMessageAuto('Admin Bingo', 'Bingo: ' + username + ' 🎉');
+  });
+
+  socket.on('resetBingo', (name) => {
+    let userBoard = [];
+    if (!name || bingoNames.length > 0 || calledNumbers.length > 1) return;
+    userBoard = generateBoard();
+    usersBoard[name] = { ...usersBoard[name], board: userBoard };
+    socket.emit('userBoard', userBoard);
+    io.emit('usersBoard', usersBoard);
   });
 
   socket.on('chatMessage', ({ username, message }) => {
