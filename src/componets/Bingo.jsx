@@ -253,21 +253,29 @@ export default function Bingo() {
       const column = board.map((row) => row[i]);
       const notCalledInColumn = column.filter((num) => num !== '🌟' && !calledNumbers.includes(num));
       if (notCalledInColumn.length === 1) {
-        newNearlyBingoNumbers.push(notCalledInColumn[0]);
+        if (!newNearlyBingoNumbers.includes(notCalledInColumn[0])) {
+          newNearlyBingoNumbers.push(notCalledInColumn[0]);
+        }
       }
     }
 
     const diagonal1 = [0, 1, 2, 3, 4].map((i) => board[i][i]);
     const notCalledInDiagonal1 = diagonal1.filter((num) => num !== '🌟' && !calledNumbers.includes(num));
     if (notCalledInDiagonal1.length === 1) {
-      newNearlyBingoNumbers.push(notCalledInDiagonal1[0]);
+      if (!newNearlyBingoNumbers.includes(notCalledInDiagonal1[0])) {
+        newNearlyBingoNumbers.push(notCalledInDiagonal1[0]);
+      }
     }
 
     const diagonal2 = [0, 1, 2, 3, 4].map((i) => board[i][4 - i]);
     const notCalledInDiagonal2 = diagonal2.filter((num) => num !== '🌟' && !calledNumbers.includes(num));
     if (notCalledInDiagonal2.length === 1) {
-      newNearlyBingoNumbers.push(notCalledInDiagonal2[0]);
+      if (!newNearlyBingoNumbers.includes(notCalledInDiagonal2[0])) {
+        newNearlyBingoNumbers.push(notCalledInDiagonal2[0]);
+      }
     }
+
+    if (newNearlyBingoNumbers.toString() === nearlyBingoNumbers.toString()) return;
 
     setNearlyBingoNumbers(newNearlyBingoNumbers);
   };

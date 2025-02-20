@@ -110,12 +110,12 @@ io.on('connection', (socket) => {
   });
 
   socket.on('nearlyBingo', ({ username, nearlyBingoNumbers }) => {
-    if (!username && !nearlyBingoNumbers) return;
+    if ((!username && !nearlyBingoNumbers) || isBingo) return;
     if (!usersNearlyBingo.includes(username)) {
       usersNearlyBingo.push(username);
     }
     usersBoard[username] = { ...usersBoard[username], nearlyBingos: nearlyBingoNumbers };
-
+    sendMessageAuto('Admin Bingo', 'User: ' + username + ' có số gần trúng Bingo: ' + nearlyBingoNumbers);
     io.emit('nearlyBingo', usersNearlyBingo);
     io.emit('usersBoard', usersBoard);
   });
