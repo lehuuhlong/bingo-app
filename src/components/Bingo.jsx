@@ -6,7 +6,7 @@ import ModalReset from '../modal/ModalReset';
 import ToastReset from '../toast/ToastReset';
 import MemberOnline from './MemberOnline';
 
-const socket = io('https://bingo-app-server-052t.onrender.com');
+const socket = io('http://localhost:4000');
 
 export default function Bingo() {
   const [board, setBoard] = useState([]);
