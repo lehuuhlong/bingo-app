@@ -1,5 +1,5 @@
 import './App.css';
-import Bingo from './componets/Bingo';
+import Bingo from './components/Bingo';
 
 function App() {
   return (
