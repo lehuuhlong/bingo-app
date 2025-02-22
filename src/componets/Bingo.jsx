@@ -479,7 +479,7 @@ export default function Bingo() {
         <div className="col-lg-3">
           {nearlyBingoName.length > 0 && (
             <div className="mt-4">
-              <h5 className="text-warning">⚠️ Users with numbers close to Bingo:</h5>
+              <h5 className="text-warning">⚠️ Users with numbers close to Bingo: {nearlyBingoName.length}</h5>
               <ul className="alert alert-warning shadow-sm rounded p-2">
                 <AnimatePresence>
                   {nearlyBingoName

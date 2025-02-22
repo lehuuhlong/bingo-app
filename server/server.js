@@ -112,7 +112,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('nearlyBingo', ({ username, nearlyBingoNumbers }) => {
-    if ((!username && !nearlyBingoNumbers) || isBingo) return;
+    if ((!username && !nearlyBingoNumbers) || isBingo || !usersBoard[username]) return;
     if (!usersNearlyBingo.includes(username)) {
       usersNearlyBingo.push(username);
     }
