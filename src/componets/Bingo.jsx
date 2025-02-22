@@ -3,6 +3,7 @@ import { io } from 'socket.io-client';
 import ModalBingoName from '../modal/ModalBingoName';
 import ModalReset from '../modal/ModalReset';
 import ToastReset from '../toast/ToastReset';
+import MemberOnline from './MemberOnline';
 
 const socket = io('https://bingo-app-server-052t.onrender.com');
 
@@ -315,7 +316,7 @@ export default function Bingo() {
   return (
     <div className="container-90 mt-1">
       <div className="row mb-2 text-center d-block">
-        <img style={{height: '150px'}} src="logo-bingo.jpg" alt="logo" />
+        <img style={{ height: '150px' }} src="logo-bingo.jpg" alt="logo" />
       </div>
 
       <div className="row">
@@ -325,14 +326,7 @@ export default function Bingo() {
             <h5 className="text-center text-danger">{numberWithCommas(onlineUsers.length * 20000)}đ</h5>
           </div>
           <div className="member-online-hide">
-            <h5 className="text-secondary text-center">👥 Members online: {onlineUsers.length}</h5>
-            <ul className="list-unstyled text-center">
-              {onlineUsers.map((user, index) => (
-                <li key={index} className={`alert ${user === username ? 'alert-warning' : 'alert-info'} p-2 rounded shadow-sm`}>
-                  {user}
-                </li>
-              ))}
-            </ul>
+            <MemberOnline onlineUsers={onlineUsers} username={username} />
           </div>
         </div>
         <div className="col-lg-7">
@@ -550,16 +544,8 @@ export default function Bingo() {
               Send
             </button>
           </div>
-
           <div className="member-online-show">
-            <h5 className="text-secondary text-center">👥 Members online: {onlineUsers.length}</h5>
-            <ul className="list-unstyled">
-              {onlineUsers.map((user, index) => (
-                <li key={index} className="alert alert-info p-2 rounded shadow-sm">
-                  {user}
-                </li>
-              ))}
-            </ul>
+            <MemberOnline onlineUsers={onlineUsers} username={username} />
           </div>
         </div>
       </div>
