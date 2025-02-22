@@ -239,6 +239,7 @@ export default function Bingo() {
     let isNumber = false;
     for (let name of bingoName) {
       isNumber = usersBoard[name]?.bingoCells.includes(num);
+      if (isNumber) break;
     }
 
     return isNumber;
@@ -295,7 +296,7 @@ export default function Bingo() {
         <h2>Please enter your account</h2>
         <input
           type="text"
-          maxlength="20"
+          maxLength="15"
           className="form-control mb-2"
           placeholder="Please enter your account"
           value={username}
@@ -477,42 +478,38 @@ export default function Bingo() {
         <div className="col-lg-3">
           {nearlyBingoName.length > 0 && (
             <div className="mt-4">
-              <h5 className="text-warning">⚠️Users with numbers close to Bingo:</h5>
+              <h5 className="text-warning">⚠️ Users with numbers close to Bingo:</h5>
               <ul className="alert alert-warning shadow-sm rounded p-2">
-                {nearlyBingoName.map((name, index) => (
-                  <li key={index} className="ml-5">
-                    <div style={{ display: 'flex', alignItems: 'center' }} className="mb-1">
-                      <strong className="mr-2 mb-1">{name}:</strong>
-                      {usersBoard[name]?.nearlyBingos.map((number) => (
-                        <div
-                          key={index}
-                          className={`mr-1 mb-1 rounded-circle d-flex align-items-center justify-content-center number-ball ${
-                            bingoName.length > 0
-                              ? numberBingCells(number)
-                                ? 'bg-success text-white'
+                {nearlyBingoName
+                  .sort((a, b) => usersBoard[b]?.nearlyBingos.length - usersBoard[a]?.nearlyBingos.length)
+                  .map((name, index) => (
+                    <li key={index} className="ml-5">
+                      <div style={{ display: 'flex', alignItems: 'center' }} className="mb-1">
+                        <strong className="mr-2 mb-1">{name}:</strong>
+                        {usersBoard[name]?.nearlyBingos.map((number) => (
+                          <div
+                            key={number}
+                            className={`mr-1 mb-1 rounded-circle d-flex align-items-center justify-content-center number-ball ${
+                              bingoName.length > 0
+                                ? numberBingCells(number)
+                                  ? 'bg-success text-white'
+                                  : 'bg-warning text-dark'
                                 : 'bg-warning text-dark'
-                              : 'bg-warning text-dark'
-                          }`}
-                          style={{
-                            width: '35px',
-                            height: '35px',
-                            fontSize: '0.8rem',
-                            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
-                            animation: 'scaleIn 1s ease-in-out',
-                          }}
-                        >
-                          <p
+                            }`}
                             style={{
-                              margin: 0,
+                              width: '35px',
+                              height: '35px',
+                              fontSize: '0.8rem',
+                              boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+                              animation: 'scaleIn 1s ease-in-out',
                             }}
                           >
-                            {number}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  </li>
-                ))}
+                            <p style={{ margin: 0 }}>{number}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </li>
+                  ))}
               </ul>
             </div>
           )}
@@ -532,7 +529,7 @@ export default function Bingo() {
               className="form-control mt-2"
               placeholder="Enter message"
               value={message}
-              maxlength="80"
+              maxLength="80"
               onKeyPress={(event) => {
                 if (event.key === 'Enter') {
                   sendMessage();
