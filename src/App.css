@@ -66,3 +66,39 @@
   right: 0;
   bottom: 0;
 }
+
+.container-90 {
+  width: 90%;
+  margin: 0 auto;
+  max-width: 1500px;
+}
+
+.member-online-show {
+  display: none;
+}
+
+@media (max-width: 992px) {
+  .member-online-hide {
+    display: none;
+  }
+
+  .member-online-show {
+    display: block;
+  }
+
+  .nearly-bingo {
+    width: 100%;
+    margin: 0 auto;
+  }
+}
+
+.nearly-bingo {
+  width: 50%;
+  margin: 0 auto;
+}
+
+.jackpot {
+  width: 100%;
+  max-width: 300px;
+  margin: 0 auto;
+}

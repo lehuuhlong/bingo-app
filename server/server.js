@@ -15,7 +15,7 @@ app.use(cors());
 
 let users = {};
 let usersBoard = {};
-let calledNumbers = ['🌟'];
+let calledNumbers = [];
 let bingoNames = [];
 let chats = [];
 let isBingo = false;
@@ -37,7 +37,7 @@ io.on('connection', (socket) => {
           break;
         }
       }
-      if (!userBoard.length && !(calledNumbers.length > 5)) {
+      if (!userBoard.length && !(calledNumbers.length > 2)) {
         userBoard = generateBoard();
       }
 
@@ -51,6 +51,7 @@ io.on('connection', (socket) => {
     io.emit('bingoNames', bingoNames);
     io.emit('chats', chats);
     io.emit('usersBoard', usersBoard);
+    io.emit('nearlyBingo', usersNearlyBingo);
   });
 
   socket.on('callNumber', () => {
@@ -64,9 +65,10 @@ io.on('connection', (socket) => {
   });
 
   socket.on('resetNumber', () => {
-    calledNumbers = ['🌟'];
+    calledNumbers = [];
     bingoNames = [];
     usersNearlyBingo = [];
+    usersBoard = {};
     isBingo = false;
     for (let userId in usersBoard) {
       usersBoard[userId].board = generateBoard();
@@ -97,7 +99,7 @@ io.on('connection', (socket) => {
 
   socket.on('resetBingo', (name) => {
     let userBoard = [];
-    if (!name || bingoNames.length > 0 || calledNumbers.length > 1) return;
+    if (!name || bingoNames.length > 0 || calledNumbers.length > 0) return;
     userBoard = generateBoard();
     usersBoard[name] = { ...usersBoard[name], board: userBoard };
     socket.emit('userBoard', userBoard);
@@ -141,23 +143,22 @@ function generateBoard() {
     }
     board.push(row);
   }
-  board[2][2] = '🌟';
   return board;
 }
 
 function checkBingo(board, calledNumbers) {
   if (board?.length) {
     for (let i = 0; i < 5; i++) {
-      if (board[i].every((num) => num === '🌟' || calledNumbers.includes(num))) {
+      if (board[i].every((num) => calledNumbers.includes(num))) {
         return true;
       }
-      if (board.map((row) => row[i]).every((num) => num === '🌟' || calledNumbers.includes(num))) {
+      if (board.map((row) => row[i]).every((num) => calledNumbers.includes(num))) {
         return true;
       }
     }
     if (
-      [0, 1, 2, 3, 4].every((i) => board[i][i] === '🌟' || calledNumbers.includes(board[i][i])) ||
-      [0, 1, 2, 3, 4].every((i) => board[i][4 - i] === '🌟' || calledNumbers.includes(board[i][4 - i]))
+      [0, 1, 2, 3, 4].every((i) => calledNumbers.includes(board[i][i])) ||
+      [0, 1, 2, 3, 4].every((i) => calledNumbers.includes(board[i][4 - i]))
     ) {
       return true;
     }

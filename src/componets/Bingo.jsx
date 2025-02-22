@@ -9,7 +9,7 @@ const socket = io('https://bingo-app-server-052t.onrender.com');
 export default function Bingo() {
   const [board, setBoard] = useState([]);
   const [usersBoard, setUsersBoard] = useState({});
-  const [calledNumbers, setCalledNumbers] = useState(['🌟']);
+  const [calledNumbers, setCalledNumbers] = useState([]);
   const [isBingo, setIsBingo] = useState(false);
   const [message, setMessage] = useState('');
   const [chat, setChat] = useState([]);
@@ -41,7 +41,7 @@ export default function Bingo() {
 
   useEffect(() => {
     socket.on('numberCalled', (newCalledNumbers) => {
-      if (newCalledNumbers?.length === 1) return;
+      if (newCalledNumbers?.length === 0) return;
       const latestNumber = newCalledNumbers[newCalledNumbers.length - 1];
 
       let randomInterval = setInterval(() => {
@@ -72,15 +72,16 @@ export default function Bingo() {
     });
 
     socket.on('resetNumber', (usersBoard) => {
-      buttonResetRef.current.click();
+      // buttonResetRef.current.click();
       setUsersBoard(usersBoard);
-      setCalledNumbers(['🌟']);
+      setCalledNumbers([]);
       setCurrentSpinningNumber('🌟');
       setBingoName([]);
       setIsBingo(false);
       setCountResetBingo(0);
       setNearlyBingoName([]);
       setNearlyBingoNumbers([]);
+      window.location.reload();
     });
 
     socket.on('isBingo', (username) => {
@@ -153,26 +154,26 @@ export default function Bingo() {
     let newBingoCells = [];
 
     for (let i = 0; i < 5; i++) {
-      if (board[i].every((num) => num === '🌟' || calledNumbers.includes(num))) {
+      if (board[i].every((num) => calledNumbers.includes(num))) {
         newBingoCells.push(...board[i]);
         setIsBingo(true);
       }
 
       const column = board.map((row) => row[i]);
-      if (column.every((num) => num === '🌟' || calledNumbers.includes(num))) {
+      if (column.every((num) => calledNumbers.includes(num))) {
         newBingoCells.push(...column);
         setIsBingo(true);
       }
     }
 
     const diagonal1 = [0, 1, 2, 3, 4].map((i) => board[i][i]);
-    if (diagonal1.every((num) => num === '🌟' || calledNumbers.includes(num))) {
+    if (diagonal1.every((num) => calledNumbers.includes(num))) {
       newBingoCells.push(...diagonal1);
       setIsBingo(true);
     }
 
     const diagonal2 = [0, 1, 2, 3, 4].map((i) => board[i][4 - i]);
-    if (diagonal2.every((num) => num === '🌟' || calledNumbers.includes(num))) {
+    if (diagonal2.every((num) => calledNumbers.includes(num))) {
       newBingoCells.push(...diagonal2);
       setIsBingo(true);
     }
@@ -202,7 +203,7 @@ export default function Bingo() {
   };
 
   const handleResetBingo = () => {
-    if (!username || countResetBingo === 2 || bingoName.length > 0 || calledNumbers.length > 1) return;
+    if (!username || countResetBingo === 2 || bingoName.length > 0 || calledNumbers.length > 0) return;
     setIsDisplay(true);
     setCountResetBingo(countResetBingo + 1);
     socket.emit('resetBingo', username);
@@ -234,9 +235,16 @@ export default function Bingo() {
   };
 
   const numberBingCells = (num) => {
+    let isNumber = false;
     for (let name of bingoName) {
-      return usersBoard[name]?.bingoCells.includes(num);
+      isNumber = usersBoard[name]?.bingoCells.includes(num);
     }
+
+    return isNumber;
+  };
+
+  const numberWithCommas = (x) => {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   };
 
   const findNearlyBingoNumbers = () => {
@@ -245,13 +253,13 @@ export default function Bingo() {
 
     for (let i = 0; i < 5; i++) {
       const row = board[i];
-      const notCalledNumbers = row.filter((num) => num !== '🌟' && !calledNumbers.includes(num));
+      const notCalledNumbers = row.filter((num) => !calledNumbers.includes(num));
       if (notCalledNumbers.length === 1) {
         newNearlyBingoNumbers.push(notCalledNumbers[0]);
       }
 
       const column = board.map((row) => row[i]);
-      const notCalledInColumn = column.filter((num) => num !== '🌟' && !calledNumbers.includes(num));
+      const notCalledInColumn = column.filter((num) => !calledNumbers.includes(num));
       if (notCalledInColumn.length === 1) {
         if (!newNearlyBingoNumbers.includes(notCalledInColumn[0])) {
           newNearlyBingoNumbers.push(notCalledInColumn[0]);
@@ -260,7 +268,7 @@ export default function Bingo() {
     }
 
     const diagonal1 = [0, 1, 2, 3, 4].map((i) => board[i][i]);
-    const notCalledInDiagonal1 = diagonal1.filter((num) => num !== '🌟' && !calledNumbers.includes(num));
+    const notCalledInDiagonal1 = diagonal1.filter((num) => !calledNumbers.includes(num));
     if (notCalledInDiagonal1.length === 1) {
       if (!newNearlyBingoNumbers.includes(notCalledInDiagonal1[0])) {
         newNearlyBingoNumbers.push(notCalledInDiagonal1[0]);
@@ -268,7 +276,7 @@ export default function Bingo() {
     }
 
     const diagonal2 = [0, 1, 2, 3, 4].map((i) => board[i][4 - i]);
-    const notCalledInDiagonal2 = diagonal2.filter((num) => num !== '🌟' && !calledNumbers.includes(num));
+    const notCalledInDiagonal2 = diagonal2.filter((num) => !calledNumbers.includes(num));
     if (notCalledInDiagonal2.length === 1) {
       if (!newNearlyBingoNumbers.includes(notCalledInDiagonal2[0])) {
         newNearlyBingoNumbers.push(notCalledInDiagonal2[0]);
@@ -286,6 +294,7 @@ export default function Bingo() {
         <h2>Please enter your account</h2>
         <input
           type="text"
+          maxlength="20"
           className="form-control mb-2"
           placeholder="Please enter your account"
           value={username}
@@ -304,38 +313,37 @@ export default function Bingo() {
   }
 
   return (
-    <div className="container mt-5">
-      <div className="row mb-4 text-center d-block">
-        <h2 className="text-success fw-bold">Bingo Game</h2>
+    <div className="container-90 mt-1">
+      <div className="row mb-2 text-center d-block">
+        <img style={{height: '150px'}} src="logo-bingo.jpg" alt="logo" />
       </div>
-      {nearlyBingoName.length > 0 && bingoName.length === 0 && (
-        <div className="mt-4">
-          <h5 className="text-warning">⚠️Users with numbers close to Bingo:</h5>
-          <ul className="alert alert-warning shadow-sm rounded p-2">
-            {nearlyBingoName.map((name, index) => (
-              <li key={index} className="ml-5">
-                <strong>{name}</strong>{' '}
-                {usersBoard[name]?.nearlyBingos.map((number) => (
-                  <span key={number} className="text-danger">
-                    {' '}
-                    - {number}
-                  </span>
-                ))}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+
       <div className="row">
-        {bingoName && bingoName.length > 0 && (
-          <div className="col-lg-12">
+        <div className="col-lg-2">
+          <div className="text-center">
+            <img className="jackpot" src="jackpot.png" alt="jackpot" />
+            <h5 className="text-center text-danger">{numberWithCommas(onlineUsers.length * 20000)}đ</h5>
+          </div>
+          <div className="member-online-hide">
+            <h5 className="text-secondary text-center">👥 Members online: {onlineUsers.length}</h5>
+            <ul className="list-unstyled text-center">
+              {onlineUsers.map((user, index) => (
+                <li key={index} className={`alert ${user === username ? 'alert-warning' : 'alert-info'} p-2 rounded shadow-sm`}>
+                  {user}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+        <div className="col-lg-7">
+          {bingoName && bingoName.length > 0 && (
             <div className="text-center mb-4">
               <h4 className="text-secondary">🎉 List users Bingo! 🎉</h4>
               <div className="bg-gradient-light p-3 rounded shadow">
                 <div className="row">
                   {bingoName.map((name, index) => (
                     <div className={bingoName.length > 1 ? 'col-lg-6' : 'col'} key={index}>
-                      <h6>Account: {name} 🎉</h6>
+                      <h6 className="text-warning mt-2">Winner: {name} 🎉</h6>
                       <div className="d-grid" style={{ gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px', display: 'inline-grid' }}>
                         {usersBoard[name]?.board.flat().map((num, index) => (
                           <div
@@ -351,7 +359,7 @@ export default function Bingo() {
                                 ? 'bg-success text-white'
                                 : 'bg-light text-dark'
                             }`}
-                            style={{ width: '60px', height: '60px', fontSize: '1.5rem', cursor: 'pointer', transition: 'all 0.3s' }}
+                            style={{ width: '50px', height: '50px', fontSize: '1.2rem', cursor: 'pointer', transition: 'all 0.3s' }}
                           >
                             {num}
                           </div>
@@ -362,9 +370,7 @@ export default function Bingo() {
                 </div>
               </div>
             </div>
-          </div>
-        )}
-        <div className="col-lg-8">
+          )}
           {username === 'Admin Bingo' && (
             <div className="mt-4 d-flex justify-content-between">
               <button className="btn btn-danger" onClick={startAutoCall} disabled={isAutoCalling}>
@@ -438,9 +444,9 @@ export default function Bingo() {
             <button
               className="btn btn-warning mb-2"
               onClick={handleResetBingo}
-              disabled={countResetBingo === 2 || bingoName.length > 0 || calledNumbers.length > 1}
+              disabled={countResetBingo === 2 || bingoName.length > 0 || calledNumbers.length > 0}
             >
-              Reset your bingo!
+              Reset your bingo! (Remain: {2 - countResetBingo})
             </button>
             {isBingo && <div className="alert alert-success text-center">🎉 Bingo! 🎉</div>}
             <div className="bg-gradient-light p-3 rounded shadow">
@@ -474,7 +480,48 @@ export default function Bingo() {
           </div>
         </div>
 
-        <div className="col-lg-4">
+        <div className="col-lg-3">
+          {nearlyBingoName.length > 0 && (
+            <div className="mt-4">
+              <h5 className="text-warning">⚠️Users with numbers close to Bingo:</h5>
+              <ul className="alert alert-warning shadow-sm rounded p-2">
+                {nearlyBingoName.map((name, index) => (
+                  <li key={index} className="ml-5">
+                    <div style={{ display: 'flex', alignItems: 'center' }} className="mb-1">
+                      <strong className="mr-2 mb-1">{name}:</strong>
+                      {usersBoard[name]?.nearlyBingos.map((number) => (
+                        <div
+                          key={index}
+                          className={`mr-1 mb-1 rounded-circle d-flex align-items-center justify-content-center number-ball ${
+                            bingoName.length > 0
+                              ? numberBingCells(number)
+                                ? 'bg-success text-white'
+                                : 'bg-warning text-dark'
+                              : 'bg-warning text-dark'
+                          }`}
+                          style={{
+                            width: '35px',
+                            height: '35px',
+                            fontSize: '0.8rem',
+                            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+                            animation: 'scaleIn 1s ease-in-out',
+                          }}
+                        >
+                          <p
+                            style={{
+                              margin: 0,
+                            }}
+                          >
+                            {number}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
           <div className="mb-4">
             <h4 className="text-secondary text-center">
               💬 Chat(<span className="text-info">{username}</span>)
@@ -491,6 +538,7 @@ export default function Bingo() {
               className="form-control mt-2"
               placeholder="Enter message"
               value={message}
+              maxlength="80"
               onKeyPress={(event) => {
                 if (event.key === 'Enter') {
                   sendMessage();
@@ -503,7 +551,7 @@ export default function Bingo() {
             </button>
           </div>
 
-          <div>
+          <div className="member-online-show">
             <h5 className="text-secondary text-center">👥 Members online: {onlineUsers.length}</h5>
             <ul className="list-unstyled">
               {onlineUsers.map((user, index) => (
