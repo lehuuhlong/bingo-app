@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { io } from 'socket.io-client';
 import ModalBingoName from '../modal/ModalBingoName';
 import ModalReset from '../modal/ModalReset';
@@ -480,36 +481,47 @@ export default function Bingo() {
             <div className="mt-4">
               <h5 className="text-warning">⚠️ Users with numbers close to Bingo:</h5>
               <ul className="alert alert-warning shadow-sm rounded p-2">
-                {nearlyBingoName
-                  .sort((a, b) => usersBoard[b]?.nearlyBingos.length - usersBoard[a]?.nearlyBingos.length)
-                  .map((name, index) => (
-                    <li key={index} className="ml-5">
-                      <div style={{ display: 'flex', alignItems: 'center' }} className="mb-1">
-                        <strong className="mr-2 mb-1">{name}:</strong>
-                        {usersBoard[name]?.nearlyBingos.map((number) => (
-                          <div
-                            key={number}
-                            className={`mr-1 mb-1 rounded-circle d-flex align-items-center justify-content-center number-ball ${
-                              bingoName.length > 0
-                                ? numberBingCells(number)
-                                  ? 'bg-success text-white'
+                <AnimatePresence>
+                  {nearlyBingoName
+                    .sort((a, b) => usersBoard[b]?.nearlyBingos.length - usersBoard[a]?.nearlyBingos.length)
+                    .map((name) => (
+                      <motion.li
+                        key={name}
+                        className="ml-5"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        transition={{ duration: 0.5 }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center' }} className="mb-1">
+                          <strong className="mr-2 mb-1">{name}:</strong>
+                          {usersBoard[name]?.nearlyBingos.map((number) => (
+                            <motion.div
+                              key={number}
+                              className={`mr-1 mb-1 rounded-circle d-flex align-items-center justify-content-center number-ball ${
+                                bingoName.length > 0
+                                  ? numberBingCells(number)
+                                    ? 'bg-success text-white'
+                                    : 'bg-warning text-dark'
                                   : 'bg-warning text-dark'
-                                : 'bg-warning text-dark'
-                            }`}
-                            style={{
-                              width: '35px',
-                              height: '35px',
-                              fontSize: '0.8rem',
-                              boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
-                              animation: 'scaleIn 1s ease-in-out',
-                            }}
-                          >
-                            <p style={{ margin: 0 }}>{number}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </li>
-                  ))}
+                              }`}
+                              style={{
+                                width: '35px',
+                                height: '35px',
+                                fontSize: '0.8rem',
+                                boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+                              }}
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              transition={{ duration: 0.3 }}
+                            >
+                              <p style={{ margin: 0 }}>{number}</p>
+                            </motion.div>
+                          ))}
+                        </div>
+                      </motion.li>
+                    ))}
+                </AnimatePresence>
               </ul>
             </div>
           )}
