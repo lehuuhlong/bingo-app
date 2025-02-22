@@ -1,4 +1,4 @@
-export default function ModalReset() {
+const ModalReset = () => {
   return (
     <div className="modal fade" id="resetModal" tabIndex="-1" aria-labelledby="resetModalLabel" aria-hidden="true">
       <div className="modal-dialog">
@@ -21,4 +21,6 @@ export default function ModalReset() {
       </div>
     </div>
   );
-}
+};
+
+export default ModalReset;

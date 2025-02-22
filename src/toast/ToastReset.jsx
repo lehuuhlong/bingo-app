@@ -1,4 +1,4 @@
-export default function ToastReset(props) {
+const ToastReset = (props) => {
   const { isDisplay, countResetBingo } = props;
   return (
     <div className="position-fixed bottom-0 right-0 p-3 toast-reset">
@@ -21,4 +21,6 @@ export default function ToastReset(props) {
       </div>
     </div>
   );
-}
+};
+
+export default ToastReset;

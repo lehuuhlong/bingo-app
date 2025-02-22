@@ -1,4 +1,4 @@
-export default function MemberOnline(props) {
+const MemberOnline = (props) => {
   const { onlineUsers, username } = props;
   return (
     <>
@@ -12,4 +12,6 @@ export default function MemberOnline(props) {
       </ul>
     </>
   );
-}
+};
+
+export default MemberOnline;

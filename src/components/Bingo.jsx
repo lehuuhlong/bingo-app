@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { io } from 'socket.io-client';
 import ModalBingoName from '../modal/ModalBingoName';
 import ModalReset from '../modal/ModalReset';
@@ -8,7 +9,7 @@ import MemberOnline from './MemberOnline';
 
 const socket = io(process.env.REACT_APP_SERVER_URL);
 
-export default function Bingo() {
+const Bingo = () => {
   const [board, setBoard] = useState([]);
   const [usersBoard, setUsersBoard] = useState({});
   const [calledNumbers, setCalledNumbers] = useState([]);
@@ -31,6 +32,13 @@ export default function Bingo() {
   const chatRef = useRef(null);
   const buttonBingoRef = useRef(null);
   const buttonResetRef = useRef(null);
+
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    navigate('/login');
+  };
 
   useEffect(() => {
     if (isUsernameSet) {
@@ -580,6 +588,12 @@ export default function Bingo() {
         data-toggle="modal"
         data-target="#resetModal"
       ></button>
+
+      <button type="button" className="btn btn-primary" onClick={handleLogout}>
+        Logout
+      </button>
     </div>
   );
-}
+};
+
+export default Bingo;

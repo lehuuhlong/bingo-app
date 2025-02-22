@@ -1,4 +1,4 @@
-export default function ModalBingoName(props) {
+const ModalBingoName = (props) => {
   const { bingoName } = props;
   return (
     <div className="modal fade" id="bingoModal" tabIndex="-1" aria-labelledby="bingoModalLabel" aria-hidden="true">
@@ -30,4 +30,6 @@ export default function ModalBingoName(props) {
       </div>
     </div>
   );
-}
+};
+
+export default ModalBingoName;
