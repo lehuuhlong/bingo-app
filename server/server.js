@@ -112,7 +112,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('nearlyBingo', ({ username, nearlyBingoNumbers }) => {
-    if ((!username && !nearlyBingoNumbers) || isBingo) return;
+    if ((!username && !nearlyBingoNumbers) || isBingo || !usersBoard[username]) return;
     if (!usersNearlyBingo.includes(username)) {
       usersNearlyBingo.push(username);
     }
@@ -156,10 +156,7 @@ function checkBingo(board, calledNumbers) {
         return true;
       }
     }
-    if (
-      [0, 1, 2, 3, 4].every((i) => calledNumbers.includes(board[i][i])) ||
-      [0, 1, 2, 3, 4].every((i) => calledNumbers.includes(board[i][4 - i]))
-    ) {
+    if ([0, 1, 2, 3, 4].every((i) => calledNumbers.includes(board[i][i])) || [0, 1, 2, 3, 4].every((i) => calledNumbers.includes(board[i][4 - i]))) {
       return true;
     }
   }
