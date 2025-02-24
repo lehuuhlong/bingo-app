@@ -5,6 +5,7 @@ const { Server } = require('socket.io');
 const cors = require('cors');
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
+const pointRouter = require('./routes/pointRouter');
 
 const app = express();
 const server = http.createServer(app);
@@ -20,6 +21,7 @@ connectDB();
 app.use(express.json());
 
 app.use('/api/auth', authRoutes);
+app.use('/api/point', pointRouter);
 
 let users = {};
 let usersBoard = {};

@@ -5,6 +5,8 @@ import ModalBingoName from '../modal/ModalBingoName';
 import ModalReset from '../modal/ModalReset';
 import ToastReset from '../toast/ToastReset';
 import MemberOnline from './MemberOnline';
+import AddUsersPoint from './AddUsersPoint';
+import Dashboard from './Dashboard';
 
 const socket = io(process.env.REACT_APP_SERVER_URL);
 
@@ -368,20 +370,23 @@ export default function Bingo() {
             </div>
           )}
           {username === 'Admin Bingo' && (
-            <div className="mt-4 d-flex justify-content-between">
-              <button className="btn btn-danger" onClick={startAutoCall} disabled={isAutoCalling}>
-                {isAutoCalling ? 'Đang gọi số...' : 'Gọi số'}
-              </button>
-              <button className="btn btn-danger" onClick={stopAutoCall} disabled={!isAutoCalling}>
-                Stop
-              </button>
-              <button className="btn btn-danger" onClick={() => socket.emit('testBingo')}>
-                Test Bingo
-              </button>
-              <button className="btn btn-warning" onClick={() => socket.emit('resetNumber')}>
-                Reset
-              </button>
-            </div>
+            <>
+              <div className="mt-4 d-flex justify-content-between">
+                <button className="btn btn-danger" onClick={startAutoCall} disabled={isAutoCalling}>
+                  {isAutoCalling ? 'Đang gọi số...' : 'Gọi số'}
+                </button>
+                <button className="btn btn-danger" onClick={stopAutoCall} disabled={!isAutoCalling}>
+                  Stop
+                </button>
+                <button className="btn btn-danger" onClick={() => socket.emit('testBingo')}>
+                  Test Bingo
+                </button>
+                <button className="btn btn-warning" onClick={() => socket.emit('resetNumber')}>
+                  Reset
+                </button>
+              </div>
+              <AddUsersPoint />
+            </>
           )}
           <div className="mb-4 text-center">
             <h4 className="text-secondary">🎲 Lottery number 🎲</h4>
@@ -553,6 +558,7 @@ export default function Bingo() {
               Send
             </button>
           </div>
+          <Dashboard />
           <div className="member-online-show">
             <MemberOnline onlineUsers={onlineUsers} username={username} />
           </div>
