@@ -5,6 +5,8 @@ const { Server } = require('socket.io');
 const cors = require('cors');
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
+const transactionRoutes = require("./routes/transactionRoutes");
+const roomRoutes = require('./routes/roomRoutes');
 
 const app = express();
 const server = http.createServer(app);
@@ -20,6 +22,8 @@ connectDB();
 app.use(express.json());
 
 app.use('/api/auth', authRoutes);
+app.use("/api/transactions", transactionRoutes);
+app.use('/api/room', roomRoutes);
 
 let users = {};
 let usersBoard = {};

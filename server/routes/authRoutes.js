@@ -2,43 +2,75 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-
+const Transaction = require('../models/Transaction');
 const router = express.Router();
 
-// Đăng ký
+const isAdmin = (req, res, next) => {
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ message: 'Access denied' });
+  }
+  next();
+};
+
 router.post('/register', async (req, res) => {
-  const { email, password } = req.body;
-
+  const { name, email, password } = req.body;
   try {
-    let user = await User.findOne({ email });
-    if (user) return res.status(400).json({ message: 'Email đã tồn tại' });
-
     const hashedPassword = await bcrypt.hash(password, 10);
-    user = new User({ email, password: hashedPassword, role: 'user', point: 0 });
-
+    const user = new User({ name, email, password: hashedPassword });
     await user.save();
-    res.status(201).json({ message: 'Đăng ký thành công' });
-  } catch (error) {
-    res.status(500).json({ message: 'Lỗi server' });
+    res.status(201).json({ message: 'User created' });
+  } catch (err) {
+    res.status(400).json({ message: 'Error creating user' });
   }
 });
 
-// Đăng nhập
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
-
   try {
     const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ message: 'Email hoặc mật khẩu không đúng' });
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, {
+      expiresIn: '1h',
+    });
+    res.json({ token, user });
+  } catch (err) {
+    res.status(500).json({ message: 'Login error' });
+  }
+});
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ message: 'Email hoặc mật khẩu không đúng' });
+router.get('/', isAdmin, async (req, res) => {
+  try {
+    const users = await User.find().select('-password');
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
+router.put('/:id/points', isAdmin, async (req, res) => {
+  const { amount, type, description } = req.body;
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
 
-    res.json({ token, user: { id: user._id, email: user.email } });
-  } catch (error) {
-    res.status(500).json({ message: 'Lỗi server' });
+    if (type === 'add') user.points += amount;
+    if (type === 'subtract') user.points -= amount;
+
+    await user.save();
+
+    const transaction = new Transaction({
+      userId: user._id,
+      amount,
+      type,
+      description,
+    });
+    await transaction.save();
+
+    res.json({ message: 'Points updated', user });
+  } catch (err) {
+    res.status(500).json({ message: 'Error updating points' });
   }
 });
 

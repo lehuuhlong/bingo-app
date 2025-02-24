@@ -4,6 +4,7 @@ import './App.css';
 import Login from './components/Login';
 import Register from './components/Register';
 import Bingo from './components/Bingo';
+import Dashboard from './components/Dashboard';
 
 const PrivateRoute = ({ children }) => {
   return localStorage.getItem('token') ? children : <Navigate to="/login" />;
@@ -16,10 +17,11 @@ const App = () => {
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
         <Route
-          path="/bingo"
+          path="/dashboard"
           element={
             <PrivateRoute>
-              <Bingo />
+              {/* <Bingo /> */}
+              <Dashboard />
             </PrivateRoute>
           }
         />
