@@ -6,7 +6,8 @@ import ModalReset from '../modal/ModalReset';
 import ToastReset from '../toast/ToastReset';
 import MemberOnline from './MemberOnline';
 import AddUsersPoint from './AddUsersPoint';
-import Dashboard from './Dashboard';
+import Ranking from './Ranking';
+import { getUsersPoint } from '../services/userService';
 
 const socket = io(process.env.REACT_APP_SERVER_URL);
 
@@ -29,10 +30,20 @@ export default function Bingo() {
   const [isDisplay, setIsDisplay] = useState(false);
   const [nearlyBingoNumbers, setNearlyBingoNumbers] = useState([]);
   const [nearlyBingoName, setNearlyBingoName] = useState([]);
+  const [users, setUsers] = useState([]);
 
   const chatRef = useRef(null);
   const buttonBingoRef = useRef(null);
   const buttonResetRef = useRef(null);
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
+    const data = await getUsersPoint();
+    setUsers(data);
+  };
 
   useEffect(() => {
     if (isUsernameSet) {
@@ -56,7 +67,7 @@ export default function Bingo() {
         clearInterval(randomInterval);
         setCurrentSpinningNumber(latestNumber);
         setCalledNumbers(newCalledNumbers);
-      }, 2500);
+      }, 5000);
     });
 
     socket.on('chats', (chats) => {
@@ -229,7 +240,7 @@ export default function Bingo() {
         } else {
           stopAutoCall();
         }
-      }, 5000);
+      }, 10000);
     }
   };
 
@@ -327,7 +338,7 @@ export default function Bingo() {
         <div className="col-lg-2">
           <div className="text-center">
             <img className="jackpot" src="jackpot.png" alt="jackpot" />
-            <h5 className="text-center text-danger">{numberWithCommas(onlineUsers.length * 20000)}đ</h5>
+            <h5 className="text-center text-danger">{numberWithCommas(users.find((user) => user.username === 'admin')?.points * 1000)}đ</h5>
           </div>
           <div className="member-online-hide">
             <MemberOnline onlineUsers={onlineUsers} username={username} />
@@ -558,7 +569,7 @@ export default function Bingo() {
               Send
             </button>
           </div>
-          <Dashboard />
+          <Ranking users={users} />
           <div className="member-online-show">
             <MemberOnline onlineUsers={onlineUsers} username={username} />
           </div>
