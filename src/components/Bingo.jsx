@@ -134,8 +134,8 @@ export default function Bingo() {
 
   useEffect(() => {
     setTimeout(() => {
-      checkBingo();
       findNearlyBingoNumbers();
+      checkBingo();
     }, 750);
   }, [calledNumbers]);
 
@@ -557,7 +557,7 @@ export default function Bingo() {
                         transition={{ duration: 0.5 }}
                       >
                         <div style={{ display: 'flex', alignItems: 'center' }} className="mb-1">
-                          <strong className="mr-2 mb-1">{name}:</strong>
+                          <strong className="mr-2 mb-1">{usersBoard[name]?.nickname}:</strong>
                           {usersBoard[name]?.nearlyBingos.map((number) => (
                             <motion.div
                               key={number}
