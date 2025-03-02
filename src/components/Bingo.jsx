@@ -227,9 +227,9 @@ export default function Bingo() {
   };
 
   const startAutoCall = () => {
-    let username = 'Admin Bingo';
+    let nickname = 'Admin Bingo';
     let message = 'Game start!';
-    socket.emit('chatMessage', { username, message });
+    socket.emit('chatMessage', { nickname, message });
     if (!isAutoCalling) {
       setIsAutoCalling(true);
 
@@ -432,9 +432,6 @@ export default function Bingo() {
                 <button className="btn btn-danger" onClick={stopAutoCall} disabled={!isAutoCalling}>
                   Stop
                 </button>
-                <button className="btn btn-danger" onClick={() => socket.emit('testBingo')}>
-                  Test Bingo
-                </button>
                 <button className="btn btn-warning" onClick={() => socket.emit('resetNumber')}>
                   Reset
                 </button>
@@ -623,7 +620,7 @@ export default function Bingo() {
         </div>
       </div>
 
-      <ModalBingoName bingoName={bingoName} />
+      <ModalBingoName bingoName={bingoName} usersBoard={usersBoard} />
       <ModalReset />
       <ToastReset isDisplay={isDisplay} countResetBingo={countResetBingo} />
 
