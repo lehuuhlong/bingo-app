@@ -393,7 +393,9 @@ export default function Bingo() {
                 <div className="row">
                   {bingoName.map((name, index) => (
                     <div className={bingoName.length > 1 ? 'col-lg-6' : 'col'} key={index}>
-                      <h6 className="text-warning mt-2">Winner: {name} 🎉</h6>
+                      <h6 className="text-warning mt-2">
+                        Winner: {usersBoard[name]?.nickname} - {name} 🎉
+                      </h6>
                       <div className="d-grid" style={{ gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px', display: 'inline-grid' }}>
                         {usersBoard[name]?.board.flat().map((num, index) => (
                           <div

@@ -9,6 +9,7 @@ export default function MemberOnline(props) {
           <li key={index} className={`alert ${usersBoard[user]?.nickname === nickname ? 'alert-warning' : 'alert-info'} p-2 rounded shadow-sm`}>
             {usersBoard[user]?.nickname}
             {usersBoard[user]?.nickname === nickname || nickname === 'Admin Bingo' ? ` - Point: ${usersBoard[user]?.point}` : ''}
+            {nickname === 'Admin Bingo' ? ` - ${user}` : ''}
           </li>
         ))}
       </ul>

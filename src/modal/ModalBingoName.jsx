@@ -1,5 +1,5 @@
 export default function ModalBingoName(props) {
-  const { bingoName } = props;
+  const { bingoName, usersBoard } = props;
   return (
     <div className="modal fade" id="bingoModal" tabIndex="-1" aria-labelledby="bingoModalLabel" aria-hidden="true">
       <div className="modal-dialog">
@@ -16,7 +16,7 @@ export default function ModalBingoName(props) {
             <ul>
               {bingoName.map((name, index) => (
                 <li key={index} className="mb-1">
-                  {name + ' 🎉'}
+                  {usersBoard[name]?.nickname + ' 🎉'}
                 </li>
               ))}
             </ul>
