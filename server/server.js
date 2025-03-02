@@ -168,9 +168,9 @@ function checkBingo(board, calledNumbers) {
   return false;
 }
 
-function sendMessageAuto(username, message) {
-  chats.push({ username, message });
-  io.emit('chatMessage', { username, message });
+function sendMessageAuto(nickname, message) {
+  chats.push({ nickname, message });
+  io.emit('chatMessage', { nickname, message });
 }
 
 async function addUser(username) {
