@@ -17,7 +17,7 @@ export default function ToastReset(props) {
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
-        <div className="toast-body">Your bingo ticket has been reset!({2 - countResetBingo} left)</div>
+        <div className="toast-body">Your bingo ticket has been reset!({3 - countResetBingo} left)</div>
       </div>
     </div>
   );

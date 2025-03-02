@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { addUserPoint } from '../services/userService';
+import { addUserPointBingo } from '../services/userService';
 
-const AddUsersPoint = () => {
+const AddUsersPointBingo = () => {
   const [username, setUsername] = useState('');
   const [points, setPoints] = useState('');
 
@@ -13,7 +13,7 @@ const AddUsersPoint = () => {
     }
 
     try {
-      await addUserPoint(username, parseInt(points));
+      await addUserPointBingo(username, parseInt(points));
       setUsername('');
       setPoints('');
     } catch (error) {
@@ -23,7 +23,7 @@ const AddUsersPoint = () => {
 
   return (
     <div className="container mt-5">
-      <h5>Input userName Bingo and Points</h5>
+      <h5>Input userName Bingo and Points Bingo</h5>
       <form onSubmit={handleSubmit} className="mb-4">
         <div className="input-group">
           <input type="text" className="form-control" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} />
@@ -37,4 +37,4 @@ const AddUsersPoint = () => {
   );
 };
 
-export default AddUsersPoint;
+export default AddUsersPointBingo;

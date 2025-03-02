@@ -4,8 +4,8 @@ const http = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
 const connectDB = require('./config/db');
-const authRoutes = require('./routes/authRoutes');
-const pointRouter = require('./routes/pointRouter');
+const userRoutes = require('./routes/userRoutes');
+const User = require('./models/User');
 
 const app = express();
 const server = http.createServer(app);
@@ -20,8 +20,7 @@ app.use(cors());
 connectDB();
 app.use(express.json());
 
-app.use('/api/auth', authRoutes);
-app.use('/api/point', pointRouter);
+app.use('/api/user', userRoutes);
 
 let users = {};
 let usersBoard = {};
@@ -34,16 +33,19 @@ let usersNearlyBingo = [];
 io.on('connection', (socket) => {
   console.log('A user connected:', socket.id);
 
-  socket.on('setUsername', (username) => {
+  socket.on('setUsername', async ({ username, nickname }) => {
     if (username !== 'Admin Bingo') {
+      let point = await addUser(username);
       let userBoard = [];
       let bingoCells = [];
       let nearlyBingos = [];
+      let countReset = 3;
       for (let userId in usersBoard) {
         if (usersBoard[userId].username === username) {
           userBoard = usersBoard[userId].board;
           bingoCells = usersBoard[userId].bingoCells;
           nearlyBingos = usersBoard[userId].nearlyBingos;
+          countReset = usersBoard[userId].countReset;
           break;
         }
       }
@@ -51,7 +53,7 @@ io.on('connection', (socket) => {
         userBoard = generateBoard();
       }
 
-      usersBoard[username] = { username, board: userBoard, bingoCells, nearlyBingos };
+      usersBoard[username] = { username, board: userBoard, bingoCells, nearlyBingos, nickname, countReset, point };
       socket.emit('userBoard', userBoard);
       users[socket.id] = username;
     }
@@ -99,26 +101,19 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('testBingo', () => {
-    let username = 'UserTest';
-    bingoNames.push(username);
-    io.emit('isBingo', bingoNames);
-    isBingo = true;
-    sendMessageAuto('Admin Bingo', 'Bingo: ' + username + ' 🎉');
-  });
-
   socket.on('resetBingo', (name) => {
     let userBoard = [];
-    if (!name || bingoNames.length > 0 || calledNumbers.length > 0) return;
+    let countReset = usersBoard[name]?.countReset;
+    if (!name || bingoNames.length > 0 || calledNumbers.length > 0 || countReset === 0) return;
     userBoard = generateBoard();
-    usersBoard[name] = { ...usersBoard[name], board: userBoard };
+    usersBoard[name] = { ...usersBoard[name], board: userBoard, countReset: countReset - 1 };
     socket.emit('userBoard', userBoard);
     io.emit('usersBoard', usersBoard);
   });
 
-  socket.on('chatMessage', ({ username, message }) => {
-    chats.push({ username, message });
-    io.emit('chatMessage', { username, message });
+  socket.on('chatMessage', ({ nickname, message }) => {
+    chats.push({ nickname, message });
+    io.emit('chatMessage', { nickname, message });
   });
 
   socket.on('nearlyBingo', ({ username, nearlyBingoNumbers }) => {
@@ -176,6 +171,21 @@ function checkBingo(board, calledNumbers) {
 function sendMessageAuto(username, message) {
   chats.push({ username, message });
   io.emit('chatMessage', { username, message });
+}
+
+async function addUser(username) {
+  try {
+    let existingUser = await User.findOne({ username });
+    let point = 0;
+    if (!existingUser) {
+      const newUser = new User({ username });
+      await newUser.save();
+    }
+
+    return existingUser ? existingUser.point : point;
+  } catch (error) {
+    console.error('Add user error:', error);
+  }
 }
 
 server.listen(4000, () => {

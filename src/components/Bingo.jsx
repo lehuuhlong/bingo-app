@@ -6,8 +6,9 @@ import ModalReset from '../modal/ModalReset';
 import ToastReset from '../toast/ToastReset';
 import MemberOnline from './MemberOnline';
 import AddUsersPoint from './AddUsersPoint';
+import AddUsersPointBingo from './AddUsersPointBingo';
 import Ranking from './Ranking';
-import { getUsersPoint } from '../services/userService';
+import { getUsersRanking, refundPoint } from '../services/userService';
 
 const socket = io(process.env.REACT_APP_SERVER_URL);
 
@@ -20,6 +21,7 @@ export default function Bingo() {
   const [chat, setChat] = useState([]);
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [username, setUsername] = useState('');
+  const [nickname, setNickname] = useState('');
   const [isUsernameSet, setIsUsernameSet] = useState(false);
   const [bingoName, setBingoName] = useState([]);
   const [currentSpinningNumber, setCurrentSpinningNumber] = useState('🌟');
@@ -41,16 +43,13 @@ export default function Bingo() {
   }, []);
 
   const fetchUsers = async () => {
-    const data = await getUsersPoint();
+    const data = await getUsersRanking();
     setUsers(data);
   };
 
   useEffect(() => {
     if (isUsernameSet) {
-      if (username === 'admin') {
-        setUsername('Admin Bingo');
-      }
-      socket.emit('setUsername', username === 'admin' ? 'Admin Bingo' : username);
+      socket.emit('setUsername', { username, nickname });
     }
   }, [isUsernameSet]);
 
@@ -198,7 +197,7 @@ export default function Bingo() {
 
   const sendMessage = () => {
     if (message) {
-      socket.emit('chatMessage', { username, message });
+      socket.emit('chatMessage', { nickname, message });
       setMessage('');
     }
   };
@@ -210,15 +209,15 @@ export default function Bingo() {
   };
 
   const handleConfirm = () => {
-    if (username) {
-      setIsUsernameSet(true);
+    if (username.length < 4 || nickname.length === 0) {
+      return;
     }
 
-    return;
+    setIsUsernameSet(true);
   };
 
   const handleResetBingo = () => {
-    if (!username || countResetBingo === 2 || bingoName.length > 0 || calledNumbers.length > 0) return;
+    if (!username || countResetBingo === 3 || bingoName.length > 0 || calledNumbers.length > 0) return;
     setIsDisplay(true);
     setCountResetBingo(countResetBingo + 1);
     socket.emit('resetBingo', username);
@@ -304,25 +303,67 @@ export default function Bingo() {
     setNearlyBingoNumbers(newNearlyBingoNumbers);
   };
 
+  const totalAmountJackpot = () => {
+    let totalAmount = onlineUsers.length * 20000;
+    let totalFee = totalAmount * 0.05;
+    let totalRollback = (onlineUsers.length - 1) * 2000;
+    return totalAmount - totalRollback - totalFee;
+  };
+
+  const handleRefundPoint = async () => {
+    await refundPoint(onlineUsers);
+  };
+
   if (!isUsernameSet) {
     return (
-      <div className="container text-center mt-5">
-        <h2>Please enter your account</h2>
-        <input
-          type="text"
-          maxLength="15"
-          className="form-control mb-2"
-          placeholder="Please enter your account"
-          value={username}
-          onKeyPress={(event) => {
-            if (event.key === 'Enter') {
-              setIsUsernameSet(true);
-            }
-          }}
-          onChange={(e) => setUsername(e.target.value)}
-        />
+      <div className="container mt-5">
+        <h2 className="text-center">Login</h2>
+
+        <div class="form-group">
+          <label for="account" className="font-weight-bold">
+            Account
+          </label>
+          <input
+            type="text"
+            id="account"
+            maxLength="11"
+            className="form-control mb-2"
+            placeholder="Ex: LongLHH1"
+            value={username}
+            onKeyPress={(event) => {
+              if (event.key === 'Enter') {
+                handleConfirm();
+              }
+            }}
+            onChange={(e) => setUsername(e.target.value.trim())}
+          />
+          <small id="accountHelp" class="form-text text-danger">
+            *** Please enter your account correctly to receive points. ***
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label for="nickname" className="font-weight-bold">
+            Nickname in the game
+          </label>
+          <input
+            type="text"
+            maxLength="15"
+            id="nickname"
+            className="form-control mb-2"
+            placeholder="Ex: Long Lém Lĩnh"
+            value={nickname}
+            onKeyPress={(event) => {
+              if (event.key === 'Enter') {
+                handleConfirm();
+              }
+            }}
+            onChange={(e) => setNickname(e.target.value)}
+          />
+        </div>
+
         <button className="btn btn-primary" onClick={handleConfirm}>
-          Confirm
+          Login
         </button>
       </div>
     );
@@ -338,10 +379,10 @@ export default function Bingo() {
         <div className="col-lg-2">
           <div className="text-center">
             <img className="jackpot" src="jackpot.png" alt="jackpot" />
-            <h5 className="text-center text-danger">{numberWithCommas(users.find((user) => user.username === 'admin')?.points * 1000)}đ</h5>
+            <h5 className="text-center text-danger">{numberWithCommas(totalAmountJackpot())}đ</h5>
           </div>
           <div className="member-online-hide">
-            <MemberOnline onlineUsers={onlineUsers} username={username} />
+            <MemberOnline onlineUsers={onlineUsers} nickname={nickname} usersBoard={usersBoard} />
           </div>
         </div>
         <div className="col-lg-7">
@@ -395,8 +436,12 @@ export default function Bingo() {
                 <button className="btn btn-warning" onClick={() => socket.emit('resetNumber')}>
                   Reset
                 </button>
+                <button className="btn btn-warning" onClick={handleRefundPoint}>
+                  Refund point
+                </button>
               </div>
               <AddUsersPoint />
+              <AddUsersPointBingo />
             </>
           )}
           <div className="mb-4 text-center">
@@ -456,9 +501,9 @@ export default function Bingo() {
             <button
               className="btn btn-warning mb-2"
               onClick={handleResetBingo}
-              disabled={countResetBingo === 2 || bingoName.length > 0 || calledNumbers.length > 0}
+              disabled={countResetBingo === 3 || bingoName.length > 0 || calledNumbers.length > 0 || usersBoard[username]?.countReset === 0}
             >
-              Reset your bingo! (Remain: {2 - countResetBingo})
+              Reset your bingo! (Remain: {3 - countResetBingo})
             </button>
             {isBingo && <div className="alert alert-success text-center">🎉 Bingo! 🎉</div>}
             <div className="bg-gradient-light p-3 rounded shadow">
@@ -543,12 +588,12 @@ export default function Bingo() {
           )}
           <div className="mb-4">
             <h4 className="text-secondary text-center">
-              💬 Chat(<span className="text-info">{username}</span>)
+              💬 Chat(<span className="text-info">{nickname}</span>)
             </h4>
             <div ref={chatRef} className="chat-box border rounded p-3 bg-light shadow-sm" style={{ height: '250px', overflowY: 'auto' }}>
               {chat.map((msg, index) => (
                 <div key={index} className="mb-2">
-                  <strong style={{ color: `${msg.username === 'Admin Bingo' ? 'red' : 'black'}` }}>{msg.username}:</strong> {msg.message}
+                  <strong style={{ color: `${msg.nickname === 'Admin Bingo' ? 'red' : 'black'}` }}>{msg.nickname}:</strong> {msg.message}
                 </div>
               ))}
             </div>
@@ -571,7 +616,7 @@ export default function Bingo() {
           </div>
           <Ranking users={users} />
           <div className="member-online-show">
-            <MemberOnline onlineUsers={onlineUsers} username={username} />
+            <MemberOnline onlineUsers={onlineUsers} nickname={nickname} usersBoard={usersBoard} />
           </div>
         </div>
       </div>
