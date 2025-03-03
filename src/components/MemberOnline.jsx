@@ -7,7 +7,7 @@ export default function MemberOnline(props) {
       <ul className="list-unstyled text-center">
         {user.role === 'admin' &&
           onlineUsers.map((user, index) => (
-            <li key={index} className={`alert ${usersBoard[user]?.point === 20 ? 'alert-warning' : 'alert-info'} p-2 rounded shadow-sm`}>
+            <li key={index} className={`alert ${usersBoard[user]?.point >= 20 ? 'alert-warning' : 'alert-info'} p-2 rounded shadow-sm`}>
               {user} - Point: {usersBoard[user]?.point}
             </li>
           ))}
