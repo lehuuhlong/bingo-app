@@ -5,6 +5,11 @@ export const getUsersPoint = async () => {
   return res.data;
 };
 
+export const getUser = async (username) => {
+  const res = await api.get(`/user/id/${username}`);
+  return res.data;
+};
+
 export const getUsersRanking = async () => {
   const res = await api.get('/user/ranking');
   return res.data;

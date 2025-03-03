@@ -1,11 +1,11 @@
 const Ranking = (props) => {
-  const { users } = props;
+  const { usersRanking } = props;
 
   return (
     <div className="">
       <h4 className="text-secondary text-center">Ranking🥇🥈🥉</h4>
       <ul className="list-unstyled text-center">
-        {users.map((user, index) => {
+        {usersRanking.map((user, index) => {
           let bgColor = 'alert-warning';
           let rankEmoji = `${index + 1}️⃣`;
 
@@ -20,8 +20,8 @@ const Ranking = (props) => {
           if (index === 2) {
             bgColor = 'alert-success';
             rankEmoji = '🥉';
-          } else if (index >= 9) {
-            rankEmoji = `${((index + 1) / 10).toFixed()}️⃣${(index + 1) % 10}️⃣`;
+          } else if (index > 8) {
+            rankEmoji = `${index + 1}. `;
           }
 
           return (

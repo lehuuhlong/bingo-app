@@ -4,6 +4,21 @@ const Transaction = require('../models/Transaction');
 
 const router = express.Router();
 
+router.get('/id/:username', async (req, res) => {
+  const { username } = req.params;
+
+  try {
+    const user = await User.findOne({ username });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.status(200).json(user);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
 router.get('/all', async (req, res) => {
   try {
     const users = await User.find().sort({ bingoCount: -1, point: -1 });
@@ -15,7 +30,7 @@ router.get('/all', async (req, res) => {
 
 router.get('/ranking', async (req, res) => {
   try {
-    const users = await User.find({ bingoCount: { $gt: 0 } }).sort({ bingoCount: -1, point: -1 });
+    const users = await User.find({ bingoCount: { $gt: 0 } }).sort({ bingoCount: -1, pointBingo: -1 });
     res.json(users);
   } catch (error) {
     res.status(500).json({ message: 'Server Error' });
@@ -35,7 +50,8 @@ router.post('/refund-point', async (req, res) => {
     const transactions = users.map((username) => ({
       username,
       point: 2,
-      date: new Date().toISOString().split('T')[0],
+      type: 'Refund point',
+      date: new Date().toISOString(),
     }));
 
     await Transaction.insertMany(transactions);
@@ -64,7 +80,8 @@ router.post('/add-point', async (req, res) => {
     const transaction = new Transaction({
       username,
       point,
-      date: new Date().toISOString().split('T')[0],
+      type: 'Add point',
+      date: new Date().toISOString(),
     });
 
     await transaction.save();
@@ -93,7 +110,8 @@ router.post('/add-point-bingo', async (req, res) => {
     const transaction = new Transaction({
       username,
       point,
-      date: new Date().toISOString().split('T')[0],
+      type: 'Bingo Reward',
+      date: new Date().toISOString(),
     });
 
     await transaction.save();

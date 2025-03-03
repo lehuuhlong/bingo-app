@@ -5,10 +5,11 @@ import ModalBingoName from '../modal/ModalBingoName';
 import ModalReset from '../modal/ModalReset';
 import ToastReset from '../toast/ToastReset';
 import MemberOnline from './MemberOnline';
-import AddUsersPoint from './AddUsersPoint';
-import AddUsersPointBingo from './AddUsersPointBingo';
 import Ranking from './Ranking';
-import { getUsersRanking, refundPoint } from '../services/userService';
+import { getUser, getUsersRanking } from '../services/userService';
+import Login from './Login';
+import Admin from './Admin';
+import TicketBingo from './TicketBingo';
 
 const socket = io(process.env.REACT_APP_SERVER_URL);
 
@@ -25,30 +26,37 @@ export default function Bingo() {
   const [isUsernameSet, setIsUsernameSet] = useState(false);
   const [bingoName, setBingoName] = useState([]);
   const [currentSpinningNumber, setCurrentSpinningNumber] = useState('🌟');
-  const [isAutoCalling, setIsAutoCalling] = useState(false);
-  const autoCallInterval = useRef(null);
   const [bingoCells, setBingoCells] = useState([]);
   const [countResetBingo, setCountResetBingo] = useState(0);
   const [isDisplay, setIsDisplay] = useState(false);
   const [nearlyBingoNumbers, setNearlyBingoNumbers] = useState([]);
   const [nearlyBingoName, setNearlyBingoName] = useState([]);
-  const [users, setUsers] = useState([]);
+  const [usersRanking, setUsersRanking] = useState([]);
+  const [user, setUser] = useState({});
 
   const chatRef = useRef(null);
   const buttonBingoRef = useRef(null);
   const buttonResetRef = useRef(null);
 
   useEffect(() => {
-    fetchUsers();
+    fetchUsersRanking();
   }, []);
 
-  const fetchUsers = async () => {
+  const fetchUsersRanking = async () => {
     const data = await getUsersRanking();
-    setUsers(data);
+    setUsersRanking(data);
+  };
+
+  const fetchUser = async () => {
+    if (username) {
+      const data = await getUser(username);
+      setUser(data);
+    }
   };
 
   useEffect(() => {
     if (isUsernameSet) {
+      fetchUser();
       socket.emit('setUsername', { username, nickname });
     }
   }, [isUsernameSet]);
@@ -154,11 +162,6 @@ export default function Bingo() {
   }, [isBingo]);
 
   useEffect(() => {
-    if (!bingoName.length) return;
-    stopAutoCall();
-  }, [bingoName]);
-
-  useEffect(() => {
     if (!nearlyBingoNumbers.length) return;
     socket.emit('nearlyBingo', { username, nearlyBingoNumbers });
   }, [nearlyBingoNumbers]);
@@ -226,28 +229,6 @@ export default function Bingo() {
     }, 3000);
   };
 
-  const startAutoCall = () => {
-    let nickname = 'Admin Bingo';
-    let message = 'Game start!';
-    socket.emit('chatMessage', { nickname, message });
-    if (!isAutoCalling) {
-      setIsAutoCalling(true);
-
-      autoCallInterval.current = setInterval(() => {
-        if (bingoName.length === 0) {
-          socket.emit('callNumber');
-        } else {
-          stopAutoCall();
-        }
-      }, 10000);
-    }
-  };
-
-  const stopAutoCall = () => {
-    clearInterval(autoCallInterval.current);
-    setIsAutoCalling(false);
-  };
-
   const numberBingCells = (num) => {
     let isNumber = false;
     for (let name of bingoName) {
@@ -310,63 +291,8 @@ export default function Bingo() {
     return totalAmount - totalRollback - totalFee;
   };
 
-  const handleRefundPoint = async () => {
-    await refundPoint(onlineUsers);
-  };
-
   if (!isUsernameSet) {
-    return (
-      <div className="container mt-5">
-        <h2 className="text-center">Login</h2>
-
-        <div class="form-group">
-          <label for="account" className="font-weight-bold">
-            Account
-          </label>
-          <input
-            type="text"
-            id="account"
-            maxLength="11"
-            className="form-control mb-2"
-            placeholder="Ex: LongLHH1"
-            value={username}
-            onKeyPress={(event) => {
-              if (event.key === 'Enter') {
-                handleConfirm();
-              }
-            }}
-            onChange={(e) => setUsername(e.target.value.trim())}
-          />
-          <small id="accountHelp" class="form-text text-danger">
-            *** Please enter your account correctly to receive points. ***
-          </small>
-        </div>
-
-        <div class="form-group">
-          <label for="nickname" className="font-weight-bold">
-            Nickname in the game
-          </label>
-          <input
-            type="text"
-            maxLength="15"
-            id="nickname"
-            className="form-control mb-2"
-            placeholder="Ex: Long Lém Lĩnh"
-            value={nickname}
-            onKeyPress={(event) => {
-              if (event.key === 'Enter') {
-                handleConfirm();
-              }
-            }}
-            onChange={(e) => setNickname(e.target.value)}
-          />
-        </div>
-
-        <button className="btn btn-primary" onClick={handleConfirm}>
-          Login
-        </button>
-      </div>
-    );
+    return <Login handleConfirm={handleConfirm} setUsername={setUsername} username={username} nickname={nickname} setNickname={setNickname} />;
   }
 
   return (
@@ -382,7 +308,7 @@ export default function Bingo() {
             <h5 className="text-center text-danger">{numberWithCommas(totalAmountJackpot())}đ</h5>
           </div>
           <div className="member-online-hide">
-            <MemberOnline onlineUsers={onlineUsers} nickname={nickname} usersBoard={usersBoard} />
+            <MemberOnline onlineUsers={onlineUsers} nickname={nickname} usersBoard={usersBoard} user={user} />
           </div>
         </div>
         <div className="col-lg-7">
@@ -422,26 +348,6 @@ export default function Bingo() {
                 </div>
               </div>
             </div>
-          )}
-          {username === 'Admin Bingo' && (
-            <>
-              <div className="mt-4 d-flex justify-content-between">
-                <button className="btn btn-danger" onClick={startAutoCall} disabled={isAutoCalling}>
-                  {isAutoCalling ? 'Đang gọi số...' : 'Gọi số'}
-                </button>
-                <button className="btn btn-danger" onClick={stopAutoCall} disabled={!isAutoCalling}>
-                  Stop
-                </button>
-                <button className="btn btn-warning" onClick={() => socket.emit('resetNumber')}>
-                  Reset
-                </button>
-                <button className="btn btn-warning" onClick={handleRefundPoint}>
-                  Refund point
-                </button>
-              </div>
-              <AddUsersPoint />
-              <AddUsersPointBingo />
-            </>
           )}
           <div className="mb-4 text-center">
             <h4 className="text-secondary">🎲 Lottery number 🎲</h4>
@@ -495,45 +401,20 @@ export default function Bingo() {
               )}
             </div>
           </div>
-          <div className="text-center mb-4">
-            <h4 className="text-secondary">🎲 Ticket Bingo 🎲</h4>
-            <button
-              className="btn btn-warning mb-2"
-              onClick={handleResetBingo}
-              disabled={countResetBingo === 3 || bingoName.length > 0 || calledNumbers.length > 0 || usersBoard[username]?.countReset === 0}
-            >
-              Reset your bingo! (Remain: {3 - countResetBingo})
-            </button>
-            {isBingo && <div className="alert alert-success text-center">🎉 Bingo! 🎉</div>}
-            <div className="bg-gradient-light p-3 rounded shadow">
-              <div className="d-grid" style={{ gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px', display: 'inline-grid' }}>
-                {board.flat().map((num, index) => (
-                  <div
-                    key={index}
-                    className={`border p-3 rounded-circle fw-bold d-flex align-items-center justify-content-center shadow-sm ${
-                      bingoName.length > 0
-                        ? bingoCells.includes(num)
-                          ? 'bg-success text-white'
-                          : calledNumbers.includes(num)
-                          ? 'bg-secondary text-white'
-                          : 'bg-light text-dark'
-                        : calledNumbers.includes(num)
-                        ? 'bg-success text-white'
-                        : 'bg-light text-dark'
-                    }`}
-                    style={{ width: '60px', height: '60px', fontSize: '1.5rem', cursor: 'pointer', transition: 'all 0.3s' }}
-                  >
-                    {num}
-                  </div>
-                ))}
-              </div>
-              {board.length === 0 && (
-                <h5>
-                  Opps!!! You're late! <br /> Please wait the next lucky-draw
-                </h5>
-              )}
-            </div>
-          </div>
+          {user.role === 'admin' && <Admin onlineUsers={onlineUsers} bingoName={bingoName} />}
+          {user.role === 'user' && (
+            <TicketBingo
+              handleResetBingo={handleResetBingo}
+              countResetBingo={countResetBingo}
+              bingoName={bingoName}
+              calledNumbers={calledNumbers}
+              usersBoard={usersBoard}
+              username={username}
+              board={board}
+              isBingo={isBingo}
+              bingoCells={bingoCells}
+            />
+          )}
         </div>
 
         <div className="col-lg-3">
@@ -586,9 +467,10 @@ export default function Bingo() {
             </div>
           )}
           <div className="mb-4">
-            <h4 className="text-secondary text-center">
-              💬 Chat(<span className="text-info">{nickname}</span>)
-            </h4>
+            <h4 className="text-secondary text-center">💬 Chat</h4>
+            <h5 className="text-info text-center">
+              {nickname} - Point: {user.point}
+            </h5>
             <div ref={chatRef} className="chat-box border rounded p-3 bg-light shadow-sm" style={{ height: '250px', overflowY: 'auto' }}>
               {chat.map((msg, index) => (
                 <div key={index} className="mb-2">
@@ -613,9 +495,9 @@ export default function Bingo() {
               Send
             </button>
           </div>
-          <Ranking users={users} />
+          <Ranking usersRanking={usersRanking} />
           <div className="member-online-show">
-            <MemberOnline onlineUsers={onlineUsers} nickname={nickname} usersBoard={usersBoard} />
+            <MemberOnline onlineUsers={onlineUsers} nickname={nickname} usersBoard={usersBoard} user={user} />
           </div>
         </div>
       </div>

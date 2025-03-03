@@ -28,8 +28,8 @@ const AddUsersPoint = () => {
         <div className="input-group">
           <input type="text" className="form-control" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} />
           <input type="number" className="form-control" placeholder="Points" value={points} onChange={(e) => setPoints(e.target.value)} />
-          <button className="btn btn-primary" type="submit">
-            Thêm
+          <button className="btn btn-primary ml-3" type="submit">
+            Add point
           </button>
         </div>
       </form>

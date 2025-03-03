@@ -5,6 +5,7 @@ const { Server } = require('socket.io');
 const cors = require('cors');
 const connectDB = require('./config/db');
 const userRoutes = require('./routes/userRoutes');
+const transactionRoutes = require('./routes/transactionRoutes');
 const User = require('./models/User');
 
 const app = express();
@@ -21,6 +22,7 @@ connectDB();
 app.use(express.json());
 
 app.use('/api/user', userRoutes);
+app.use('/api/transaction', transactionRoutes);
 
 let users = {};
 let usersBoard = {};
