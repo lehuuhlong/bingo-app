@@ -26,6 +26,10 @@ const TransactionTable = () => {
     setCurrentPage(page);
   };
 
+  const handleFormatDate = (date) => {
+    return date.toISOString().replace('T', ' ').replace(/\.\d+Z/, '');
+  } 
+
   return (
     <div className="mt-3">
       <h4 className="text-center">Transaction History</h4>
@@ -46,7 +50,7 @@ const TransactionTable = () => {
               <td>{transaction.username}</td>
               <td>{transaction.point}</td>
               <td>{transaction.type}</td>
-              <td>{transaction.date}</td>
+              <td>{handleFormatDate(transaction.date})</td>
             </tr>
           ))}
         </tbody>
