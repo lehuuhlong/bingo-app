@@ -27,7 +27,8 @@ const TransactionTable = () => {
   };
 
   const handleFormatDate = (date) => {
-    return date.toISOString().replace('T', ' ').replace(/\.\d+Z/, '');
+    const dateFormat = new Date(date);
+    return dateFormat.toISOString().replace('T', ' ').replace(/\.\d+Z/, '');
   } 
 
   return (
