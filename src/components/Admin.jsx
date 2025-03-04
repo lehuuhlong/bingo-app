@@ -2,13 +2,13 @@ import React, { useEffect, useRef, useState } from 'react';
 import { io } from 'socket.io-client';
 import AddUsersPoint from './AddUsersPoint';
 import AddUsersPointBingo from './AddUsersPointBingo';
-import { refundPoint } from '../services/userService';
-import TransactionTable from './TransactionTable';
+import { refundPoint, minusPoint } from '../services/userService';
+import UserTable from './UserTable';
 
 const socket = io(process.env.REACT_APP_SERVER_URL);
 
 const Admin = (props) => {
-  const { onlineUsers, bingoName } = props;
+  const { onlineUsers, bingoName, usersBoard } = props;
   const [isAutoCalling, setIsAutoCalling] = useState(false);
   const autoCallInterval = useRef(null);
 
@@ -18,6 +18,8 @@ const Admin = (props) => {
   }, [bingoName]);
 
   const startAutoCall = () => {
+    if (bingoName.length) return;
+
     let nickname = 'Admin Bingo';
     let message = 'Game start!';
     socket.emit('chatMessage', { nickname, message });
@@ -35,6 +37,7 @@ const Admin = (props) => {
   };
 
   const stopAutoCall = () => {
+    if (bingoName.length) return;
     clearInterval(autoCallInterval.current);
     setIsAutoCalling(false);
     let nickname = 'Admin Bingo';
@@ -42,8 +45,14 @@ const Admin = (props) => {
     socket.emit('chatMessage', { nickname, message });
   };
 
-  const handleRefundPoint = async () => {
-    await refundPoint(onlineUsers);
+  const handleRefundAndMinusPoint = async () => {
+    let usersRefund = onlineUsers.filter((user) => !bingoName.includes(user));
+    let usersMinus = onlineUsers.filter((user) => usersBoard[user].point >= 20);
+
+    await refundPoint(usersRefund);
+    if (usersMinus.length) {
+      await minusPoint(usersMinus);
+    }
   };
 
   return (
@@ -59,13 +68,13 @@ const Admin = (props) => {
         <button className="btn btn-warning" onClick={() => socket.emit('resetNumber')}>
           Reset
         </button>
-        <button className="btn btn-warning" onClick={handleRefundPoint}>
-          Refund point
+        <button className="btn btn-warning" onClick={handleRefundAndMinusPoint}>
+          Refund and Minus point
         </button>
       </div>
       <AddUsersPoint />
       <AddUsersPointBingo />
-      <TransactionTable />
+      <UserTable />
     </>
   );
 };

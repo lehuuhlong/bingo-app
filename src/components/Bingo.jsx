@@ -6,10 +6,12 @@ import ModalReset from '../modal/ModalReset';
 import ToastReset from '../toast/ToastReset';
 import MemberOnline from './MemberOnline';
 import Ranking from './Ranking';
-import { getUser, getUsersRanking } from '../services/userService';
+import { getUserById, getUsersRanking } from '../services/userService';
 import Login from './Login';
 import Admin from './Admin';
 import TicketBingo from './TicketBingo';
+import TransactionTable from './TransactionTable';
+import Spinners from './Spinners';
 
 const socket = io(process.env.REACT_APP_SERVER_URL);
 
@@ -33,6 +35,7 @@ export default function Bingo() {
   const [nearlyBingoName, setNearlyBingoName] = useState([]);
   const [usersRanking, setUsersRanking] = useState([]);
   const [user, setUser] = useState({});
+  const [loading, setLoading] = useState(false);
 
   const chatRef = useRef(null);
   const buttonBingoRef = useRef(null);
@@ -49,15 +52,19 @@ export default function Bingo() {
 
   const fetchUser = async () => {
     if (username) {
-      const data = await getUser(username);
+      const data = await getUserById(username);
       setUser(data);
     }
+    setLoading(false);
   };
 
   useEffect(() => {
     if (isUsernameSet) {
-      fetchUser();
+      setLoading(true);
       socket.emit('setUsername', { username, nickname });
+      setTimeout(() => {
+        fetchUser();
+      }, 2000);
     }
   }, [isUsernameSet]);
 
@@ -296,233 +303,247 @@ export default function Bingo() {
   }
 
   return (
-    <div className="container-90 mt-1">
-      <div className="row mb-2 text-center d-block">
-        <img style={{ height: '150px' }} src="logo-bingo.jpg" alt="logo" />
-      </div>
-
-      <div className="row">
-        <div className="col-lg-2">
-          <div className="text-center">
-            <img className="jackpot" src="jackpot.png" alt="jackpot" />
-            <h5 className="text-center text-danger">{numberWithCommas(totalAmountJackpot())}đ</h5>
-          </div>
-          <div className="member-online-hide">
-            <MemberOnline onlineUsers={onlineUsers} nickname={nickname} usersBoard={usersBoard} user={user} />
-          </div>
-        </div>
-        <div className="col-lg-7">
-          {bingoName && bingoName.length > 0 && (
-            <div className="text-center mb-4">
-              <h4 className="text-secondary">🎉 List users Bingo! 🎉</h4>
-              <div className="bg-gradient-light p-3 rounded shadow">
-                <div className="row">
-                  {bingoName.map((name, index) => (
-                    <div className={bingoName.length > 1 ? 'col-lg-6' : 'col'} key={index}>
-                      <h6 className="text-warning mt-2">
-                        Winner: {usersBoard[name]?.nickname} - {name} 🎉
-                      </h6>
-                      <div className="d-grid" style={{ gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px', display: 'inline-grid' }}>
-                        {usersBoard[name]?.board.flat().map((num, index) => (
-                          <div
-                            key={index}
-                            className={`border p-3 rounded-circle fw-bold d-flex align-items-center justify-content-center shadow-sm ${
-                              bingoName.length > 0
-                                ? usersBoard[name]?.bingoCells.includes(num)
-                                  ? 'bg-success text-white'
-                                  : calledNumbers.includes(num)
-                                  ? 'bg-secondary text-white'
-                                  : 'bg-light text-dark'
-                                : calledNumbers.includes(num)
-                                ? 'bg-success text-white'
-                                : 'bg-light text-dark'
-                            }`}
-                            style={{ width: '50px', height: '50px', fontSize: '1.2rem', cursor: 'pointer', transition: 'all 0.3s' }}
-                          >
-                            {num}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-          <div className="mb-4 text-center">
-            <h4 className="text-secondary">🎲 Lottery number 🎲</h4>
-            <div className="d-flex flex-wrap gap-2 justify-content-center bg-light p-3 rounded shadow">
-              {calledNumbers.map(
-                (number, index) =>
-                  number !== '🌟' && (
-                    <div
-                      key={index}
-                      className={`mr-1 mb-1 rounded-circle d-flex align-items-center justify-content-center number-ball ${
-                        bingoName.length > 0 ? (numberBingCells(number) ? 'bg-success text-white' : 'bg-secondary text-white') : 'bg-info text-white'
-                      }`}
-                      style={{
-                        width: '50px',
-                        height: '50px',
-                        fontSize: '1.2rem',
-                        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
-                        animation: 'scaleIn 1s ease-in-out',
-                      }}
-                    >
-                      <p
-                        style={{
-                          margin: 0,
-                          animation: 'spin 1s ease-in-out',
-                        }}
-                      >
-                        {number}
-                      </p>
-                    </div>
-                  )
-              )}
-              {currentSpinningNumber && bingoName.length === 0 && (
-                <div
-                  className="number-ball"
-                  style={{
-                    width: '50px',
-                    height: '50px',
-                    fontSize: '1.2rem',
-                    borderRadius: '50%',
-                    backgroundColor: '#ffc107',
-                    color: '#000000',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    animation: 'spin 1s linear infinite',
-                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
-                  }}
-                >
-                  {currentSpinningNumber}
-                </div>
-              )}
-            </div>
-          </div>
-          {user.role === 'admin' && <Admin onlineUsers={onlineUsers} bingoName={bingoName} />}
-          {user.role === 'user' && (
-            <TicketBingo
-              handleResetBingo={handleResetBingo}
-              countResetBingo={countResetBingo}
-              bingoName={bingoName}
-              calledNumbers={calledNumbers}
-              usersBoard={usersBoard}
-              username={username}
-              board={board}
-              isBingo={isBingo}
-              bingoCells={bingoCells}
-            />
-          )}
+    <>
+      {loading && <Spinners />}
+      <div className="container-90 mt-1">
+        <div className="row mb-2 text-center d-block">
+          <img style={{ height: '150px' }} src="logo-bingo.jpg" alt="logo" />
         </div>
 
-        <div className="col-lg-3">
-          {nearlyBingoName.length > 0 && (
-            <div className="mt-4">
-              <h5 className="text-warning">⚠️ Users with numbers close to Bingo: {nearlyBingoName.length}</h5>
-              <ul className="alert alert-warning shadow-sm rounded p-2">
-                <AnimatePresence>
-                  {nearlyBingoName
-                    .sort((a, b) => usersBoard[b]?.nearlyBingos.length - usersBoard[a]?.nearlyBingos.length)
-                    .map((name) => (
-                      <motion.li
-                        key={name}
-                        className="ml-5"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20 }}
-                        transition={{ duration: 0.5 }}
-                      >
-                        <div style={{ display: 'flex', alignItems: 'center' }} className="mb-1">
-                          <strong className="mr-2 mb-1">{usersBoard[name]?.nickname}:</strong>
-                          {usersBoard[name]?.nearlyBingos.map((number) => (
-                            <motion.div
-                              key={number}
-                              className={`mr-1 mb-1 rounded-circle d-flex align-items-center justify-content-center number-ball ${
+        <div className="row">
+          <div className="col-lg-2">
+            <div className="text-center">
+              <img className="jackpot" src="jackpot.png" alt="jackpot" />
+              <h5 className="text-center text-danger">{numberWithCommas(totalAmountJackpot())}đ</h5>
+            </div>
+            <div className="member-online-hide">
+              <MemberOnline onlineUsers={onlineUsers} nickname={nickname} usersBoard={usersBoard} user={user} />
+            </div>
+          </div>
+          <div className="col-lg-7">
+            {bingoName && bingoName.length > 0 && (
+              <div className="text-center mb-4">
+                <h4 className="text-secondary">🎉 List users Bingo! 🎉</h4>
+                <div className="bg-gradient-light p-3 rounded shadow">
+                  <div className="row">
+                    {bingoName.map((name, index) => (
+                      <div className={bingoName.length > 1 ? 'col-lg-6' : 'col'} key={index}>
+                        <h6 className="text-warning mt-2">
+                          Winner: {usersBoard[name]?.nickname} - {name} 🎉
+                        </h6>
+                        <div className="d-grid" style={{ gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px', display: 'inline-grid' }}>
+                          {usersBoard[name]?.board.flat().map((num, index) => (
+                            <div
+                              key={index}
+                              className={`border p-3 rounded-circle fw-bold d-flex align-items-center justify-content-center shadow-sm ${
                                 bingoName.length > 0
-                                  ? numberBingCells(number)
+                                  ? usersBoard[name]?.bingoCells.includes(num)
                                     ? 'bg-success text-white'
-                                    : 'bg-warning text-dark'
-                                  : 'bg-warning text-dark'
+                                    : calledNumbers.includes(num)
+                                    ? 'bg-secondary text-white'
+                                    : 'bg-light text-dark'
+                                  : calledNumbers.includes(num)
+                                  ? 'bg-success text-white'
+                                  : 'bg-light text-dark'
                               }`}
-                              style={{
-                                width: '35px',
-                                height: '35px',
-                                fontSize: '0.8rem',
-                                boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
-                              }}
-                              initial={{ scale: 0 }}
-                              animate={{ scale: 1 }}
-                              transition={{ duration: 0.3 }}
+                              style={{ width: '50px', height: '50px', fontSize: '1.2rem', cursor: 'pointer', transition: 'all 0.3s' }}
                             >
-                              <p style={{ margin: 0 }}>{number}</p>
-                            </motion.div>
+                              {num}
+                            </div>
                           ))}
                         </div>
-                      </motion.li>
+                      </div>
                     ))}
-                </AnimatePresence>
-              </ul>
-            </div>
-          )}
-          <div className="mb-4">
-            <h4 className="text-secondary text-center">💬 Chat</h4>
-            <h5 className="text-info text-center">
-              {nickname} - Point: {user.point}
-            </h5>
-            <div ref={chatRef} className="chat-box border rounded p-3 bg-light shadow-sm" style={{ height: '250px', overflowY: 'auto' }}>
-              {chat.map((msg, index) => (
-                <div key={index} className="mb-2">
-                  <strong style={{ color: `${msg.nickname === 'Admin Bingo' ? 'red' : 'black'}` }}>{msg.nickname}:</strong> {msg.message}
+                  </div>
                 </div>
-              ))}
+              </div>
+            )}
+            <div className="mb-4 text-center">
+              <h4 className="text-secondary">🎲 Lottery number 🎲</h4>
+              <div className="d-flex flex-wrap gap-2 justify-content-center bg-light p-3 rounded shadow">
+                {calledNumbers.map(
+                  (number, index) =>
+                    number !== '🌟' && (
+                      <div
+                        key={index}
+                        className={`mr-1 mb-1 rounded-circle d-flex align-items-center justify-content-center number-ball ${
+                          bingoName.length > 0
+                            ? numberBingCells(number)
+                              ? 'bg-success text-white'
+                              : 'bg-secondary text-white'
+                            : 'bg-info text-white'
+                        }`}
+                        style={{
+                          width: '50px',
+                          height: '50px',
+                          fontSize: '1.2rem',
+                          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+                          animation: 'scaleIn 1s ease-in-out',
+                        }}
+                      >
+                        <p
+                          style={{
+                            margin: 0,
+                            animation: 'spin 1s ease-in-out',
+                          }}
+                        >
+                          {number}
+                        </p>
+                      </div>
+                    )
+                )}
+                {currentSpinningNumber && bingoName.length === 0 && (
+                  <div
+                    className="number-ball"
+                    style={{
+                      width: '50px',
+                      height: '50px',
+                      fontSize: '1.2rem',
+                      borderRadius: '50%',
+                      backgroundColor: '#ffc107',
+                      color: '#000000',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      animation: 'spin 1s linear infinite',
+                      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+                    }}
+                  >
+                    {currentSpinningNumber}
+                  </div>
+                )}
+              </div>
             </div>
-            <input
-              type="text"
-              className="form-control mt-2"
-              placeholder="Enter message"
-              value={message}
-              maxLength="80"
-              onKeyPress={(event) => {
-                if (event.key === 'Enter') {
-                  sendMessage();
-                }
-              }}
-              onChange={(e) => setMessage(e.target.value)}
-            />
-            <button className="btn btn-secondary mt-2 w-100" onClick={sendMessage}>
-              Send
-            </button>
+            {user?.role === 'admin' && <Admin onlineUsers={onlineUsers} bingoName={bingoName} usersBoard={usersBoard} />}
+            {user?.role === 'user' && (
+              <TicketBingo
+                handleResetBingo={handleResetBingo}
+                countResetBingo={countResetBingo}
+                bingoName={bingoName}
+                calledNumbers={calledNumbers}
+                usersBoard={usersBoard}
+                username={username}
+                board={board}
+                isBingo={isBingo}
+                bingoCells={bingoCells}
+              />
+            )}
+            {user?.role && <TransactionTable role={user.role} username={username} />}
           </div>
-          <Ranking usersRanking={usersRanking} />
-          <div className="member-online-show">
-            <MemberOnline onlineUsers={onlineUsers} nickname={nickname} usersBoard={usersBoard} user={user} />
+
+          <div className="col-lg-3">
+            {nearlyBingoName.length > 0 && (
+              <div className="mt-4">
+                <h5 className="text-warning">⚠️ Users with numbers close to Bingo: {nearlyBingoName.length}</h5>
+                <ul className="alert alert-warning shadow-sm rounded p-2">
+                  <AnimatePresence>
+                    {nearlyBingoName
+                      .sort((a, b) => usersBoard[b]?.nearlyBingos.length - usersBoard[a]?.nearlyBingos.length)
+                      .map((name) => (
+                        <motion.li
+                          key={name}
+                          className="ml-5"
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -20 }}
+                          transition={{ duration: 0.5 }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center' }} className="mb-1">
+                            <strong className="mr-2 mb-1">{usersBoard[name]?.nickname}:</strong>
+                            {usersBoard[name]?.nearlyBingos.map((number) => (
+                              <motion.div
+                                key={number}
+                                className={`mr-1 mb-1 rounded-circle d-flex align-items-center justify-content-center number-ball ${
+                                  bingoName.length > 0
+                                    ? numberBingCells(number)
+                                      ? 'bg-success text-white'
+                                      : 'bg-warning text-dark'
+                                    : 'bg-warning text-dark'
+                                }`}
+                                style={{
+                                  width: '35px',
+                                  height: '35px',
+                                  fontSize: '0.8rem',
+                                  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+                                }}
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                transition={{ duration: 0.3 }}
+                              >
+                                <p style={{ margin: 0 }}>{number}</p>
+                              </motion.div>
+                            ))}
+                          </div>
+                        </motion.li>
+                      ))}
+                  </AnimatePresence>
+                </ul>
+              </div>
+            )}
+            <div className="mb-4">
+              <h4 className="text-secondary text-center">💬Chat</h4>
+              <h5 className="text-info text-center">
+                {nickname} -{' '}
+                <span className="text-danger" data-toggle="tooltip" data-placement="top" title="20 point = 1 ticket">
+                  Point: {user?.point}{' '}
+                </span>
+                <span style={{ cursor: 'pointer' }} data-toggle="tooltip" data-placement="top" title="20 point = 1 ticket">
+                  🎯
+                </span>
+              </h5>
+              <div ref={chatRef} className="chat-box border rounded p-3 bg-light shadow-sm" style={{ height: '250px', overflowY: 'auto' }}>
+                {chat.map((msg, index) => (
+                  <div key={index} className="mb-2">
+                    <strong style={{ color: `${msg.nickname === 'Admin Bingo' ? 'red' : 'black'}` }}>{msg.nickname}:</strong> {msg.message}
+                  </div>
+                ))}
+              </div>
+              <input
+                type="text"
+                className="form-control mt-2"
+                placeholder="Enter message"
+                value={message}
+                maxLength="80"
+                onKeyPress={(event) => {
+                  if (event.key === 'Enter') {
+                    sendMessage();
+                  }
+                }}
+                onChange={(e) => setMessage(e.target.value)}
+              />
+              <button className="btn btn-secondary mt-2 w-100" onClick={sendMessage}>
+                Send
+              </button>
+            </div>
+            <Ranking usersRanking={usersRanking} />
+            <div className="member-online-show">
+              <MemberOnline onlineUsers={onlineUsers} nickname={nickname} usersBoard={usersBoard} user={user} />
+            </div>
           </div>
         </div>
+
+        <ModalBingoName bingoName={bingoName} usersBoard={usersBoard} />
+        <ModalReset />
+        <ToastReset isDisplay={isDisplay} countResetBingo={countResetBingo} />
+
+        <button
+          ref={buttonBingoRef}
+          style={{ display: 'none' }}
+          type="button"
+          className="btn btn-primary"
+          data-toggle="modal"
+          data-target="#bingoModal"
+        ></button>
+
+        <button
+          ref={buttonResetRef}
+          style={{ display: 'none' }}
+          type="button"
+          className="btn btn-primary"
+          data-toggle="modal"
+          data-target="#resetModal"
+        ></button>
       </div>
-
-      <ModalBingoName bingoName={bingoName} usersBoard={usersBoard} />
-      <ModalReset />
-      <ToastReset isDisplay={isDisplay} countResetBingo={countResetBingo} />
-
-      <button
-        ref={buttonBingoRef}
-        style={{ display: 'none' }}
-        type="button"
-        className="btn btn-primary"
-        data-toggle="modal"
-        data-target="#bingoModal"
-      ></button>
-
-      <button
-        ref={buttonResetRef}
-        style={{ display: 'none' }}
-        type="button"
-        className="btn btn-primary"
-        data-toggle="modal"
-        data-target="#resetModal"
-      ></button>
-    </div>
+    </>
   );
 }

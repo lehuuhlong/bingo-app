@@ -5,13 +5,13 @@ export default function MemberOnline(props) {
     <>
       <h5 className="text-secondary text-center">👥 Members online: {onlineUsers.length}</h5>
       <ul className="list-unstyled text-center">
-        {user.role === 'admin' &&
+        {user?.role === 'admin' &&
           onlineUsers.map((user, index) => (
             <li key={index} className={`alert ${usersBoard[user]?.point >= 20 ? 'alert-warning' : 'alert-info'} p-2 rounded shadow-sm`}>
               {user} - Point: {usersBoard[user]?.point}
             </li>
           ))}
-        {user.role === 'user' &&
+        {user?.role === 'user' &&
           onlineUsers.map((userOnline, index) => (
             <li
               key={index}

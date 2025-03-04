@@ -5,8 +5,13 @@ export const getUsersPoint = async () => {
   return res.data;
 };
 
-export const getUser = async (username) => {
+export const getUserById = async (username) => {
   const res = await api.get(`/user/id/${username}`);
+  return res.data;
+};
+
+export const getUsers = async (page) => {
+  const res = await api.get(`/user/all?page=${page}&limit=10`);
   return res.data;
 };
 
@@ -27,5 +32,10 @@ export const addUserPointBingo = async (username, point) => {
 
 export const refundPoint = async (users) => {
   const res = await api.post('/user/refund-point', { users });
+  return res.data;
+};
+
+export const minusPoint = async (users) => {
+  const res = await api.post('/user/minus-point', { users });
   return res.data;
 };
