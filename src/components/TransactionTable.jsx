@@ -50,7 +50,7 @@ const TransactionTable = () => {
               <td>{transaction.username}</td>
               <td>{transaction.point}</td>
               <td>{transaction.type}</td>
-              <td>{handleFormatDate(transaction.date})</td>
+              <td>{handleFormatDate(transaction.date)}</td>
             </tr>
           ))}
         </tbody>
