@@ -7,7 +7,7 @@ router.get('/', async (req, res) => {
   const { page = 1, limit = 10 } = req.query;
   try {
     const transactions = await Transaction.find()
-      .sort({ date: -1 })
+      .sort({ date: -1, _id: -1 })
       .limit(limit * 1)
       .skip((page - 1) * limit)
       .exec();
