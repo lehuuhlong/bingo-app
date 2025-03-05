@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { io } from 'socket.io-client';
+import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 
 const socket = io(process.env.REACT_APP_SERVER_URL);
 
@@ -45,13 +46,20 @@ const Chat = (props) => {
     <div className="mb-4">
       <h4 className="text-secondary text-center">💬Chat</h4>
       <h5 className="text-info text-center">
-        {nickname} -{' '}
-        <span className="text-danger" data-toggle="tooltip" data-placement="top" title="20 point = 1 ticket">
-          Point: {user?.point}{' '}
-        </span>
-        <span style={{ cursor: 'pointer' }} data-toggle="tooltip" data-placement="top" title="20 point = 1 ticket">
-          🎯
-        </span>
+        {nickname} - <span className="text-danger">Point: {user?.point} </span>
+        <OverlayTrigger
+          placement="top"
+          delay={{ show: 250, hide: 400 }}
+          overlay={
+            <Tooltip>
+              <span>
+                1 Point = 1.000đ <br /> 20 Point = 1 Ticket Bingo
+              </span>
+            </Tooltip>
+          }
+        >
+          <span style={{ cursor: 'pointer' }}>📌</span>
+        </OverlayTrigger>
       </h5>
       <div ref={chatRef} className="chat-box border rounded p-3 bg-light shadow-sm" style={{ height: '250px', overflowY: 'auto' }}>
         {chat.map((msg, index) => (

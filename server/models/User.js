@@ -6,6 +6,7 @@ const UserSchema = new mongoose.Schema({
   pointBingo: { type: Number, default: 0 },
   bingoCount: { type: Number, default: 0 },
   attend: { type: Number, default: 0 },
+  closeBingo: { type: Number, default: 0 },
   role: { type: String, enum: ['user', 'admin'], default: 'user' },
 });
 

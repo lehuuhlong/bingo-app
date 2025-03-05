@@ -24,11 +24,8 @@ export default function MemberOnline(props) {
         {user?.role === 'user' &&
           onlineArranged &&
           onlineArranged.map((userOnline, index) => (
-            <OverlayTrigger placement="right" delay={{ show: 250, hide: 400 }} overlay={<Tooltip>{userOnline}</Tooltip>}>
-              <li
-                key={index}
-                className={`alert ${usersBoard[userOnline]?.nickname === nickname ? 'alert-warning' : 'alert-info'} p-2 rounded shadow-sm`}
-              >
+            <OverlayTrigger key={index} placement="right" delay={{ show: 250, hide: 400 }} overlay={<Tooltip>{userOnline}</Tooltip>}>
+              <li className={`alert ${usersBoard[userOnline]?.nickname === nickname ? 'alert-warning' : 'alert-info'} p-2 rounded shadow-sm`}>
                 {usersBoard[userOnline]?.nickname}
               </li>
             </OverlayTrigger>
