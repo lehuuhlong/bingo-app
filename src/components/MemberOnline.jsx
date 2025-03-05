@@ -1,5 +1,13 @@
+import { useEffect, useState } from 'react';
+
 export default function MemberOnline(props) {
   const { onlineUsers, nickname, usersBoard, user } = props;
+  const [onlineArranged, setOnlineArranged] = useState([]);
+
+  useEffect(() => {
+    const reArrangedList = [user?.username, ...onlineUsers.filter(name => name !== user?.username)];
+    setOnlineArranged(reArrangedList);
+  }, [onlineUsers, user]);
 
   return (
     <>
@@ -12,7 +20,7 @@ export default function MemberOnline(props) {
             </li>
           ))}
         {user?.role === 'user' &&
-          onlineUsers.map((userOnline, index) => (
+          onlineArranged && onlineArranged.map((userOnline, index) => (
             <li
               key={index}
               className={`alert ${usersBoard[userOnline]?.nickname === nickname ? 'alert-warning' : 'alert-info'} p-2 rounded shadow-sm`}
