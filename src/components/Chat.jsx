@@ -30,7 +30,7 @@ const Chat = (props) => {
   }, []);
 
   const sendMessage = () => {
-    if (message) {
+    if (message.trim().length) {
       socket.emit('chatMessage', { nickname, message });
       setMessage('');
     }
@@ -61,7 +61,7 @@ const Chat = (props) => {
           <span style={{ cursor: 'pointer' }}>📌</span>
         </OverlayTrigger>
       </h5>
-      <div ref={chatRef} className="chat-box border rounded p-3 bg-light shadow-sm" style={{ height: '250px', overflowY: 'auto' }}>
+      <div ref={chatRef} className="chat-box border rounded p-3 bg-light shadow-sm" style={{ height: '325px', overflowY: 'auto' }}>
         {chat.map((msg, index) => (
           <div key={index} className="mb-2">
             <strong style={{ color: `${msg.nickname === 'Admin Bingo' ? 'red' : 'black'}` }}>{msg.nickname}:</strong> {msg.message}
@@ -81,7 +81,7 @@ const Chat = (props) => {
         }}
         onChange={(e) => setMessage(e.target.value)}
       />
-      <button className="btn btn-secondary mt-2 w-100" onClick={sendMessage}>
+      <button className="btn btn-secondary mt-2 w-100" onClick={sendMessage} disabled={message.trim().length === 0}>
         Send
       </button>
     </div>

@@ -7,7 +7,6 @@ const TransactionTable = (props) => {
   const [transactions, setTransactions] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [display, setDisplay] = useState(true);
   const itemsPerPage = 10;
 
   useEffect(() => {
@@ -37,10 +36,6 @@ const TransactionTable = (props) => {
     }
   };
 
-  const handleDisplay = () => {
-    setDisplay(!display);
-  };
-
   const formatDateTime = (dateTime) => {
     const date = new Date(dateTime);
     const options = {
@@ -59,43 +54,37 @@ const TransactionTable = (props) => {
 
   return (
     <div className="mt-3">
-      <h4 className="text-secondary text-center">
-        📋Transaction History <span style={{ cursor: 'pointer' }}>ℹ️</span>
-      </h4>
-      {display && (
-        <>
-          <table className="table table-hover variant table-bordered shadow-sm text-center">
-            <thead className="table-secondary">
-              <tr>
-                <th>#</th>
-                <th>Username</th>
-                <th>Point</th>
-                <th>Type</th>
-                <th>Date</th>
+      <h4 className="text-secondary text-center">📋Transaction History</h4>
+      <table className="table table-hover variant table-bordered shadow-sm text-center">
+        <thead className="table-secondary">
+          <tr>
+            <th>#</th>
+            <th>Username</th>
+            <th>Point</th>
+            <th>Type</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {transactions &&
+            transactions.map((transaction, index) => (
+              <tr key={transaction._id}>
+                <td>{index + 1 + (currentPage - 1) * itemsPerPage}</td>
+                <td>{transaction.username}</td>
+                <td>{transaction.point}</td>
+                <td>{transaction.type}</td>
+                <td>{formatDateTime(transaction.date)}</td>
               </tr>
-            </thead>
-            <tbody>
-              {transactions &&
-                transactions.map((transaction, index) => (
-                  <tr key={transaction._id}>
-                    <td>{index + 1 + (currentPage - 1) * itemsPerPage}</td>
-                    <td>{transaction.username}</td>
-                    <td>{transaction.point}</td>
-                    <td>{transaction.type}</td>
-                    <td>{formatDateTime(transaction.date)}</td>
-                  </tr>
-                ))}
-              {(!transactions || !transactions.length) && (
-                <tr className="text-center">
-                  <td colSpan={5}>No records</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+            ))}
+          {(!transactions || !transactions.length) && (
+            <tr className="text-center">
+              <td colSpan={5}>No records</td>
+            </tr>
+          )}
+        </tbody>
+      </table>
 
-          <CustomPagination totalPages={totalPages} currentPage={currentPage} onPageChange={fetchTransactions} />
-        </>
-      )}
+      <CustomPagination totalPages={totalPages} currentPage={currentPage} onPageChange={fetchTransactions} />
     </div>
   );
 };

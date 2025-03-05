@@ -2,8 +2,8 @@ const Ranking = (props) => {
   const { usersRanking } = props;
 
   return (
-    <div className="">
-      <h4 className="text-secondary text-center">Ranking🥇🥈🥉</h4>
+    <div className="ranking">
+      <h4 className="text-secondary text-center">🥇🥈🥉</h4>
       <ul className="list-unstyled text-center">
         {usersRanking.map((user, index) => {
           let bgColor = 'alert-warning';

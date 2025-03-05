@@ -13,6 +13,7 @@ import TicketBingo from './TicketBingo';
 import TransactionTable from './TransactionTable';
 import Spinners from './Spinners';
 import Chat from './Chat';
+import { Tab, Tabs } from 'react-bootstrap';
 
 const socket = io(process.env.REACT_APP_SERVER_URL);
 
@@ -292,114 +293,132 @@ export default function Bingo() {
             </div>
           </div>
           <div className="col-lg-7">
-            {bingoName && bingoName.length > 0 && (
-              <div className="text-center mb-4">
-                <h4 className="text-secondary">🎉 List users Bingo! 🎉</h4>
-                <div className="bg-gradient-light p-3 rounded shadow">
-                  <div className="row">
-                    {bingoName.map((name, index) => (
-                      <div className={bingoName.length > 1 ? 'col-lg-6' : 'col'} key={index}>
-                        <h6 className="text-warning mt-2">
-                          Winner: {usersBoard[name]?.nickname} - {name} 🎉
-                        </h6>
-                        <div className="d-grid" style={{ gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px', display: 'inline-grid' }}>
-                          {usersBoard[name]?.board.flat().map((num, index) => (
-                            <div
-                              key={index}
-                              className={`border p-3 rounded-circle fw-bold d-flex align-items-center justify-content-center shadow-sm ${
-                                bingoName.length > 0
-                                  ? usersBoard[name]?.bingoCells.includes(num)
-                                    ? 'bg-success text-white'
-                                    : calledNumbers.includes(num)
-                                    ? 'bg-secondary text-white'
-                                    : 'bg-light text-dark'
-                                  : calledNumbers.includes(num)
-                                  ? 'bg-success text-white'
-                                  : 'bg-light text-dark'
-                              }`}
-                              style={{ width: '50px', height: '50px', fontSize: '1.2rem', cursor: 'pointer', transition: 'all 0.3s' }}
-                            >
-                              {num}
+            <Tabs defaultActiveKey="bingo" className="mb-3">
+              <Tab eventKey="bingo" title="🔥Bingo">
+                {bingoName && bingoName.length > 0 && (
+                  <div className="text-center mb-4">
+                    <h4 className="text-secondary">🎉 List users Bingo! 🎉</h4>
+                    <div className="bg-gradient-light p-3 rounded shadow">
+                      <div className="row">
+                        {bingoName.map((name, index) => (
+                          <div className={bingoName.length > 1 ? 'col-lg-6' : 'col'} key={index}>
+                            <h6 className="text-warning mt-2">
+                              Winner: {usersBoard[name]?.nickname} - {name} 🎉
+                            </h6>
+                            <div className="d-grid" style={{ gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px', display: 'inline-grid' }}>
+                              {usersBoard[name]?.board.flat().map((num, index) => (
+                                <div
+                                  key={index}
+                                  className={`border p-3 rounded-circle fw-bold d-flex align-items-center justify-content-center shadow-sm ${
+                                    bingoName.length > 0
+                                      ? usersBoard[name]?.bingoCells.includes(num)
+                                        ? 'bg-success text-white'
+                                        : calledNumbers.includes(num)
+                                        ? 'bg-secondary text-white'
+                                        : 'bg-light text-dark'
+                                      : calledNumbers.includes(num)
+                                      ? 'bg-success text-white'
+                                      : 'bg-light text-dark'
+                                  }`}
+                                  style={{ width: '50px', height: '50px', fontSize: '1.2rem', cursor: 'pointer', transition: 'all 0.3s' }}
+                                >
+                                  {num}
+                                </div>
+                              ))}
                             </div>
-                          ))}
-                        </div>
+                          </div>
+                        ))}
                       </div>
-                    ))}
+                    </div>
                   </div>
-                </div>
-              </div>
-            )}
-            <div className="mb-4 text-center">
-              <h4 className="text-secondary">🎲 Lottery number 🎲</h4>
-              <div className="d-flex flex-wrap gap-2 justify-content-center bg-light p-3 rounded shadow">
-                {calledNumbers.map(
-                  (number, index) =>
-                    number !== '🌟' && (
+                )}
+                <div className="mb-4 text-center">
+                  <h4 className="text-secondary">🎲 Lottery number 🎲</h4>
+                  <div className="d-flex flex-wrap gap-2 justify-content-center bg-light p-3 rounded shadow">
+                    {calledNumbers.map(
+                      (number, index) =>
+                        number !== '🌟' && (
+                          <div
+                            key={index}
+                            className={`mr-1 mb-1 rounded-circle d-flex align-items-center justify-content-center number-ball ${
+                              bingoName.length > 0
+                                ? numberBingCells(number)
+                                  ? 'bg-success text-white'
+                                  : 'bg-secondary text-white'
+                                : 'bg-info text-white'
+                            }`}
+                            style={{
+                              width: '50px',
+                              height: '50px',
+                              fontSize: '1.2rem',
+                              boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+                              animation: 'scaleIn 1s ease-in-out',
+                            }}
+                          >
+                            <p
+                              style={{
+                                margin: 0,
+                                animation: 'spin 1s ease-in-out',
+                              }}
+                            >
+                              {number}
+                            </p>
+                          </div>
+                        )
+                    )}
+                    {currentSpinningNumber && bingoName.length === 0 && (
                       <div
-                        key={index}
-                        className={`mr-1 mb-1 rounded-circle d-flex align-items-center justify-content-center number-ball ${
-                          bingoName.length > 0
-                            ? numberBingCells(number)
-                              ? 'bg-success text-white'
-                              : 'bg-secondary text-white'
-                            : 'bg-info text-white'
-                        }`}
+                        className="number-ball"
                         style={{
                           width: '50px',
                           height: '50px',
                           fontSize: '1.2rem',
+                          borderRadius: '50%',
+                          backgroundColor: '#ffc107',
+                          color: '#000000',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          animation: 'spin 1s linear infinite',
                           boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
-                          animation: 'scaleIn 1s ease-in-out',
                         }}
                       >
-                        <p
-                          style={{
-                            margin: 0,
-                            animation: 'spin 1s ease-in-out',
-                          }}
-                        >
-                          {number}
-                        </p>
+                        {currentSpinningNumber}
                       </div>
-                    )
-                )}
-                {currentSpinningNumber && bingoName.length === 0 && (
-                  <div
-                    className="number-ball"
-                    style={{
-                      width: '50px',
-                      height: '50px',
-                      fontSize: '1.2rem',
-                      borderRadius: '50%',
-                      backgroundColor: '#ffc107',
-                      color: '#000000',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      animation: 'spin 1s linear infinite',
-                      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
-                    }}
-                  >
-                    {currentSpinningNumber}
+                    )}
                   </div>
+                </div>
+                {user?.role === 'admin' && <Admin onlineUsers={onlineUsers} bingoName={bingoName} usersBoard={usersBoard} />}
+                {user?.role === 'user' && (
+                  <TicketBingo
+                    handleResetBingo={handleResetBingo}
+                    countResetBingo={countResetBingo}
+                    bingoName={bingoName}
+                    calledNumbers={calledNumbers}
+                    usersBoard={usersBoard}
+                    username={username}
+                    board={board}
+                    isBingo={isBingo}
+                    bingoCells={bingoCells}
+                  />
                 )}
-              </div>
-            </div>
-            {user?.role === 'admin' && <Admin onlineUsers={onlineUsers} bingoName={bingoName} usersBoard={usersBoard} />}
-            {user?.role === 'user' && (
-              <TicketBingo
-                handleResetBingo={handleResetBingo}
-                countResetBingo={countResetBingo}
-                bingoName={bingoName}
-                calledNumbers={calledNumbers}
-                usersBoard={usersBoard}
-                username={username}
-                board={board}
-                isBingo={isBingo}
-                bingoCells={bingoCells}
-              />
-            )}
-            {user?.role && <TransactionTable user={user} />}
+              </Tab>
+              <Tab eventKey="transaction" title="📋Transaction">
+                {user?.role && <TransactionTable user={user} />}
+              </Tab>
+              <Tab eventKey="statistics" title="📊Statistics">
+                <strong>Coming soon...</strong>
+              </Tab>
+              <Tab eventKey="ranking" title="🥇Ranking">
+                <Ranking usersRanking={usersRanking} />
+              </Tab>
+              <Tab eventKey="profile" title="🔑Profile" disabled>
+                Tab content for Profile
+              </Tab>
+              <Tab eventKey="contact" title="🎯Contact" disabled>
+                Tab content for Contact
+              </Tab>
+            </Tabs>
           </div>
 
           <div className="col-lg-3">
@@ -452,7 +471,6 @@ export default function Bingo() {
               </div>
             )}
             <Chat nickname={nickname} user={user} />
-            <Ranking usersRanking={usersRanking} />
             <div className="member-online-show">
               <MemberOnline onlineUsers={onlineUsers} nickname={nickname} usersBoard={usersBoard} user={user} />
             </div>

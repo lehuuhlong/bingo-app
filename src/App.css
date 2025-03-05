@@ -90,6 +90,10 @@
     width: 100%;
     margin: 0 auto;
   }
+
+  .ranking {
+    width: 100% !important;
+  }
 }
 
 .nearly-bingo {
@@ -100,5 +104,10 @@
 .jackpot {
   width: 100%;
   max-width: 300px;
+  margin: 0 auto;
+}
+
+.ranking {
+  width: 50%;
   margin: 0 auto;
 }
