@@ -23,7 +23,7 @@ router.get('/all', async (req, res) => {
   const { page = 1, limit = 10 } = req.query;
   try {
     const users = await User.find()
-      .sort({ point: -1, attend: -1, _id: -1 })
+      .sort({ point: -1, attend: -1, bingoCount: -1, pointBingo: -1, _id: -1 })
       .limit(limit * 1)
       .skip((page - 1) * limit)
       .exec();

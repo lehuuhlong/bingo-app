@@ -8,7 +8,7 @@ router.get('/all', async (req, res) => {
   try {
     const transactions = await Transaction.find()
       .sort({ date: -1, _id: -1 })
-      .limit(limit * 1)
+      .limit(limit)
       .skip((page - 1) * limit)
       .exec();
 
@@ -17,7 +17,6 @@ router.get('/all', async (req, res) => {
     res.json({
       transactions,
       totalPages: Math.ceil(count / limit),
-      currentPage: parseInt(page),
     });
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
@@ -38,7 +37,6 @@ router.get('/id', async (req, res) => {
     res.json({
       transactions,
       totalPages: Math.ceil(count / limit),
-      currentPage: parseInt(page),
     });
   } catch (err) {
     res.status(500).json({ message: 'Server error' });

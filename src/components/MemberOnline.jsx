@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Tooltip from 'react-bootstrap/Tooltip';
 
 export default function MemberOnline(props) {
   const { onlineUsers, nickname, usersBoard, user } = props;
   const [onlineArranged, setOnlineArranged] = useState([]);
 
   useEffect(() => {
-    const reArrangedList = [user?.username, ...onlineUsers.filter(name => name !== user?.username)];
+    const reArrangedList = [user?.username, ...onlineUsers.filter((name) => name !== user?.username)];
     setOnlineArranged(reArrangedList);
   }, [onlineUsers, user]);
 
@@ -20,16 +22,16 @@ export default function MemberOnline(props) {
             </li>
           ))}
         {user?.role === 'user' &&
-          onlineArranged && onlineArranged.map((userOnline, index) => (
-            <li
-              key={index}
-              className={`alert ${usersBoard[userOnline]?.nickname === nickname ? 'alert-warning' : 'alert-info'} p-2 rounded shadow-sm`}
-              data-toggle="tooltip"
-              data-placement="top"
-              title={userOnline}
-            >
-              {usersBoard[userOnline]?.nickname}
-            </li>
+          onlineArranged &&
+          onlineArranged.map((userOnline, index) => (
+            <OverlayTrigger placement="right" delay={{ show: 250, hide: 400 }} overlay={<Tooltip>{userOnline}</Tooltip>}>
+              <li
+                key={index}
+                className={`alert ${usersBoard[userOnline]?.nickname === nickname ? 'alert-warning' : 'alert-info'} p-2 rounded shadow-sm`}
+              >
+                {usersBoard[userOnline]?.nickname}
+              </li>
+            </OverlayTrigger>
           ))}
       </ul>
     </>

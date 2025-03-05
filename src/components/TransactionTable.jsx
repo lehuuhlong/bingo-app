@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Pagination } from 'react-bootstrap';
 import { getTransactions, getTransactionsById } from '../services/transactionService';
+import CustomPagination from './CustomPagination';
 
 const TransactionTable = (props) => {
-  const { role, username } = props;
+  const { user } = props;
   const [transactions, setTransactions] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -11,18 +11,18 @@ const TransactionTable = (props) => {
 
   useEffect(() => {
     fetchTransactions(currentPage);
-  }, [currentPage, role, username]);
+  }, [currentPage, user]);
 
   const fetchTransactions = async (page) => {
     try {
       let response = {};
 
-      switch (role) {
+      switch (user?.role) {
         case 'admin':
           response = await getTransactions(page);
           break;
         case 'user':
-          response = await getTransactionsById(page, username);
+          response = await getTransactionsById(page, user?.username);
           break;
         default:
           break;
@@ -30,13 +30,10 @@ const TransactionTable = (props) => {
 
       setTransactions(response.transactions);
       setTotalPages(response.totalPages);
+      setCurrentPage(page);
     } catch (error) {
       console.error('Error fetching transactions', error);
     }
-  };
-
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
   };
 
   const formatDateTime = (dateTime) => {
@@ -87,13 +84,7 @@ const TransactionTable = (props) => {
         </tbody>
       </table>
 
-      <Pagination className="justify-content-center">
-        {[...Array(totalPages).keys()].map((number) => (
-          <Pagination.Item key={number + 1} activeLabel="" active={number + 1 === currentPage} onClick={() => handlePageChange(number + 1)}>
-            {number + 1}
-          </Pagination.Item>
-        ))}
-      </Pagination>
+      <CustomPagination totalPages={totalPages} currentPage={currentPage} onPageChange={fetchTransactions} />
     </div>
   );
 };

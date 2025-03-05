@@ -428,7 +428,7 @@ export default function Bingo() {
                 bingoCells={bingoCells}
               />
             )}
-            {user?.role && <TransactionTable role={user.role} username={username} />}
+            {user?.role && <TransactionTable user={user}/>}
           </div>
 
           <div className="col-lg-3">

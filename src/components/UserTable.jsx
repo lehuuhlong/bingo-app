@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Pagination } from 'react-bootstrap';
 import { getUsers } from '../services/userService';
+import CustomPagination from './CustomPagination';
 
 const UserTable = () => {
   const [users, setUsers] = useState([]);
@@ -17,13 +17,10 @@ const UserTable = () => {
       const response = await getUsers(page);
       setUsers(response.users);
       setTotalPages(response.totalPages);
+      setCurrentPage(page);
     } catch (error) {
       console.error('Error fetching users', error);
     }
-  };
-
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
   };
 
   return (
@@ -55,13 +52,7 @@ const UserTable = () => {
         </tbody>
       </table>
 
-      <Pagination className="justify-content-center">
-        {[...Array(totalPages).keys()].map((number) => (
-          <Pagination.Item key={number + 1} activeLabel="" active={number + 1 === currentPage} onClick={() => handlePageChange(number + 1)}>
-            {number + 1}
-          </Pagination.Item>
-        ))}
-      </Pagination>
+      <CustomPagination totalPages={totalPages} currentPage={currentPage} onPageChange={fetchUsers} />
     </div>
   );
 };
