@@ -1,56 +1,22 @@
-import React from 'react';
+import Spinner from 'react-bootstrap/Spinner';
 
 const Spinners = () => {
   return (
     <div className="position-relative">
-      <div class="spinner-border text-primary" role="status">
-        <span class="sr-only">Loading...</span>
-      </div>
-      <div class="spinner-border text-secondary" role="status">
-        <span class="sr-only">Loading...</span>
-      </div>
-      <div class="spinner-border text-success" role="status">
-        <span class="sr-only">Loading...</span>
-      </div>
-      <div class="spinner-border text-danger" role="status">
-        <span class="sr-only">Loading...</span>
-      </div>
-      <div class="spinner-border text-warning" role="status">
-        <span class="sr-only">Loading...</span>
-      </div>
-      <div class="spinner-border text-info" role="status">
-        <span class="sr-only">Loading...</span>
-      </div>
-      <div class="spinner-border text-light" role="status">
-        <span class="sr-only">Loading...</span>
-      </div>
-      <div class="spinner-border text-dark" role="status">
-        <span class="sr-only">Loading...</span>
-      </div>
-      <div class="spinner-grow text-primary" role="status">
-        <span class="sr-only">Loading...</span>
-      </div>
-      <div class="spinner-grow text-secondary" role="status">
-        <span class="sr-only">Loading...</span>
-      </div>
-      <div class="spinner-grow text-success" role="status">
-        <span class="sr-only">Loading...</span>
-      </div>
-      <div class="spinner-grow text-danger" role="status">
-        <span class="sr-only">Loading...</span>
-      </div>
-      <div class="spinner-grow text-warning" role="status">
-        <span class="sr-only">Loading...</span>
-      </div>
-      <div class="spinner-grow text-info" role="status">
-        <span class="sr-only">Loading...</span>
-      </div>
-      <div class="spinner-grow text-light" role="status">
-        <span class="sr-only">Loading...</span>
-      </div>
-      <div class="spinner-grow text-dark" role="status">
-        <span class="sr-only">Loading...</span>
-      </div>
+      <Spinner animation="border" variant="primary" />
+      <Spinner animation="border" variant="secondary" />
+      <Spinner animation="border" variant="success" />
+      <Spinner animation="border" variant="danger" />
+      <Spinner animation="border" variant="warning" />
+      <Spinner animation="border" variant="info" />
+      <Spinner animation="border" variant="dark" />
+      <Spinner animation="grow" variant="primary" />
+      <Spinner animation="grow" variant="secondary" />
+      <Spinner animation="grow" variant="success" />
+      <Spinner animation="grow" variant="danger" />
+      <Spinner animation="grow" variant="warning" />
+      <Spinner animation="grow" variant="info" />
+      <Spinner animation="grow" variant="dark" />
     </div>
   );
 };
