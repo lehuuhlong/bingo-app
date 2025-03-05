@@ -12,6 +12,7 @@ import Admin from './Admin';
 import TicketBingo from './TicketBingo';
 import TransactionTable from './TransactionTable';
 import Spinners from './Spinners';
+import Chat from './Chat';
 
 const socket = io(process.env.REACT_APP_SERVER_URL);
 
@@ -20,8 +21,6 @@ export default function Bingo() {
   const [usersBoard, setUsersBoard] = useState({});
   const [calledNumbers, setCalledNumbers] = useState([]);
   const [isBingo, setIsBingo] = useState(false);
-  const [message, setMessage] = useState('');
-  const [chat, setChat] = useState([]);
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [username, setUsername] = useState('');
   const [nickname, setNickname] = useState('');
@@ -37,7 +36,6 @@ export default function Bingo() {
   const [user, setUser] = useState({});
   const [loading, setLoading] = useState(false);
 
-  const chatRef = useRef(null);
   const buttonBingoRef = useRef(null);
   const buttonResetRef = useRef(null);
 
@@ -84,18 +82,6 @@ export default function Bingo() {
       }, 5000);
     });
 
-    socket.on('chats', (chats) => {
-      setTimeout(() => {
-        scrollToBottom();
-      }, 700);
-      setChat(chats);
-    });
-
-    socket.on('chatMessage', (msg) => {
-      setChat((prev) => [...prev, msg]);
-      scrollToBottom();
-    });
-
     socket.on('updateUsers', (users) => {
       setOnlineUsers(users);
     });
@@ -136,13 +122,11 @@ export default function Bingo() {
 
     return () => {
       socket.off('numberCalled');
-      socket.off('chatMessage');
       socket.off('updateUsers');
       socket.off('isBingo');
       socket.off('bingoNames');
       socket.off('userBoard');
       socket.off('resetNumber');
-      socket.off('chats');
       socket.off('nearlyBingo');
     };
   }, []);
@@ -203,19 +187,6 @@ export default function Bingo() {
     }
 
     setBingoCells(newBingoCells);
-  };
-
-  const sendMessage = () => {
-    if (message) {
-      socket.emit('chatMessage', { nickname, message });
-      setMessage('');
-    }
-  };
-
-  const scrollToBottom = () => {
-    if (chatRef.current) {
-      chatRef.current.scrollTop = chatRef.current.scrollHeight;
-    }
   };
 
   const handleConfirm = () => {
@@ -428,7 +399,7 @@ export default function Bingo() {
                 bingoCells={bingoCells}
               />
             )}
-            {user?.role && <TransactionTable user={user}/>}
+            {user?.role && <TransactionTable user={user} />}
           </div>
 
           <div className="col-lg-3">
@@ -480,41 +451,7 @@ export default function Bingo() {
                 </ul>
               </div>
             )}
-            <div className="mb-4">
-              <h4 className="text-secondary text-center">💬Chat</h4>
-              <h5 className="text-info text-center">
-                {nickname} -{' '}
-                <span className="text-danger" data-toggle="tooltip" data-placement="top" title="20 point = 1 ticket">
-                  Point: {user?.point}{' '}
-                </span>
-                <span style={{ cursor: 'pointer' }} data-toggle="tooltip" data-placement="top" title="20 point = 1 ticket">
-                  🎯
-                </span>
-              </h5>
-              <div ref={chatRef} className="chat-box border rounded p-3 bg-light shadow-sm" style={{ height: '250px', overflowY: 'auto' }}>
-                {chat.map((msg, index) => (
-                  <div key={index} className="mb-2">
-                    <strong style={{ color: `${msg.nickname === 'Admin Bingo' ? 'red' : 'black'}` }}>{msg.nickname}:</strong> {msg.message}
-                  </div>
-                ))}
-              </div>
-              <input
-                type="text"
-                className="form-control mt-2"
-                placeholder="Enter message"
-                value={message}
-                maxLength="80"
-                onKeyPress={(event) => {
-                  if (event.key === 'Enter') {
-                    sendMessage();
-                  }
-                }}
-                onChange={(e) => setMessage(e.target.value)}
-              />
-              <button className="btn btn-secondary mt-2 w-100" onClick={sendMessage}>
-                Send
-              </button>
-            </div>
+            <Chat nickname={nickname} user={user} />
             <Ranking usersRanking={usersRanking} />
             <div className="member-online-show">
               <MemberOnline onlineUsers={onlineUsers} nickname={nickname} usersBoard={usersBoard} user={user} />
