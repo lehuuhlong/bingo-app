@@ -56,7 +56,7 @@ const BingoStatistics = () => {
                 </strong>
               </div>
               <div className="mr-3 ml-3" style={{ width: '300px', marginTop: '19px' }}>
-                <ProgressBar striped variant="warning" now={calculatePercentage} />
+                <ProgressBar striped variant="warning" now={calculatePercentage(number.count)} />
               </div>
               <div className="d-flex align-items-center">
                 <strong className="text-secondary" style={{ fontSize: '1.15rem' }}>

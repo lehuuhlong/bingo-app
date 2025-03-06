@@ -7,7 +7,7 @@ router.get('/number-count', async (req, res) => {
   const { page = 1, limit = 10 } = req.query;
   try {
     const statistics = await BingoNumber.find()
-      .sort({ count: -1, _id: -1 })
+      .sort({ count: -1, number: 1, _id: -1 })
       .limit(limit)
       .skip((page - 1) * limit)
       .exec();
