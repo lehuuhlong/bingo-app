@@ -10,11 +10,12 @@ const UserTable = () => {
 
   useEffect(() => {
     fetchUsers(currentPage);
-  }, [currentPage]);
+  }, []);
 
   const fetchUsers = async (page) => {
     try {
       const response = await getUsers(page);
+      console.log('response', response);
       setUsers(response.users);
       setTotalPages(response.totalPages);
       setCurrentPage(page);
@@ -26,7 +27,7 @@ const UserTable = () => {
   return (
     <div className="mt-3">
       <h4 className="text-secondary text-center">📋User List</h4>
-      <table className="table table-hover table-dark table-bordered shadow-sm text-center">
+      <table className="table table-hover variant table-bordered shadow-sm text-center">
         <thead>
           <tr>
             <th>#</th>
@@ -34,7 +35,9 @@ const UserTable = () => {
             <th>Point</th>
             <th>Point Bingo</th>
             <th>Bingo</th>
+            <th>Close</th>
             <th>Attend</th>
+            <th>Date</th>
           </tr>
         </thead>
         <tbody>
@@ -46,7 +49,9 @@ const UserTable = () => {
                 <td>{user.point}</td>
                 <td>{user.pointBingo}</td>
                 <td>{user.bingoCount}</td>
+                <td>{user.closeBingo}</td>
                 <td>{user.attend}</td>
+                <td>{user.updatedAt}</td>
               </tr>
             ))}
         </tbody>

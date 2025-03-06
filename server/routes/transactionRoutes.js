@@ -7,7 +7,7 @@ router.get('/all', async (req, res) => {
   const { page = 1, limit = 10 } = req.query;
   try {
     const transactions = await Transaction.find()
-      .sort({ date: -1, _id: -1 })
+      .sort({ createdAt: -1, _id: -1 })
       .limit(limit)
       .skip((page - 1) * limit)
       .exec();
@@ -27,7 +27,7 @@ router.get('/id', async (req, res) => {
   const { page = 1, limit = 10, username } = req.query;
   try {
     const transactions = await Transaction.find({ username })
-      .sort({ date: -1, _id: -1 })
+      .sort({ createdAt: -1, _id: -1 })
       .limit(limit * 1)
       .skip((page - 1) * limit)
       .exec();

@@ -11,7 +11,7 @@ const TransactionTable = (props) => {
 
   useEffect(() => {
     fetchTransactions(currentPage);
-  }, [currentPage, user]);
+  }, []);
 
   const fetchTransactions = async (page) => {
     try {
@@ -36,22 +36,6 @@ const TransactionTable = (props) => {
     }
   };
 
-  const formatDateTime = (dateTime) => {
-    const date = new Date(dateTime);
-    const options = {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: false,
-      timeZone: 'Asia/Bangkok',
-    };
-
-    return new Intl.DateTimeFormat('en-GB', options).format(date).replace(',', '');
-  };
-
   return (
     <div className="mt-3">
       <h4 className="text-secondary text-center">📋Transaction History</h4>
@@ -63,6 +47,8 @@ const TransactionTable = (props) => {
             <th>Point</th>
             <th>Type</th>
             <th>Date</th>
+            <th>Note</th>
+            {user?.role === 'admin' && <th>Last Modified Time</th>}
           </tr>
         </thead>
         <tbody>
@@ -73,12 +59,14 @@ const TransactionTable = (props) => {
                 <td>{transaction.username}</td>
                 <td>{transaction.point}</td>
                 <td>{transaction.type}</td>
-                <td>{formatDateTime(transaction.date)}</td>
+                <td>{transaction.createdAt}</td>
+                <td>{transaction.note}</td>
+                {user?.role === 'admin' && <td>{transaction.updatedAt}</td>}
               </tr>
             ))}
           {(!transactions || !transactions.length) && (
             <tr className="text-center">
-              <td colSpan={5}>No records</td>
+              <td colSpan={6}>No records</td>
             </tr>
           )}
         </tbody>
