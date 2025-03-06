@@ -11,16 +11,16 @@ const Chat = (props) => {
   const chatRef = useRef(null);
 
   useEffect(() => {
+    scrollToBottom();
+  }, [chat]);
+
+  useEffect(() => {
     socket.on('chats', (chats) => {
-      setTimeout(() => {
-        scrollToBottom();
-      }, 700);
       setChat(chats);
     });
 
     socket.on('chatMessage', (msg) => {
       setChat((prev) => [...prev, msg]);
-      scrollToBottom();
     });
 
     return () => {
