@@ -403,7 +403,7 @@ export default function Bingo() {
                 )}
               </Tab>
               <Tab eventKey="ranking" title="🥇Ranking">
-                <Ranking usersRanking={usersRanking} />
+                <Ranking isTopFive={false} usersRanking={usersRanking} />
               </Tab>
               <Tab eventKey="statistics" title="📊Statistics">
                 <BingoStatistics />
@@ -470,6 +470,7 @@ export default function Bingo() {
               </div>
             )}
             <Chat nickname={nickname} user={user} />
+            <Ranking isTopFive={true} usersRanking={usersRanking} />
             <div className="member-online-show">
               <MemberOnline onlineUsers={onlineUsers} nickname={nickname} usersBoard={usersBoard} user={user} />
             </div>
