@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import ProgressBar from 'react-bootstrap/ProgressBar';
 import { getStatisticsNumber } from '../services/statisticsService';
 import CustomPagination from './CustomPagination';
 
@@ -6,6 +7,7 @@ const BingoStatistics = () => {
   const [numbers, setNumbers] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [maxCount, setMaxCount] = useState(1);
 
   useEffect(() => {
     fetchStatistics(1);
@@ -16,15 +18,21 @@ const BingoStatistics = () => {
       const response = await getStatisticsNumber(page);
       setNumbers(response.statistics);
       setTotalPages(response.totalPages);
+      if (page === 1) setMaxCount(Math.max(...response.statistics.map((num) => num.count)));
       setCurrentPage(page);
     } catch (error) {
       console.error('Error fetching numbers', error);
     }
   };
 
+  const calculatePercentage = (count) => {
+    if (maxCount === 0) return 0;
+    return (count / maxCount) * 100;
+  };
+
   return (
     <div className="mt-3">
-      <h4 className="text-secondary text-center">📋Bingo Number Statistics</h4>
+      <h4 className="text-secondary text-center">📊Bingo Number Statistics</h4>
       <div className="mb-3">
         {numbers &&
           numbers.map((number) => (
@@ -46,6 +54,9 @@ const BingoStatistics = () => {
                 >
                   {number.number}
                 </strong>
+              </div>
+              <div className="mr-3 ml-3" style={{ width: '300px', marginTop: '19px' }}>
+                <ProgressBar striped variant="warning" now={calculatePercentage} />
               </div>
               <div className="d-flex align-items-center">
                 <strong className="text-secondary" style={{ fontSize: '1.15rem' }}>
