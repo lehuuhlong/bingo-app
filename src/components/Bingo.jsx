@@ -1,6 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { io } from 'socket.io-client';
 import ModalBingoName from '../modal/ModalBingoName';
 import ModalReset from '../modal/ModalReset';
 import ToastReset from '../toast/ToastReset';
@@ -14,8 +13,7 @@ import TransactionTable from './TransactionTable';
 import Spinners from './Spinners';
 import Chat from './Chat';
 import { Tab, Tabs } from 'react-bootstrap';
-
-const socket = io(process.env.REACT_APP_SERVER_URL);
+import socket from '../services/socket';
 
 export default function Bingo() {
   const [board, setBoard] = useState([]);

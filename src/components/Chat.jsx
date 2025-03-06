@@ -1,8 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { io } from 'socket.io-client';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
-
-const socket = io(process.env.REACT_APP_SERVER_URL);
+import socket from '../services/socket';
 
 const Chat = (props) => {
   const { nickname, user } = props;

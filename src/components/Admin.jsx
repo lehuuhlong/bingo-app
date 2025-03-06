@@ -1,11 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { io } from 'socket.io-client';
 import AddUsersPoint from './AddUsersPoint';
 import AddUsersPointBingo from './AddUsersPointBingo';
 import { refundPoint, minusPoint } from '../services/userService';
 import UserTable from './UserTable';
-
-const socket = io(process.env.REACT_APP_SERVER_URL);
+import socket from '../services/socket';
 
 const Admin = (props) => {
   const { onlineUsers, bingoName, usersBoard } = props;
