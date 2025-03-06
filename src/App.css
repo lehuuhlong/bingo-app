@@ -38,6 +38,10 @@
   box-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(0, 123, 255, 0.6);
 }
 
+.number-ball-statistics {
+  border: 2px solid #ffffff;
+}
+
 @keyframes spin {
   from {
     transform: rotate(0deg);

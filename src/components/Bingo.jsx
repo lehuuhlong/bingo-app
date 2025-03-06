@@ -14,6 +14,7 @@ import Spinners from './Spinners';
 import Chat from './Chat';
 import { Tab, Tabs } from 'react-bootstrap';
 import socket from '../services/socket';
+import BingoStatistics from './BingoStatistics';
 
 export default function Bingo() {
   const [board, setBoard] = useState([]);
@@ -401,14 +402,14 @@ export default function Bingo() {
                   />
                 )}
               </Tab>
-              <Tab eventKey="transaction" title="📋Transaction">
-                {user?.role && <TransactionTable user={user} />}
-              </Tab>
-              <Tab eventKey="statistics" title="📊Statistics">
-                <strong>Coming soon...</strong>
-              </Tab>
               <Tab eventKey="ranking" title="🥇Ranking">
                 <Ranking usersRanking={usersRanking} />
+              </Tab>
+              <Tab eventKey="statistics" title="📊Statistics">
+                <BingoStatistics />
+              </Tab>
+              <Tab eventKey="transaction" title="📋Transaction">
+                {user?.role && <TransactionTable user={user} />}
               </Tab>
               <Tab eventKey="profile" title="🔑Profile" disabled>
                 Tab content for Profile

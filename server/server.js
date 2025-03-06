@@ -6,7 +6,9 @@ const cors = require('cors');
 const connectDB = require('./config/db');
 const userRoutes = require('./routes/userRoutes');
 const transactionRoutes = require('./routes/transactionRoutes');
+const statisticsRoutes = require('./routes/statisticsRoutes');
 const User = require('./models/User');
+const saveBingoNumber = require('./service/saveBingoNumber');
 
 const app = express();
 const server = http.createServer(app);
@@ -23,6 +25,7 @@ app.use(express.json());
 
 app.use('/api/user', userRoutes);
 app.use('/api/transaction', transactionRoutes);
+app.use('/api/statistics', statisticsRoutes);
 
 let users = {};
 let usersBoard = {};
@@ -68,13 +71,14 @@ io.on('connection', (socket) => {
     io.emit('nearlyBingo', usersNearlyBingo);
   });
 
-  socket.on('callNumber', () => {
+  socket.on('callNumber', async () => {
     if (isBingo || calledNumbers.length >= 75 || bingoNames.length > 0) return;
     let number;
     do {
       number = Math.floor(Math.random() * 75) + 1;
     } while (calledNumbers.includes(number));
     calledNumbers.push(number);
+    await saveBingoNumber(number);
     io.emit('numberCalled', calledNumbers);
   });
 
