@@ -10,7 +10,7 @@ const TransactionTable = (props) => {
   const itemsPerPage = 10;
 
   useEffect(() => {
-    fetchTransactions(currentPage);
+    fetchTransactions(1);
   }, []);
 
   const fetchTransactions = async (page) => {

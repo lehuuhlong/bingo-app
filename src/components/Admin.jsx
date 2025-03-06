@@ -35,9 +35,9 @@ const Admin = (props) => {
   };
 
   const stopAutoCall = () => {
-    if (bingoName.length) return;
     clearInterval(autoCallInterval.current);
     setIsAutoCalling(false);
+    if (bingoName.length) return;
     let nickname = 'Admin Bingo';
     let message = 'Game stop!';
     socket.emit('chatMessage', { nickname, message });

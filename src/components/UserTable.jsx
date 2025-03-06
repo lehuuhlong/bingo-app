@@ -9,13 +9,12 @@ const UserTable = () => {
   const itemsPerPage = 10;
 
   useEffect(() => {
-    fetchUsers(currentPage);
+    fetchUsers(1);
   }, []);
 
   const fetchUsers = async (page) => {
     try {
       const response = await getUsers(page);
-      console.log('response', response);
       setUsers(response.users);
       setTotalPages(response.totalPages);
       setCurrentPage(page);

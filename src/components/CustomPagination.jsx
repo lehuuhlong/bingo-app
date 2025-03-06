@@ -36,8 +36,12 @@ const CustomPagination = ({ totalPages, currentPage, onPageChange }) => {
 
   return (
     <Pagination className="justify-content-center">
-      <Pagination.Item disabled={currentPage === 1} onClick={() => onPageChange(1)} >{'«'}</Pagination.Item>
-      <Pagination.Item disabled={currentPage === 1} onClick={() => onPageChange(currentPage - 1)} >{'‹'}</Pagination.Item>
+      <Pagination.Item disabled={currentPage === 1} onClick={() => onPageChange(1)}>
+        «
+      </Pagination.Item>
+      <Pagination.Item disabled={currentPage === 1} onClick={() => onPageChange(currentPage - 1)}>
+        ‹
+      </Pagination.Item>
 
       {generatePages().map((page, index) =>
         page === '...' ? (
@@ -51,8 +55,12 @@ const CustomPagination = ({ totalPages, currentPage, onPageChange }) => {
         )
       )}
 
-      <Pagination.Item disabled={currentPage === totalPages} onClick={() => onPageChange(currentPage + 1)} >{'›'}</Pagination.Item>
-      <Pagination.Item disabled={currentPage === totalPages} onClick={() => onPageChange(totalPages)} >{'»'}</Pagination.Item>
+      <Pagination.Item disabled={currentPage === totalPages || totalPages === 0} onClick={() => onPageChange(currentPage + 1)}>
+        ›
+      </Pagination.Item>
+      <Pagination.Item disabled={currentPage === totalPages || totalPages === 0} onClick={() => onPageChange(totalPages)}>
+        »
+      </Pagination.Item>
     </Pagination>
   );
 };
