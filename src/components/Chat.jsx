@@ -1,9 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { OverlayTrigger, Tooltip } from 'react-bootstrap';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Tooltip from 'react-bootstrap/Tooltip';
 import socket from '../services/socket';
+import moment from 'moment';
 
 const Chat = (props) => {
-  const { nickname, user } = props;
+  const { nickname, username, user } = props;
   const [message, setMessage] = useState('');
   const [chat, setChat] = useState([]);
   const chatRef = useRef(null);
@@ -29,7 +31,8 @@ const Chat = (props) => {
 
   const sendMessage = () => {
     if (message.trim().length) {
-      socket.emit('chatMessage', { nickname, message });
+      let time = moment().format('HH:mm');
+      socket.emit('chatMessage', { username, nickname, message, time });
       setMessage('');
     }
   };
@@ -49,10 +52,8 @@ const Chat = (props) => {
           placement="top"
           delay={{ show: 250, hide: 400 }}
           overlay={
-            <Tooltip>
-              <span>
-                1 Point = 1.000đ <br /> 20 Point = 1 Ticket Bingo
-              </span>
+            <Tooltip id="point-tooltip">
+              <span>20 Point = 1 Ticket Bingo</span>
             </Tooltip>
           }
         >
@@ -62,7 +63,19 @@ const Chat = (props) => {
       <div ref={chatRef} className="chat-box border rounded p-3 bg-light shadow-sm" style={{ height: '325px', overflowY: 'auto' }}>
         {chat.map((msg, index) => (
           <div key={index} className="mb-2">
-            <strong style={{ color: `${msg.nickname === 'Admin Bingo' ? 'red' : 'black'}` }}>{msg.nickname}:</strong> {msg.message}
+            <span className="text-secondary">{msg.time} </span>
+            <OverlayTrigger
+              placement="left"
+              delay={{ show: 250, hide: 400 }}
+              overlay={
+                <Tooltip id="chat-tooltip">
+                  <span>{msg.username}</span>
+                </Tooltip>
+              }
+            >
+              <strong style={{ color: `${msg.username === 'Admin Bingo' ? 'red' : 'black'}` }}>{msg.nickname}: </strong>
+            </OverlayTrigger>
+            {msg.message}
           </div>
         ))}
       </div>

@@ -5,9 +5,10 @@ import AddPointBingo from './AddPointBingo';
 import { refundPoint, minusPoint } from '../services/userService';
 import UserTable from './UserTable';
 import socket from '../services/socket';
+import moment from 'moment';
 
 const Admin = (props) => {
-  const { onlineUsers, bingoName, usersBoard } = props;
+  const { onlineUsers, bingoName, usersBoard, calledNumbers } = props;
   const [isAutoCalling, setIsAutoCalling] = useState(false);
   const autoCallInterval = useRef(null);
 
@@ -19,9 +20,10 @@ const Admin = (props) => {
   const startAutoCall = () => {
     if (bingoName.length) return;
 
+    let username = 'Admin Bingo';
     let nickname = 'Admin Bingo';
-    let message = 'Game start!';
-    socket.emit('chatMessage', { nickname, message });
+    let message = calledNumbers.length === 0 ? 'Game Start! 🔥🔥🔥' : '🚀 Game Continues... 🚀';
+    socket.emit('chatMessage', { username, nickname, message, time: moment().format('HH:mm') });
     if (!isAutoCalling) {
       setIsAutoCalling(true);
 
@@ -39,9 +41,11 @@ const Admin = (props) => {
     clearInterval(autoCallInterval.current);
     setIsAutoCalling(false);
     if (bingoName.length) return;
+
+    let username = 'Admin Bingo';
     let nickname = 'Admin Bingo';
-    let message = 'Game stop!';
-    socket.emit('chatMessage', { nickname, message });
+    let message = '⚠️ Game Stop!';
+    socket.emit('chatMessage', { username, nickname, message, time: moment().format('HH:mm') });
   };
 
   const handleRefundPoint = async () => {
@@ -63,7 +67,7 @@ const Admin = (props) => {
       <div className="mt-4 d-flex justify-content-between">
         <button className="btn btn-danger" onClick={startAutoCall} disabled={isAutoCalling}>
           {isAutoCalling && <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>}
-          {isAutoCalling ? ' Calling number...' : 'Call number'}
+          {isAutoCalling ? ' Calling number...' : calledNumbers.length === 0 ? 'Call number' : 'Continue'}
         </button>
         <button className="btn btn-danger" onClick={stopAutoCall} disabled={!isAutoCalling}>
           Stop

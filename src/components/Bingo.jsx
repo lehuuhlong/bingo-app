@@ -275,7 +275,9 @@ export default function Bingo() {
                     )}
                   </div>
                 </div>
-                {user?.role === 'admin' && <Admin onlineUsers={onlineUsers} bingoName={bingoName} usersBoard={usersBoard} />}
+                {user?.role === 'admin' && (
+                  <Admin onlineUsers={onlineUsers} bingoName={bingoName} usersBoard={usersBoard} calledNumbers={calledNumbers} />
+                )}
                 {user?.role === 'user' && (
                   <TicketBingo bingoName={bingoName} calledNumbers={calledNumbers} usersBoard={usersBoard} username={username} board={board} />
                 )}
@@ -305,7 +307,7 @@ export default function Bingo() {
 
           <div className="col-lg-3">
             <CloseToBingo bingoName={bingoName} usersBoard={usersBoard} />
-            <Chat nickname={nickname} user={user} />
+            <Chat username={username} nickname={nickname} user={user} />
             <Ranking isTopFive={true} usersRanking={usersRanking} />
             <div className="member-online-show">
               <MemberOnline onlineUsers={onlineUsers} nickname={nickname} usersBoard={usersBoard} user={user} />

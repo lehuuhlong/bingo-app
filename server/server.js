@@ -9,6 +9,7 @@ const transactionRoutes = require('./routes/transactionRoutes');
 const statisticsRoutes = require('./routes/statisticsRoutes');
 const User = require('./models/User');
 const saveBingoNumber = require('./service/saveBingoNumber');
+const moment = require('moment');
 
 const app = express();
 const server = http.createServer(app);
@@ -92,7 +93,7 @@ io.on('connection', (socket) => {
       usersBoard[userId].board = generateBoard();
       usersBoard[userId].nearlyBingos = [];
     }
-    sendMessageAuto('Admin Bingo', 'Game Over! Go to the next game');
+    sendMessageAuto('Admin Bingo', 'Admin Bingo', '✔️ Game Over! Go to the next game');
     io.emit('resetNumber', usersBoard);
   });
 
@@ -103,7 +104,7 @@ io.on('connection', (socket) => {
       usersBoard[username].bingoCells = bingoCells;
       io.emit('isBingo', bingoNames);
       io.emit('usersBoard', usersBoard);
-      sendMessageAuto('Admin Bingo', 'Bingo: ' + username + ' 🎉');
+      sendMessageAuto('Admin Bingo', 'Admin Bingo', 'Bingo: ' + username + ' 🎉');
     }
   });
 
@@ -117,9 +118,9 @@ io.on('connection', (socket) => {
     io.emit('usersBoard', usersBoard);
   });
 
-  socket.on('chatMessage', ({ nickname, message }) => {
-    chats.push({ nickname, message });
-    io.emit('chatMessage', { nickname, message });
+  socket.on('chatMessage', ({ username, nickname, message, time }) => {
+    chats.push({ username, nickname, message, time });
+    io.emit('chatMessage', { username, nickname, message, time });
   });
 
   socket.on('nearlyBingo', ({ username, nearlyBingoNumbers }) => {
@@ -128,7 +129,8 @@ io.on('connection', (socket) => {
       usersNearlyBingo.push(username);
     }
     usersBoard[username] = { ...usersBoard[username], nearlyBingos: nearlyBingoNumbers };
-    sendMessageAuto('Admin Bingo', 'User: ' + username + ' có số gần trúng Bingo: ' + nearlyBingoNumbers);
+    let message = '🎯 User: ' + usersBoard[username]?.nickname + ' có số gần trúng Bingo: ' + nearlyBingoNumbers;
+    sendMessageAuto('Admin Bingo', 'Admin Bingo', message);
     io.emit('nearlyBingo', usersNearlyBingo);
     io.emit('usersBoard', usersBoard);
   });
@@ -174,9 +176,10 @@ function checkBingo(board, calledNumbers) {
   return false;
 }
 
-function sendMessageAuto(nickname, message) {
-  chats.push({ nickname, message });
-  io.emit('chatMessage', { nickname, message });
+function sendMessageAuto(username, nickname, message) {
+  let time = moment().format('HH:mm');
+  chats.push({ username, nickname, message, time });
+  io.emit('chatMessage', { username, nickname, message, time });
 }
 
 async function addUser(username) {
