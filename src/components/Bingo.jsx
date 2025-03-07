@@ -288,14 +288,14 @@ export default function Bingo() {
               <Tab eventKey="statistics" title="📊Statistics">
                 <BingoStatistics />
               </Tab>
-              <Tab eventKey="transaction" title="📋Transaction">
-                {user?.role && <TransactionTable user={user} />}
-              </Tab>
               {user?.role === 'admin' && (
                 <Tab eventKey="users" title="📋User">
                   <UserTable />
                 </Tab>
               )}
+              <Tab eventKey="transaction" title="📋Transaction">
+                {user?.role && <TransactionTable user={user} />}
+              </Tab>
               <Tab eventKey="profile" title="🔑Profile" disabled>
                 Tab content for Profile
               </Tab>

@@ -14,9 +14,10 @@ const AddPointBingo = () => {
     }
 
     try {
-      await addUserPointBingo(username, parseInt(points));
+      await addUserPointBingo(username, parseInt(points), note);
       setUsername('');
       setPoints('');
+      setNote('');
     } catch (error) {
       console.error('Error when add user:', error);
     }
@@ -28,8 +29,8 @@ const AddPointBingo = () => {
       <form onSubmit={handleSubmit} className="mb-4">
         <div className="input-group">
           <input type="text" className="form-control" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} />
-          <input type="number" className="form-control" placeholder="Points" value={points} onChange={(e) => setPoints(e.target.value)} />
-          <input type="text" className="form-control" placeholder="Note" value={note} onChange={(e) => setNote(e.target.value)} />
+          <input type="number" className="form-control ml-2" placeholder="Points" value={points} onChange={(e) => setPoints(e.target.value)} />
+          <input type="text" className="form-control ml-2" placeholder="Note" value={note} onChange={(e) => setNote(e.target.value)} />
           <button className="btn btn-primary ml-3" type="submit">
             Add
           </button>

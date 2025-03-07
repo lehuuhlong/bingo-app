@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import AddPoint from './AddPoint';
-import AddPointGift from './AddPointGift';
 import AddPointBingo from './AddPointBingo';
 import { refundPoint, minusPoint } from '../services/userService';
 import UserTable from './UserTable';
@@ -83,9 +82,7 @@ const Admin = (props) => {
         </button>
       </div>
       <AddPoint />
-      <AddPointGift />
       <AddPointBingo />
-      <UserTable />
     </>
   );
 };

@@ -20,13 +20,13 @@ export const getUsersRanking = async () => {
   return res.data;
 };
 
-export const addUserPoint = async (username, point) => {
-  const res = await api.post('/user/add-point', { username, point });
+export const addUserPoint = async (username, point, type, note) => {
+  const res = await api.post('/user/add-point', { username, point, type, note });
   return res.data;
 };
 
-export const addUserPointBingo = async (username, point) => {
-  const res = await api.post('/user/add-point-bingo', { username, point });
+export const addUserPointBingo = async (username, point, note) => {
+  const res = await api.post('/user/add-point-bingo', { username, point, note });
   return res.data;
 };
 

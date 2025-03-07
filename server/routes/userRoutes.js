@@ -62,7 +62,7 @@ router.post('/refund-point', async (req, res) => {
     const transactions = users.map((username) => ({
       username,
       point: 2,
-      type: 'Refund point',
+      type: 'Refund Point',
       date: new Date().toISOString(),
     }));
 
@@ -86,7 +86,7 @@ router.post('/minus-point', async (req, res) => {
     const transactions = users.map((username) => ({
       username,
       point: -20,
-      type: 'Ticket bingo point',
+      type: 'Ticket Bingo',
       date: new Date().toISOString(),
     }));
 
@@ -98,7 +98,7 @@ router.post('/minus-point', async (req, res) => {
 });
 
 router.post('/add-point', async (req, res) => {
-  const { username, point } = req.body;
+  const { username, point, type, note } = req.body;
 
   if (!username || point === undefined) {
     return res.status(400).json({ message: 'Username and Points are requird!' });
@@ -115,8 +115,8 @@ router.post('/add-point', async (req, res) => {
     const transaction = new Transaction({
       username,
       point,
-      type: 'Add point',
-      date: new Date().toISOString(),
+      type,
+      note,
     });
 
     await transaction.save();
@@ -128,7 +128,7 @@ router.post('/add-point', async (req, res) => {
 });
 
 router.post('/add-point-bingo', async (req, res) => {
-  const { username, point } = req.body;
+  const { username, point, note } = req.body;
 
   if (!username || point === undefined) {
     return res.status(400).json({ message: 'Username and Points are requird!' });
@@ -148,7 +148,7 @@ router.post('/add-point-bingo', async (req, res) => {
       username,
       point,
       type: 'Bingo Reward',
-      date: new Date().toISOString(),
+      note,
     });
 
     await transaction.save();
