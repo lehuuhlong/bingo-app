@@ -35,7 +35,7 @@ const Login = (props) => {
         </label>
         <input
           type="text"
-          maxLength="20"
+          maxLength="17"
           id="nickname"
           className="form-control mb-2"
           placeholder="Ex: Long Lém Lĩnh"

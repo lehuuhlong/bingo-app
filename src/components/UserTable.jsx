@@ -27,7 +27,7 @@ const UserTable = () => {
     <div className="mt-3">
       <h4 className="text-secondary text-center">📋User List</h4>
       <table className="table table-hover variant table-bordered shadow-sm text-center">
-        <thead>
+        <thead className="table-secondary">
           <tr>
             <th>#</th>
             <th>Username</th>
