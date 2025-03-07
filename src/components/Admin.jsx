@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import AddUsersPoint from './AddUsersPoint';
-import AddUsersPointBingo from './AddUsersPointBingo';
+import AddPoint from './AddPoint';
+import AddPointGift from './AddPointGift';
+import AddPointBingo from './AddPointBingo';
 import { refundPoint, minusPoint } from '../services/userService';
 import UserTable from './UserTable';
 import socket from '../services/socket';
@@ -43,14 +44,18 @@ const Admin = (props) => {
     socket.emit('chatMessage', { nickname, message });
   };
 
-  const handleRefundAndMinusPoint = async () => {
+  const handleRefundPoint = async () => {
     let usersRefund = onlineUsers.filter((user) => !bingoName.includes(user));
-    let usersMinus = onlineUsers.filter((user) => usersBoard[user].point >= 20);
-
     await refundPoint(usersRefund);
-    if (usersMinus.length) {
-      await minusPoint(usersMinus);
+  };
+
+  const handleTicketPoint = async () => {
+    let usersMinus = onlineUsers.filter((user) => usersBoard[user].point >= 20);
+    if (usersMinus.length === 0) {
+      alert('No user has enough points to buy a ticket');
+      return;
     }
+    await minusPoint(usersMinus);
   };
 
   return (
@@ -66,12 +71,16 @@ const Admin = (props) => {
         <button className="btn btn-warning" onClick={() => socket.emit('resetNumber')}>
           Reset
         </button>
-        <button className="btn btn-warning" onClick={handleRefundAndMinusPoint}>
-          Refund and Minus point
+        <button className="btn btn-warning" onClick={handleTicketPoint}>
+          Ticket point
+        </button>
+        <button className="btn btn-warning" onClick={handleRefundPoint}>
+          Refund point
         </button>
       </div>
-      <AddUsersPoint />
-      <AddUsersPointBingo />
+      <AddPoint />
+      <AddPointGift />
+      <AddPointBingo />
       <UserTable />
     </>
   );
