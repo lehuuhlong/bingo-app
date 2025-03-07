@@ -74,7 +74,7 @@
 .container-90 {
   width: 90%;
   margin: 0 auto;
-  max-width: 1600px;
+  max-width: 1700px;
 }
 
 .member-online-show {
@@ -114,4 +114,8 @@
 .ranking {
   width: 50%;
   margin: 0 auto;
+}
+
+button:disabled {
+  cursor: not-allowed;
 }

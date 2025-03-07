@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { addUserPointBingo } from '../services/userService';
+import { addUserPoint } from '../services/userService';
 
-const AddUsersPointBingo = () => {
+const AddPoint = () => {
   const [username, setUsername] = useState('');
   const [points, setPoints] = useState('');
+  const [note, setNote] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -13,7 +14,7 @@ const AddUsersPointBingo = () => {
     }
 
     try {
-      await addUserPointBingo(username, parseInt(points));
+      await addUserPoint(username, parseInt(points));
       setUsername('');
       setPoints('');
     } catch (error) {
@@ -23,13 +24,14 @@ const AddUsersPointBingo = () => {
 
   return (
     <div className="container mt-5">
-      <h5>Input userName Bingo and Points Bingo</h5>
+      <h5>Add Points</h5>
       <form onSubmit={handleSubmit} className="mb-4">
         <div className="input-group">
           <input type="text" className="form-control" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} />
           <input type="number" className="form-control" placeholder="Points" value={points} onChange={(e) => setPoints(e.target.value)} />
+          <input type="text" className="form-control" placeholder="Note" value={note} onChange={(e) => setNote(e.target.value)} />
           <button className="btn btn-primary ml-3" type="submit">
-            Add point
+            Add
           </button>
         </div>
       </form>
@@ -37,4 +39,4 @@ const AddUsersPointBingo = () => {
   );
 };
 
-export default AddUsersPointBingo;
+export default AddPoint;
