@@ -119,3 +119,9 @@
 button:disabled {
   cursor: not-allowed;
 }
+
+.tooltip-inner {
+  background-color: rgba(0, 0, 0, 0.7);
+  font-size: 1rem;
+  border-radius: 0.4rem;
+}
