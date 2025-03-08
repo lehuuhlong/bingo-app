@@ -59,7 +59,7 @@ const Admin = (props) => {
   };
 
   return (
-    <>
+    <div className="card shadow bg-light p-2">
       <div className="mt-4 d-flex justify-content-between">
         <button className="btn btn-danger" onClick={startAutoCall} disabled={isAutoCalling}>
           {isAutoCalling && <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>}
@@ -80,7 +80,7 @@ const Admin = (props) => {
       </div>
       <AddPoint />
       <AddPointBingo />
-    </>
+    </div>
   );
 };
 

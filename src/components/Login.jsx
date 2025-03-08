@@ -1,7 +1,7 @@
 import React from 'react';
 
 const Login = (props) => {
-  const { handleConfirm, setUsername, username, nickname, setNickname } = props;
+  const { handleConfirm, setUsername, username, nickname, setNickname, password, setPassword } = props;
   return (
     <div className="container mt-5">
       <h2 className="text-center">Login</h2>
@@ -48,6 +48,27 @@ const Login = (props) => {
           onChange={(e) => setNickname(e.target.value)}
         />
       </div>
+      {username === 'Admin Bingo' && (
+        <div className="form-group">
+          <label htmlFor="password" className="font-weight-bold">
+            Password
+          </label>
+          <input
+            type="password"
+            maxLength="17"
+            id="password"
+            className="form-control mb-2"
+            placeholder="Password"
+            value={password}
+            onKeyPress={(event) => {
+              if (event.key === 'Enter') {
+                handleConfirm();
+              }
+            }}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
+      )}
 
       <button className="btn btn-primary" onClick={handleConfirm}>
         Login

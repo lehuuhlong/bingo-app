@@ -23,6 +23,7 @@ export default function Bingo() {
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [username, setUsername] = useState('');
   const [nickname, setNickname] = useState('');
+  const [password, setPassword] = useState('');
   const [isUsernameSet, setIsUsernameSet] = useState(false);
   const [bingoName, setBingoName] = useState([]);
   const [currentSpinningNumber, setCurrentSpinningNumber] = useState('🌟');
@@ -133,6 +134,10 @@ export default function Bingo() {
       return;
     }
 
+    if (username === 'Admin Bingo' && password !== process.env.REACT_APP_PASSWORD_ADMIN) {
+      return;
+    }
+
     setIsUsernameSet(true);
   };
 
@@ -158,7 +163,17 @@ export default function Bingo() {
   };
 
   if (!isUsernameSet) {
-    return <Login handleConfirm={handleConfirm} setUsername={setUsername} username={username} nickname={nickname} setNickname={setNickname} />;
+    return (
+      <Login
+        handleConfirm={handleConfirm}
+        username={username}
+        setUsername={setUsername}
+        nickname={nickname}
+        setNickname={setNickname}
+        password={password}
+        setPassword={setPassword}
+      />
+    );
   }
 
   return (
@@ -275,10 +290,9 @@ export default function Bingo() {
                     )}
                   </div>
                 </div>
-                {user?.role === 'admin' && (
+                {user?.role === 'admin' ? (
                   <Admin onlineUsers={onlineUsers} bingoName={bingoName} usersBoard={usersBoard} calledNumbers={calledNumbers} />
-                )}
-                {user?.role === 'user' && (
+                ) : (
                   <TicketBingo bingoName={bingoName} calledNumbers={calledNumbers} usersBoard={usersBoard} username={username} board={board} />
                 )}
               </Tab>
