@@ -29,7 +29,6 @@ export default function Bingo() {
   const [currentSpinningNumber, setCurrentSpinningNumber] = useState('🌟');
   const [usersRanking, setUsersRanking] = useState([]);
   const [user, setUser] = useState({});
-  const [loading, setLoading] = useState(false);
 
   const buttonBingoRef = useRef(null);
   const buttonResetRef = useRef(null);
@@ -48,12 +47,10 @@ export default function Bingo() {
       const data = await getUserById(username);
       setUser(data);
     }
-    setLoading(false);
   };
 
   useEffect(() => {
     if (isUsernameSet) {
-      setLoading(true);
       socket.emit('setUsername', { username, nickname });
       setTimeout(() => {
         fetchUser();
@@ -162,6 +159,20 @@ export default function Bingo() {
     return totalAmount - totalRollback - totalFee;
   };
 
+  const renderTicket = (role) => {
+    switch (role) {
+      case 'admin':
+        return <Admin onlineUsers={onlineUsers} bingoName={bingoName} usersBoard={usersBoard} calledNumbers={calledNumbers} />;
+      case 'user':
+      case 'moderator':
+        return <TicketBingo bingoName={bingoName} calledNumbers={calledNumbers} usersBoard={usersBoard} username={username} board={board} />;
+      case 'guest':
+        return null;
+      default:
+        return <Spinners />;
+    }
+  };
+
   if (!isUsernameSet) {
     return (
       <Login
@@ -178,7 +189,6 @@ export default function Bingo() {
 
   return (
     <>
-      {loading && <Spinners />}
       <div className="container-90 mt-1">
         <div className="row mb-2 text-center d-block">
           <img style={{ height: '150px' }} src="logo-bingo.jpg" alt="logo" />
@@ -290,11 +300,7 @@ export default function Bingo() {
                     )}
                   </div>
                 </div>
-                {user?.role === 'admin' ? (
-                  <Admin onlineUsers={onlineUsers} bingoName={bingoName} usersBoard={usersBoard} calledNumbers={calledNumbers} />
-                ) : (
-                  <TicketBingo bingoName={bingoName} calledNumbers={calledNumbers} usersBoard={usersBoard} username={username} board={board} />
-                )}
+                {renderTicket(user?.role)}
               </Tab>
               <Tab eventKey="ranking" title="🥇Ranking">
                 <Ranking isTopFive={false} usersRanking={usersRanking} />

@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import ProgressBar from 'react-bootstrap/ProgressBar';
+import Spinner from 'react-bootstrap/Spinner';
 import Tooltip from 'react-bootstrap/Tooltip';
 import socket from '../services/socket';
 import moment from 'moment';
@@ -7,12 +9,21 @@ import moment from 'moment';
 const Chat = (props) => {
   const { nickname, username, user } = props;
   const [message, setMessage] = useState('');
+  const [minTicket, setMinTicket] = useState(0);
+  const [maxTicket, setMaxTicket] = useState(1);
   const [chat, setChat] = useState([]);
   const chatRef = useRef(null);
 
   useEffect(() => {
     scrollToBottom();
   }, [chat]);
+
+  useEffect(() => {
+    if (user?.point) {
+      setMinTicket(Math.floor(user.point / 20));
+      setMaxTicket(Math.floor(user.point / 20) + 1);
+    }
+  }, [user]);
 
   useEffect(() => {
     socket.on('chats', (chats) => {
@@ -56,11 +67,20 @@ const Chat = (props) => {
     }
   };
 
+  const calculateProgressBar = () => {
+    if (!user?.point) return 0;
+    if (user?.point <= minTicket * 20) return 0;
+    return ((user.point - minTicket * 20) / 20) * 100;
+  };
+
   return (
     <div className="mb-4">
       <h4 className="text-secondary text-center">💬Chat</h4>
       <h5 className="text-info text-center">
-        {nickname} - <span className="text-danger">Point: {user?.point} </span>
+        {nickname} -{' '}
+        <span className="text-danger">
+          Point: {user?.point ? user.point : <Spinner style={{ height: '1.25rem', width: '1.25rem' }} animation="border" variant="danger" />}
+        </span>
         <OverlayTrigger
           placement="top"
           delay={{ show: 250, hide: 400 }}
@@ -70,9 +90,14 @@ const Chat = (props) => {
             </Tooltip>
           }
         >
-          <span style={{ cursor: 'pointer' }}>📌</span>
+          <span style={{ cursor: 'pointer' }}> 📌</span>
         </OverlayTrigger>
       </h5>
+      <div className="mb-3 d-flex justify-content-center" style={{ height: '0.5rem' }}>
+        <strong>Have {minTicket}</strong>
+        <ProgressBar style={{ height: '0.5rem', width: '50%', margin: '8px' }} striped animated variant="info" now={calculateProgressBar()} />
+        <strong>{maxTicket} Ticket</strong>
+      </div>
       <div ref={chatRef} className="chat-box border rounded p-3 bg-light shadow-sm" style={{ height: '325px', overflowY: 'auto' }}>
         {chat.map((msg, index) => (
           <div key={index} className="mb-2">
