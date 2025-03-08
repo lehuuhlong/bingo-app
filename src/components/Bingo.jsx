@@ -156,9 +156,9 @@ export default function Bingo() {
   };
 
   const totalAmountJackpot = () => {
-    let totalAmount = onlineUsers.length * 20000;
+    let totalAmount = onlineUsers.length * 20;
     let totalFee = totalAmount * 0.05;
-    let totalRollback = (onlineUsers.length - 1) * 2000;
+    let totalRollback = (onlineUsers.length - 1) * 2;
     return totalAmount - totalRollback - totalFee;
   };
 
@@ -188,7 +188,7 @@ export default function Bingo() {
           <div className="col-lg-2">
             <div className="text-center">
               <img className="jackpot" src="jackpot.png" alt="jackpot" />
-              <h5 className="text-center text-danger">{numberWithCommas(totalAmountJackpot())}</h5>
+              <h5 className="text-center text-danger">{numberWithCommas(totalAmountJackpot())} Point</h5>
             </div>
             <div className="member-online-hide">
               <MemberOnline onlineUsers={onlineUsers} nickname={nickname} usersBoard={usersBoard} user={user} />
@@ -204,9 +204,9 @@ export default function Bingo() {
                       <div className="row">
                         {bingoName.map((name, index) => (
                           <div className={bingoName.length > 1 ? 'col-lg-6' : 'col'} key={index}>
-                            <h6 className="text-warning mt-2">
-                              Winner: {usersBoard[name]?.nickname} - {name} 🎉
-                            </h6>
+                            <h5 className="text-dark mt-2">
+                              Winner: {usersBoard[name]?.nickname} - {name} - Point: 🎉
+                            </h5>
                             <div className="d-grid" style={{ gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px', display: 'inline-grid' }}>
                               {usersBoard[name]?.board.flat().map((num, index) => (
                                 <div

@@ -10,6 +10,7 @@ const Admin = (props) => {
   const [isTakeAttendance, setIsTakeAttendance] = useState(false);
   const [isTicketBingo, setIsTicketBingo] = useState(false);
   const [isRefundPoint, setIsRefundPoint] = useState(false);
+  const [usersAttendance, setUsersAttendance] = useState([]);
   const autoCallInterval = useRef(null);
 
   useEffect(() => {
@@ -34,13 +35,6 @@ const Admin = (props) => {
         }
       }, 13000);
     }
-
-    if (!isTakeAttendance) {
-      setIsTakeAttendance(true);
-      setTimeout(() => {
-        handleTakeAttendance();
-      }, 10000);
-    }
   };
 
   const stopAutoCall = () => {
@@ -55,18 +49,18 @@ const Admin = (props) => {
 
   // Refund point
   const handleRefundPoint = async () => {
-    let usersRefund = onlineUsers.filter((user) => !bingoName.includes(user));
+    let usersRefund = usersAttendance.filter((user) => !bingoName.includes(user));
     if (usersRefund.length === 0) {
       alert('No user has a bingo to refund');
       return;
     }
-    await refundPoint(usersRefund);
     setIsRefundPoint(true);
+    await refundPoint(usersRefund);
   };
 
   // Ticket point
   const handleTicketPoint = async () => {
-    let usersMinus = onlineUsers.filter((user) => usersBoard[user].point >= 20);
+    let usersMinus = usersAttendance.filter((user) => usersBoard[user].point >= 20);
     if (usersMinus.length === 0) {
       alert('No user has enough points to buy a ticket');
       return;
@@ -77,6 +71,15 @@ const Admin = (props) => {
 
   // Take attendance
   const handleTakeAttendance = async () => {
+    if (onlineUsers.length === 0) {
+      alert('No user is online to take attendance');
+      return;
+    }
+    setIsTakeAttendance(true);
+
+    socket.emit('takeAttendance', onlineUsers.length);
+
+    setUsersAttendance(onlineUsers);
     await takeAttendance(onlineUsers);
   };
 
@@ -90,6 +93,9 @@ const Admin = (props) => {
         </button>
         <button className="btn btn-danger" onClick={stopAutoCall} disabled={!isAutoCalling}>
           Stop
+        </button>
+        <button className="btn btn-info" onClick={handleTakeAttendance} disabled={isTakeAttendance}>
+          Take Attendance
         </button>
         <button className="btn btn-info" onClick={handleTicketPoint} disabled={isTicketBingo}>
           Ticket point
