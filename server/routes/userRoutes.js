@@ -57,7 +57,7 @@ router.post('/refund-point', async (req, res) => {
   }
 
   try {
-    const result = await User.updateMany({ username: { $in: users } }, { $inc: { point: 2, attend: 1 } });
+    const result = await User.updateMany({ username: { $in: users } }, { $inc: { point: 2 } });
 
     const transactions = users.map((username) => ({
       username,
@@ -97,6 +97,22 @@ router.post('/minus-point', async (req, res) => {
   }
 });
 
+router.post('/take-attendance', async (req, res) => {
+  const { users } = req.body;
+
+  if (!users || users.length === 0) {
+    return res.status(400).json({ error: 'Invalid user list!' });
+  }
+
+  try {
+    const result = await User.updateMany({ username: { $in: users } }, { $inc: { attend: 1 } });
+
+    res.json({ message: 'Take attendance users successfully', result });
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
 router.post('/add-point', async (req, res) => {
   const { username, point, type, note } = req.body;
 
@@ -109,45 +125,27 @@ router.post('/add-point', async (req, res) => {
 
     if (!existingUser) return res.status(400).json({ message: 'Invalid Username!' });
 
-    existingUser.point += point;
+    switch (type) {
+      case 'Bingo Reward':
+        existingUser.bingoCount += 1;
+        existingUser.pointBingo += point;
+        break;
+      case 'Add Point':
+      case 'Refund Point':
+      case 'Ticket Bingo':
+      case 'Gift Point':
+        existingUser.point += point;
+        break;
+      default:
+        return res.status(400).json({ message: 'Invalid Type!' });
+    }
+
     await existingUser.save();
 
     const transaction = new Transaction({
       username,
       point,
       type,
-      note,
-    });
-
-    await transaction.save();
-
-    res.json(existingUser);
-  } catch (error) {
-    res.status(500).json({ message: 'Server error' });
-  }
-});
-
-router.post('/add-point-bingo', async (req, res) => {
-  const { username, point, note } = req.body;
-
-  if (!username || point === undefined) {
-    return res.status(400).json({ message: 'Username and Points are requird!' });
-  }
-
-  try {
-    let existingUser = await User.findOne({ username });
-
-    if (!existingUser) return res.status(400).json({ message: 'Invalid Username!' });
-
-    existingUser.pointBingo += point;
-    existingUser.bingoCount += 1;
-    existingUser.attend += 1;
-    await existingUser.save();
-
-    const transaction = new Transaction({
-      username,
-      point,
-      type: 'Bingo Reward',
       note,
     });
 

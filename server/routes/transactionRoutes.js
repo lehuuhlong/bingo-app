@@ -32,8 +32,7 @@ router.get('/id', async (req, res) => {
       .skip((page - 1) * limit)
       .exec();
 
-    const count = transactions.length;
-
+    const count = await Transaction.find({ username }).countDocuments();
     res.json({
       transactions,
       totalPages: Math.ceil(count / limit),

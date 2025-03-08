@@ -49,7 +49,6 @@ const TransactionTable = (props) => {
             <th>Type</th>
             <th>Date</th>
             <th>Note</th>
-            {user?.role === 'admin' && <th>Last Modified Time</th>}
           </tr>
         </thead>
         <tbody>
@@ -62,7 +61,6 @@ const TransactionTable = (props) => {
                 <td>{transaction.type}</td>
                 <td>{transaction.createdAt}</td>
                 <td>{transaction.note}</td>
-                {user?.role === 'admin' && <td>{transaction.updatedAt}</td>}
               </tr>
             ))}
           {(!transactions || !transactions.length) && (

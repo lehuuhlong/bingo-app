@@ -1,13 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react';
 import AddPoint from './AddPoint';
-import AddPointBingo from './AddPointBingo';
-import { refundPoint, minusPoint } from '../services/userService';
+import { refundPoint, minusPoint, takeAttendance } from '../services/userService';
 import socket from '../services/socket';
 import moment from 'moment';
 
 const Admin = (props) => {
   const { onlineUsers, bingoName, usersBoard, calledNumbers } = props;
   const [isAutoCalling, setIsAutoCalling] = useState(false);
+  const [isTakeAttendance, setIsTakeAttendance] = useState(false);
+  const [isTicketBingo, setIsTicketBingo] = useState(false);
+  const [isRefundPoint, setIsRefundPoint] = useState(false);
   const autoCallInterval = useRef(null);
 
   useEffect(() => {
@@ -32,6 +34,13 @@ const Admin = (props) => {
         }
       }, 13000);
     }
+
+    if (!isTakeAttendance) {
+      setIsTakeAttendance(true);
+      setTimeout(() => {
+        handleTakeAttendance();
+      }, 10000);
+    }
   };
 
   const stopAutoCall = () => {
@@ -44,11 +53,18 @@ const Admin = (props) => {
     socket.emit('chatMessage', { username, nickname: username, message, time: moment().format('HH:mm'), role: 'admin' });
   };
 
+  // Refund point
   const handleRefundPoint = async () => {
     let usersRefund = onlineUsers.filter((user) => !bingoName.includes(user));
+    if (usersRefund.length === 0) {
+      alert('No user has a bingo to refund');
+      return;
+    }
     await refundPoint(usersRefund);
+    setIsRefundPoint(true);
   };
 
+  // Ticket point
   const handleTicketPoint = async () => {
     let usersMinus = onlineUsers.filter((user) => usersBoard[user].point >= 20);
     if (usersMinus.length === 0) {
@@ -56,30 +72,36 @@ const Admin = (props) => {
       return;
     }
     await minusPoint(usersMinus);
+    setIsTicketBingo(true);
+  };
+
+  // Take attendance
+  const handleTakeAttendance = async () => {
+    await takeAttendance(onlineUsers);
   };
 
   return (
     <div className="card shadow bg-light p-2">
-      <div className="mt-4 d-flex justify-content-between">
+      <h4 className="text-secondary text-center">⚙️Control Center</h4>
+      <div className="mt-4 d-flex justify-content-between p-3">
         <button className="btn btn-danger" onClick={startAutoCall} disabled={isAutoCalling}>
-          {isAutoCalling && <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>}
+          {isAutoCalling && <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>}
           {isAutoCalling ? ' Calling number...' : calledNumbers.length === 0 ? 'Call number' : 'Continue'}
         </button>
         <button className="btn btn-danger" onClick={stopAutoCall} disabled={!isAutoCalling}>
           Stop
         </button>
-        <button className="btn btn-warning" onClick={() => socket.emit('resetNumber')}>
-          Reset
-        </button>
-        <button className="btn btn-warning" onClick={handleTicketPoint}>
+        <button className="btn btn-info" onClick={handleTicketPoint} disabled={isTicketBingo}>
           Ticket point
         </button>
-        <button className="btn btn-warning" onClick={handleRefundPoint}>
+        <button className="btn btn-success" onClick={handleRefundPoint} disabled={isRefundPoint}>
           Refund point
+        </button>
+        <button className="btn btn-warning" onClick={() => socket.emit('resetNumber')}>
+          Restart game
         </button>
       </div>
       <AddPoint />
-      <AddPointBingo />
     </div>
   );
 };

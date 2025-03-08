@@ -188,7 +188,7 @@ export default function Bingo() {
           <div className="col-lg-2">
             <div className="text-center">
               <img className="jackpot" src="jackpot.png" alt="jackpot" />
-              <h5 className="text-center text-danger">{numberWithCommas(totalAmountJackpot())}đ</h5>
+              <h5 className="text-center text-danger">{numberWithCommas(totalAmountJackpot())}</h5>
             </div>
             <div className="member-online-hide">
               <MemberOnline onlineUsers={onlineUsers} nickname={nickname} usersBoard={usersBoard} user={user} />
@@ -307,10 +307,10 @@ export default function Bingo() {
                   <UserTable />
                 </Tab>
               )}
-              <Tab eventKey="transaction" title="📋Transaction">
+              <Tab eventKey="history" title="📋History">
                 {user?.role && <TransactionTable user={user} />}
               </Tab>
-              <Tab eventKey="profile" title="🔑Profile" disabled>
+              <Tab eventKey="setting" title="⚙️Setting" disabled>
                 Tab content for Profile
               </Tab>
               <Tab eventKey="contact" title="🎯Contact" disabled>

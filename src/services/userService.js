@@ -25,15 +25,15 @@ export const addUserPoint = async (username, point, type, note) => {
   return res.data;
 };
 
-export const addUserPointBingo = async (username, point, note) => {
-  const res = await api.post('/user/add-point-bingo', { username, point, note });
-  return res.data;
-};
-
 export const refundPoint = async (users) => {
   const res = await api.post('/user/refund-point', { users });
   return res.data;
 };
+
+export const takeAttendance = async (users) => {
+  const res = await api.post('/user/take-attendance', { users });
+  return res.data;
+}
 
 export const minusPoint = async (users) => {
   const res = await api.post('/user/minus-point', { users });

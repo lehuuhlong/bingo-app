@@ -32,7 +32,7 @@ const AddPoint = () => {
         <div className="input-group">
           <input type="text" className="form-control" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} />
           <input type="number" className="form-control ml-2" placeholder="Points" value={points} onChange={(e) => setPoints(e.target.value)} />
-          <select class="form-control ml-2" value={type} onChange={(e) => setType(e.target.value)}>
+          <select className="form-control ml-2" value={type} onChange={(e) => setType(e.target.value)}>
             <option value="" disabled>
               Select...
             </option>
@@ -40,6 +40,7 @@ const AddPoint = () => {
             <option value="Gift Point">Gift Point</option>
             <option value="Ticket Bingo">Ticket Bingo</option>
             <option value="Refund Point">Refund Point</option>
+            <option value="Bingo Reward">Bingo Reward</option>
           </select>
           <input type="text" className="form-control ml-2" placeholder="Note" value={note} onChange={(e) => setNote(e.target.value)} />
           <button className="btn btn-primary ml-3" type="submit">
