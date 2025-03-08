@@ -32,7 +32,7 @@ const Chat = (props) => {
   const sendMessage = () => {
     if (message.trim().length) {
       let time = moment().format('HH:mm');
-      socket.emit('chatMessage', { username, nickname, message, time });
+      socket.emit('chatMessage', { username, nickname, message, time, role: user?.role });
       setMessage('');
     }
   };
@@ -40,6 +40,19 @@ const Chat = (props) => {
   const scrollToBottom = () => {
     if (chatRef.current) {
       chatRef.current.scrollTop = chatRef.current.scrollHeight;
+    }
+  };
+
+  const handleDisplayColor = (role) => {
+    switch (role) {
+      case 'admin':
+        return 'text-danger';
+      case 'moderator':
+        return 'text-info';
+      case 'user':
+        return 'text-dark';
+      default:
+        return 'text-dark';
     }
   };
 
@@ -73,7 +86,7 @@ const Chat = (props) => {
                 </Tooltip>
               }
             >
-              <strong style={{ color: `${msg.username === 'Admin Bingo' ? 'red' : 'black'}` }}>{msg.nickname}: </strong>
+              <strong className={handleDisplayColor(msg.role)}>{msg.nickname}: </strong>
             </OverlayTrigger>
             {msg.message}
           </div>

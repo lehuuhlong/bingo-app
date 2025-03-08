@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const dateFormat = require("../service/dateFormatPlugin");
+const dateFormat = require('../service/dateFormatPlugin');
 
 const UserSchema = new mongoose.Schema(
   {
@@ -9,7 +9,7 @@ const UserSchema = new mongoose.Schema(
     bingoCount: { type: Number, default: 0 },
     attend: { type: Number, default: 0 },
     closeBingo: { type: Number, default: 0 },
-    role: { type: String, enum: ['user', 'admin'], default: 'user' },
+    role: { type: String, enum: ['user', 'admin', 'moderator'], default: 'user' },
   },
   { timestamps: true }
 );

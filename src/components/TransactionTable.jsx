@@ -25,6 +25,7 @@ const TransactionTable = (props) => {
           response = await getTransactionsById(page, user?.username);
           break;
         default:
+          response = await getTransactionsById(page, user?.username);
           break;
       }
 

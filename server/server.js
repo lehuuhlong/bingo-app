@@ -118,9 +118,9 @@ io.on('connection', (socket) => {
     io.emit('usersBoard', usersBoard);
   });
 
-  socket.on('chatMessage', ({ username, nickname, message, time }) => {
-    chats.push({ username, nickname, message, time });
-    io.emit('chatMessage', { username, nickname, message, time });
+  socket.on('chatMessage', ({ username, nickname, message, time, role }) => {
+    chats.push({ username, nickname, message, time, role });
+    io.emit('chatMessage', { username, nickname, message, time, role });
   });
 
   socket.on('nearlyBingo', ({ username, nearlyBingoNumbers }) => {
@@ -178,8 +178,8 @@ function checkBingo(board, calledNumbers) {
 
 function sendMessageAuto(username, nickname, message) {
   let time = moment().format('HH:mm');
-  chats.push({ username, nickname, message, time });
-  io.emit('chatMessage', { username, nickname, message, time });
+  chats.push({ username, nickname, message, time, role: 'admin' });
+  io.emit('chatMessage', { username, nickname, message, time, role: 'admin' });
 }
 
 async function addUser(username) {
