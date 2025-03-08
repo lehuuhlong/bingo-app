@@ -35,6 +35,9 @@ let bingoNames = [];
 let chats = [];
 let isBingo = false;
 let usersNearlyBingo = [];
+let pendingBingos = [];
+let bingoCooldownActive = false;
+const BINGO_COOLDOWN_TIME = 2000;
 
 io.on('connection', (socket) => {
   console.log('A user connected:', socket.id);
@@ -174,6 +177,36 @@ function checkBingo(board, calledNumbers) {
     }
   }
   return false;
+}
+
+function processPendingBingos() {
+  if (pendingBingos.length > 0) {
+    // Calculate points per winner
+    const pointsPerWinner = TOTAL_POINTS_FOR_BINGO / pendingBingos.length;
+    
+    pendingBingos.forEach(winner => {
+      const { username, bingoCells } = winner;
+      
+      // Update bingo state
+      bingoNames.push(username);
+      usersBoard[username].bingoCells = bingoCells;
+      
+      // Add points to user
+      usersBoard[username].points = (usersBoard[username].points || 0) + pointsPerWinner;
+    });
+    
+    // Notify all clients
+    io.emit('isBingo', bingoNames);
+    io.emit('usersBoard', usersBoard);
+    
+    const winnerNames = pendingBingos.map(w => w.username).join(', ');
+    sendMessageAuto('Admin Bingo', 'Admin Bingo', 
+      `Bingo: ${winnerNames} 🎉 (${pendingBingos.length} người thắng, mỗi người nhận ${pointsPerWinner} điểm)`);
+    
+    // Reset for next round
+    pendingBingos = [];
+    bingoCooldownActive = false;
+  }
 }
 
 function sendMessageAuto(username, nickname, message) {
