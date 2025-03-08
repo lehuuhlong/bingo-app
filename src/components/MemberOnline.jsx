@@ -21,7 +21,7 @@ export default function MemberOnline(props) {
               {user} - Point: {usersBoard[user]?.point}
             </li>
           ))}
-        {user?.role !== 'admin' &&
+        {(user?.role === 'user' || user?.role === 'moderator') &&
           onlineArranged &&
           onlineArranged.map((userOnline, index) => (
             <OverlayTrigger key={index} placement="right" delay={{ show: 250, hide: 400 }} overlay={<Tooltip>{userOnline}</Tooltip>}>
