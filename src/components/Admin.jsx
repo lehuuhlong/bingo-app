@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import AddPoint from './AddPoint';
 import AddPointBingo from './AddPointBingo';
 import { refundPoint, minusPoint } from '../services/userService';
-import UserTable from './UserTable';
 import socket from '../services/socket';
 import moment from 'moment';
 
@@ -20,9 +19,8 @@ const Admin = (props) => {
     if (bingoName.length) return;
 
     let username = 'Admin Bingo';
-    let nickname = 'Admin Bingo';
     let message = calledNumbers.length === 0 ? 'Game Start! 🔥🔥🔥' : '🚀 Game Continues... 🚀';
-    socket.emit('chatMessage', { username, nickname, message, time: moment().format('HH:mm') });
+    socket.emit('chatMessage', { username, nickname: username, message, time: moment().format('HH:mm'), role: 'admin' });
     if (!isAutoCalling) {
       setIsAutoCalling(true);
 
@@ -42,9 +40,8 @@ const Admin = (props) => {
     if (bingoName.length) return;
 
     let username = 'Admin Bingo';
-    let nickname = 'Admin Bingo';
     let message = '⚠️ Game Stop!';
-    socket.emit('chatMessage', { username, nickname, message, time: moment().format('HH:mm') });
+    socket.emit('chatMessage', { username, nickname: username, message, time: moment().format('HH:mm'), role: 'admin' });
   };
 
   const handleRefundPoint = async () => {
