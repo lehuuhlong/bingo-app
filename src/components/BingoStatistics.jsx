@@ -7,19 +7,24 @@ const BingoStatistics = () => {
   const [numbers, setNumbers] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [maxCount, setMaxCount] = useState(1);
+  const [maxCount, setMaxCount] = useState(0);
+  const [numberSearch, setNumberSearch] = useState('');
 
   useEffect(() => {
     fetchStatistics(1);
-  }, []);
+  }, [numberSearch]);
 
   const fetchStatistics = async (page) => {
     try {
-      const response = await getStatisticsNumber(page);
-      setNumbers(response.statistics);
-      setTotalPages(response.totalPages);
-      if (page === 1) setMaxCount(Math.max(...response.statistics.map((num) => num.count)));
-      setCurrentPage(page);
+      if (parseInt(numberSearch) < 75 || numberSearch === '') {
+        const response = await getStatisticsNumber(page, numberSearch);
+        setNumbers(response.statistics);
+        setTotalPages(response.totalPages);
+        if (!maxCount) {
+          setMaxCount(Math.max(...response.statistics.map((num) => num.count)));
+        }
+        setCurrentPage(page);
+      }
     } catch (error) {
       console.error('Error fetching numbers', error);
     }
@@ -30,9 +35,23 @@ const BingoStatistics = () => {
     return (count / maxCount) * 100;
   };
 
+  const handleChange = (e) => {
+    const value = e.target.value;
+    setNumberSearch(value);
+  };
+
   return (
     <div className="mt-3">
       <h4 className="text-secondary text-center">📊Bingo Number Statistics</h4>
+      <input
+        type="number"
+        max={75}
+        maxLength="2"
+        className="form-control mt-2 mb-3 ranking"
+        placeholder="Search number..."
+        value={numberSearch}
+        onChange={handleChange}
+      />
       <div className="mb-3">
         {numbers &&
           numbers.map((number) => (
