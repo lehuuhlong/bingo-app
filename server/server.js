@@ -102,12 +102,23 @@ io.on('connection', (socket) => {
 
   socket.on('isBingo', ({ username, bingoCells }) => {
     if (checkBingo(usersBoard[username]?.board, calledNumbers) && !bingoNames.includes(username)) {
-      isBingo = true;
-      bingoNames.push(username);
-      usersBoard[username].bingoCells = bingoCells;
-      io.emit('isBingo', bingoNames);
-      io.emit('usersBoard', usersBoard);
-      sendMessageAuto('Admin Bingo', 'Admin Bingo', 'Bingo: ' + username + ' 🎉');
+      // Add to pending bingos
+      pendingBingos.push({
+        username,
+        bingoCells,
+        timestamp: Date.now()
+      });
+
+      
+      // If cooldown not active, start it
+      if (!bingoCooldownActive) {
+        bingoCooldownActive = true;
+        
+        // Wait for potential simultaneous bingos
+        setTimeout(() => {
+          processPendingBingos();
+        }, BINGO_COOLDOWN_TIME);
+      }
     }
   });
 
