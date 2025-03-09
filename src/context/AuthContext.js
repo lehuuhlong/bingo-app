@@ -11,7 +11,6 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const storedUser = localStorage.getItem('token');
-
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
       socket.emit('setUsername', { username: parsedUser.user.username, nickname: parsedUser.user.nickname, role: parsedUser.user.role });

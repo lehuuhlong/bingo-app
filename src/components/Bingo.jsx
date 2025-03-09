@@ -29,7 +29,6 @@ export default function Bingo() {
   const [currentSpinningNumber, setCurrentSpinningNumber] = useState('🌟');
   const [usersRanking, setUsersRanking] = useState([]);
   const navigate = useNavigate();
-  const mode = localStorage.getItem('mode');
 
   const buttonBingoRef = useRef(null);
   const buttonResetRef = useRef(null);
