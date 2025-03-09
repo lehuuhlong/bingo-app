@@ -164,6 +164,14 @@ export default function Bingo() {
           </div>
         </div>
         <div className="col-lg-7">
+          <Link
+            to="/login"
+            className="text-info font-weight-bold"
+            style={{ position: 'absolute', top: 10, right: 20, textDecoration: 'none' }}
+            onClick={logout}
+          >
+            ⏻Logout
+          </Link>
           <Tabs defaultActiveKey="bingo" className="mb-3">
             <Tab eventKey="bingo" title="🔥Bingo">
               {bingoName && bingoName.length > 0 && (
@@ -290,9 +298,6 @@ export default function Bingo() {
               Tab content for Contact
             </Tab>
           </Tabs>
-          <Link to="/login" onClick={logout}>
-            Logout
-          </Link>
         </div>
 
         <div className="col-lg-3">

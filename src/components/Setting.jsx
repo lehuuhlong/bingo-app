@@ -10,14 +10,26 @@ const Setting = () => {
   const [message, setMessage] = useState('');
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
     try {
       let data = '';
-      if (confirmPassword !== newPassword || newPassword.length <= 4) return;
+      if (newPassword.length <= 4) {
+        setMessage('Password must be longer than 4 characters');
+        return;
+      }
+
+      if (confirmPassword !== newPassword) {
+        setMessage('Passwords do not match');
+        return;
+      }
+
       if (user?.isPassword) {
         data = await changePassword(user?.username, oldPassword, newPassword);
       } else {
         data = await createPassword(user?.username, newPassword);
+        const token = localStorage.getItem('token');
+        const parsed = JSON.parse(token);
+        parsed.user.isPassword = true;
+        localStorage.setItem('token', JSON.stringify(parsed));
       }
       setMessage(data?.message);
       setOldPassword('');
