@@ -14,3 +14,13 @@ export const postRegister = async (username, password) => {
   const res = await api.post('/auth/register', { username, password });
   return res.data;
 };
+
+export const changePassword = async (username, password, newpassword) => {
+  const res = await api.post('/auth/change-password', { username, password, newpassword });
+  return res.data;
+};
+
+export const createPassword = async (username, password) => {
+  const res = await api.post('/auth/create-password', { username, password });
+  return res.data;
+};

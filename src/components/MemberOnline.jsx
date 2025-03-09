@@ -3,7 +3,7 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
 
 export default function MemberOnline(props) {
-  const { onlineUsers, nickname, usersBoard, user } = props;
+  const { onlineUsers, usersBoard, user } = props;
   const [onlineArranged, setOnlineArranged] = useState([]);
 
   useEffect(() => {
@@ -25,7 +25,7 @@ export default function MemberOnline(props) {
           onlineArranged &&
           onlineArranged.map((userOnline, index) => (
             <OverlayTrigger key={index} placement="right" delay={{ show: 250, hide: 400 }} overlay={<Tooltip>{userOnline}</Tooltip>}>
-              <li className={`alert ${usersBoard[userOnline]?.nickname === nickname ? 'alert-warning' : 'alert-info'} p-2 rounded shadow-sm`}>
+              <li className={`alert ${usersBoard[userOnline]?.nickname === user?.nickname ? 'alert-warning' : 'alert-info'} p-2 rounded shadow-sm`}>
                 {usersBoard[userOnline]?.nickname}
               </li>
             </OverlayTrigger>

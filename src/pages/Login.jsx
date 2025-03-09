@@ -1,21 +1,43 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import socket from '../services/socket';
 
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [nickname, setNickname] = useState('');
-  const { login } = useContext(AuthContext);
+  const { login, loginGuess, user } = useContext(AuthContext);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    setUsername(user?.username);
+    setNickname(user?.nickname);
+  }, [user]);
+
   const handleSubmit = async (e) => {
-    e.preventDefault();
     try {
-      await login(username, password);
+      await login(username, password, nickname);
+      socket.emit('setUsername', { username, nickname });
       navigate('/bingo');
     } catch (err) {
       alert('Invalid username or password');
+    }
+  };
+
+  const handleCheckGuess = async (e) => {
+    e.preventDefault();
+    try {
+      await loginGuess(username, nickname);
+      if (!user?.isPassword) {
+        // Set username for socket
+        socket.emit('setUsername', { username, nickname });
+        navigate('/bingo');
+      } else {
+        navigate('/login');
+      }
+    } catch (err) {
+      alert('Invalid username');
     }
   };
 
@@ -36,7 +58,7 @@ const Login = () => {
           value={username}
           onKeyPress={(event) => {
             if (event.key === 'Enter') {
-              handleSubmit();
+              handleCheckGuess();
             }
           }}
           onChange={(e) => setUsername(e.target.value.trim())}
@@ -59,13 +81,13 @@ const Login = () => {
           value={nickname}
           onKeyPress={(event) => {
             if (event.key === 'Enter') {
-              handleSubmit();
+              handleCheckGuess();
             }
           }}
           onChange={(e) => setNickname(e.target.value)}
         />
       </div>
-      {username === 'Admin Bingo' && (
+      {user?.isPassword && (
         <div className="form-group">
           <label htmlFor="password" className="font-weight-bold">
             Password
@@ -87,9 +109,15 @@ const Login = () => {
         </div>
       )}
 
-      <button className="btn btn-primary" onClick={handleSubmit}>
-        Login
-      </button>
+      {user?.isPassword ? (
+        <button className="btn btn-primary" onClick={handleSubmit}>
+          Login
+        </button>
+      ) : (
+        <button className="btn btn-primary" onClick={handleCheckGuess}>
+          Check
+        </button>
+      )}
     </div>
   );
 };

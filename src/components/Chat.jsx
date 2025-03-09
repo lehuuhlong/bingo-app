@@ -7,7 +7,7 @@ import socket from '../services/socket';
 import moment from 'moment';
 
 const Chat = (props) => {
-  const { nickname, username, user } = props;
+  const { user } = props;
   const [message, setMessage] = useState('');
   const [minTicket, setMinTicket] = useState(0);
   const [maxTicket, setMaxTicket] = useState(1);
@@ -43,7 +43,7 @@ const Chat = (props) => {
   const sendMessage = () => {
     if (message.trim().length) {
       let time = moment().format('HH:mm');
-      socket.emit('chatMessage', { username, nickname, message, time, role: user?.role });
+      socket.emit('chatMessage', { username: user?.username, nickname: user?.nickname, message, time, role: user?.role });
       setMessage('');
     }
   };
@@ -77,7 +77,7 @@ const Chat = (props) => {
     <div className="mb-4">
       <h4 className="text-secondary text-center">💬Chat</h4>
       <h5 className="text-info text-center">
-        {nickname} -{' '}
+        {user?.nickname} -{' '}
         <span className="text-danger">
           Point: {user?.point ? user.point : <Spinner style={{ height: '1.25rem', width: '1.25rem' }} animation="border" variant="danger" />}
         </span>

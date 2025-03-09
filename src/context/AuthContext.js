@@ -1,6 +1,7 @@
 import { createContext, useState, useEffect } from 'react';
 import { postLogin, postLoginGuess } from '../services/authService';
 import { setAuthToken } from '../services/setAuthToken';
+import socket from '../services/socket';
 
 export const AuthContext = createContext();
 
@@ -11,24 +12,36 @@ export const AuthProvider = ({ children }) => {
     const storedUser = localStorage.getItem('token');
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
+      socket.emit('setUsername', { username: parsedUser.user.username, nickname: parsedUser.user.nickname });
       setAuthToken(parsedUser.token);
-      setUser(parsedUser);
+      setUser(parsedUser.user);
     }
   }, []);
 
-  const login = async (username, password) => {
+  const login = async (username, password, nickname) => {
     const res = await postLogin(username, password);
-    const userData = { ...res.data, token: res.data.token };
-    localStorage.setItem('token', JSON.stringify(userData));
-    setAuthToken(res.data.token);
+
+    // Save user to localStorage and context
+    let userData = { ...res.user, nickname };
+    let token = { ...res, user: userData };
+    localStorage.setItem('token', JSON.stringify(token));
+    setAuthToken(res.token);
     setUser(userData);
   };
 
-  const loginGuess = async (username) => {
+  const loginGuess = async (username, nickname) => {
     const res = await postLoginGuess(username);
-    const userData = { ...res.data, token: res.data.token };
-    localStorage.setItem('token', JSON.stringify(userData));
-    setAuthToken(res.data.token);
+
+    if (res.user.isPassword) {
+      setUser({ ...res.user, nickname });
+      return;
+    }
+
+    // Save user to localStorage and context
+    let userData = { ...res.user, nickname };
+    let token = { ...res, user: userData };
+    localStorage.setItem('token', JSON.stringify(token));
+    setAuthToken(res.token);
     setUser(userData);
   };
 
@@ -36,6 +49,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('token');
     setAuthToken(null);
     setUser(null);
+    window.location.reload();
   };
 
   return <AuthContext.Provider value={{ user, login, loginGuess, logout }}>{children}</AuthContext.Provider>;

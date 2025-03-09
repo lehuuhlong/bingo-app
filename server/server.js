@@ -44,7 +44,7 @@ io.on('connection', (socket) => {
   console.log('A user connected:', socket.id);
 
   socket.on('setUsername', async ({ username, nickname }) => {
-    if (username !== 'Admin Bingo') {
+    if (username !== 'admin') {
       let point = await addUser(username);
       let userBoard = [];
       let bingoCells = [];
@@ -189,13 +189,7 @@ function sendMessageAuto(username, nickname, message) {
 async function addUser(username) {
   try {
     let existingUser = await User.findOne({ username });
-    let point = 0;
-    if (!existingUser) {
-      const newUser = new User({ username });
-      await newUser.save();
-    }
-
-    return existingUser ? existingUser.point : point;
+    return existingUser.point;
   } catch (error) {
     console.error('Add user error:', error);
   }
