@@ -7,6 +7,7 @@ const connectDB = require('./config/db');
 const userRoutes = require('./routes/userRoutes');
 const transactionRoutes = require('./routes/transactionRoutes');
 const statisticsRoutes = require('./routes/statisticsRoutes');
+const authRoutes = require('./routes/authRoutes');
 const User = require('./models/User');
 const saveBingoNumber = require('./service/saveBingoNumber');
 const moment = require('moment');
@@ -24,10 +25,13 @@ app.use(cors());
 connectDB();
 app.use(express.json());
 
+// Routes
+app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/transaction', transactionRoutes);
 app.use('/api/statistics', statisticsRoutes);
 
+// Socket.io
 let users = {};
 let usersBoard = {};
 let calledNumbers = [];
