@@ -26,7 +26,6 @@ const Login = () => {
   };
 
   const handleCheckGuess = async (e) => {
-    e.preventDefault();
     try {
       await loginGuess(username, nickname);
       if (!user?.isPassword) {
@@ -44,7 +43,6 @@ const Login = () => {
   return (
     <div className="container mt-5">
       <h2 className="text-center">Login</h2>
-
       <div className="form-group">
         <label htmlFor="account" className="font-weight-bold">
           Account

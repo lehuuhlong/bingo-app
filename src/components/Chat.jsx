@@ -79,7 +79,7 @@ const Chat = (props) => {
       <h5 className="text-info text-center">
         {user?.nickname} -{' '}
         <span className="text-danger">
-          Point: {user?.point ? user.point : <Spinner style={{ height: '1.25rem', width: '1.25rem' }} animation="border" variant="danger" />}
+          Point: {user?.point >= 0 ? user.point : <Spinner style={{ height: '1.25rem', width: '1.25rem' }} animation="border" variant="danger" />}
         </span>
         <OverlayTrigger
           placement="top"

@@ -2,6 +2,7 @@ import { createContext, useState, useEffect } from 'react';
 import { postLogin, postLoginGuess } from '../services/authService';
 import { setAuthToken } from '../services/setAuthToken';
 import socket from '../services/socket';
+import { getUserById } from '../services/userService';
 
 export const AuthContext = createContext();
 
@@ -14,7 +15,12 @@ export const AuthProvider = ({ children }) => {
       const parsedUser = JSON.parse(storedUser);
       socket.emit('setUsername', { username: parsedUser.user.username, nickname: parsedUser.user.nickname });
       setAuthToken(parsedUser.token);
-      setUser(parsedUser.user);
+      const fetchUser = async () => {
+        const data = await getUserById(parsedUser.user.username);
+        setUser({ ...data, nickname: parsedUser.user.nickname, isPassword: parsedUser.user.isPassword });
+      };
+
+      fetchUser();
     }
   }, []);
 
