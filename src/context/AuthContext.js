@@ -10,9 +10,11 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const storedUser = localStorage.getItem('token');
+    const mode = localStorage.getItem('mode');
+    
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
-      socket.emit('setUsername', { username: parsedUser.user.username, nickname: parsedUser.user.nickname });
+      socket.emit('setUsername', { username: parsedUser.user.username, nickname: parsedUser.user.nickname, mode });
       setAuthToken(parsedUser.token);
       setUser(parsedUser.user);
     }
@@ -29,7 +31,7 @@ export const AuthProvider = ({ children }) => {
     setUser(userData);
   };
 
-  const loginGuess = async (username, nickname) => {
+  const loginGuess = async (username, nickname, mode) => {
     const res = await postLoginGuess(username);
 
     if (res.user.isPassword) {
@@ -41,12 +43,16 @@ export const AuthProvider = ({ children }) => {
     let userData = { ...res.user, nickname };
     let token = { ...res, user: userData };
     localStorage.setItem('token', JSON.stringify(token));
+    if(mode === 'view'){
+      localStorage.setItem('mode', 'view');
+    }
     setAuthToken(res.token);
     setUser(userData);
   };
 
   const logout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('mode');
     setAuthToken(null);
     setUser(null);
     window.location.reload();

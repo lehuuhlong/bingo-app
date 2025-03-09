@@ -43,7 +43,7 @@ let usersNearlyBingo = [];
 io.on('connection', (socket) => {
   console.log('A user connected:', socket.id);
 
-  socket.on('setUsername', async ({ username, nickname }) => {
+  socket.on('setUsername', async ({ username, nickname, mode }) => {
     if (username !== 'admin') {
       let point = await addUser(username);
       let userBoard = [];
@@ -63,9 +63,11 @@ io.on('connection', (socket) => {
         userBoard = generateBoard();
       }
 
-      usersBoard[username] = { username, board: userBoard, bingoCells, nearlyBingos, nickname, countReset, point };
-      socket.emit('userBoard', userBoard);
-      users[socket.id] = username;
+      if(mode !== 'view') {
+        usersBoard[username] = { username, board: userBoard, bingoCells, nearlyBingos, nickname, countReset, point };
+        socket.emit('userBoard', userBoard);
+        users[socket.id] = username;
+      }
     }
 
     io.emit('updateUsers', Object.values(users));

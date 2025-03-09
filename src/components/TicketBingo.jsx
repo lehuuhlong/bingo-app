@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import socket from '../services/socket';
 import ToastReset from '../toast/ToastReset';
+import Board from './Board';
 
 const TicketBingo = (props) => {
   const { bingoName, calledNumbers, usersBoard, username, board } = props;
@@ -121,27 +122,7 @@ const TicketBingo = (props) => {
       </button>
       {isBingo && <div className="alert alert-success text-center">🎉 Bingo! 🎉</div>}
       <div className="bg-gradient-light p-3 rounded shadow">
-        <div className="d-grid" style={{ gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px', display: 'inline-grid' }}>
-          {board.flat().map((num, index) => (
-            <div
-              key={index}
-              className={`border p-3 rounded-circle fw-bold d-flex align-items-center justify-content-center shadow-sm ${
-                bingoName.length > 0
-                  ? bingoCells.includes(num)
-                    ? 'bg-success text-white'
-                    : calledNumbers.includes(num)
-                    ? 'bg-secondary text-white'
-                    : 'bg-light text-dark'
-                  : calledNumbers.includes(num)
-                  ? 'bg-success text-white'
-                  : 'bg-light text-dark'
-              }`}
-              style={{ width: '60px', height: '60px', fontSize: '1.5rem', cursor: 'pointer', transition: 'all 0.3s' }}
-            >
-              {num}
-            </div>
-          ))}
-        </div>
+        <Board bingoName={bingoName} bingoCells={bingoCells} board={board} calledNumbers={calledNumbers} />
         {board.length === 0 && (
           <h5>
             Opps!!! You're late! <br /> Please wait the next lucky-draw

@@ -17,6 +17,7 @@ import UserTable from './UserTable';
 import CloseToBingo from './CloseToBingo';
 import { Link, useNavigate } from 'react-router-dom';
 import Setting from './Setting';
+import View from './View';
 
 export default function Bingo() {
   const { user, logout } = useContext(AuthContext);
@@ -28,6 +29,7 @@ export default function Bingo() {
   const [currentSpinningNumber, setCurrentSpinningNumber] = useState('🌟');
   const [usersRanking, setUsersRanking] = useState([]);
   const navigate = useNavigate();
+  const mode = localStorage.getItem('mode');
 
   const buttonBingoRef = useRef(null);
   const buttonResetRef = useRef(null);
@@ -257,7 +259,15 @@ export default function Bingo() {
                   )}
                 </div>
               </div>
-              {renderTicket(user?.role)}
+              {(mode && mode === 'view') ? (
+                  <View
+                    bingoName={bingoName}
+                    calledNumbers={calledNumbers}
+                    usersBoard={usersBoard}
+                  />
+                ) : (
+                  renderTicket(user?.role)
+                )}
             </Tab>
             <Tab eventKey="ranking" title="🥇Ranking">
               <Ranking isTopFive={false} usersRanking={usersRanking} />

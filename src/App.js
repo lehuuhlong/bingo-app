@@ -28,6 +28,14 @@ function App() {
               </PrivateRoute>
             }
           />
+          <Route
+            path="/view"
+            element={
+              <PrivateRoute>
+                <Bingo />
+              </PrivateRoute>
+            }
+          />
           <Route path="*" element={<PrivateRouteV2 />} />
         </Routes>
       </Router>

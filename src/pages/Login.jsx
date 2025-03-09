@@ -41,6 +41,13 @@ const Login = () => {
     }
   };
 
+  const handleView = async (e) => {
+    e.preventDefault();
+    await loginGuess(username, nickname, 'view');
+    socket.emit('setUsername', { username, nickname, mode: 'view' });
+    navigate('/bingo');
+  }
+
   return (
     <div className="container mt-5">
       <h2 className="text-center">Login</h2>
@@ -114,9 +121,14 @@ const Login = () => {
           Login
         </button>
       ) : (
+        <>
         <button className="btn btn-primary" onClick={handleCheckGuess}>
           Check
         </button>
+        <button className="btn btn-primary ml-2" onClick={handleView}>
+          View
+        </button>
+        </>
       )}
     </div>
   );
