@@ -4,6 +4,7 @@ const dateFormat = require('../service/dateFormatPlugin');
 const UserSchema = new mongoose.Schema(
   {
     username: { type: String, required: true, unique: true },
+    password: { type: String, default: '' },
     point: { type: Number, default: 0 },
     pointBingo: { type: Number, default: 0 },
     bingoCount: { type: Number, default: 0 },
