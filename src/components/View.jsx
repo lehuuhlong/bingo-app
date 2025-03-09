@@ -1,4 +1,4 @@
-import React from 'react'
+import React from 'react';
 import Board from './Board';
 
 const View = (props) => {
@@ -39,36 +39,32 @@ const View = (props) => {
         return (
           <>
             <div className="col-4 mb-3">
-              {
-                userBoard.board.length > 0 && (
-                  <>
-                    <div className="text-center mb-1">
-                      <strong>{userBoard.username}</strong>
-                    </div>
-                    <div className="bg-gradient-light p-3 rounded shadow">
-                      <Board
-                        key={userBoard.username}
-                        bingoName={bingoName}
-                        bingoCells={checkBingo(userBoard.board)}
-                        board={userBoard.board}
-                        calledNumbers={calledNumbers}
-                        boardStyle={{
-                          circle: "20px",
-                          numSize: "1rem",
-                        }}
-                      />
-                    </div>
-                  </>
-
-                )
-              }
+              {userBoard.board.length > 0 && (
+                <>
+                  <div className="text-center mb-1">
+                    <strong>{userBoard.username}</strong>
+                  </div>
+                  <div className="bg-gradient-light p-3 rounded shadow">
+                    <Board
+                      key={userBoard.username}
+                      bingoName={bingoName}
+                      bingoCells={checkBingo(userBoard.board)}
+                      board={userBoard.board}
+                      calledNumbers={calledNumbers}
+                      boardStyle={{
+                        circle: '20px',
+                        numSize: '1rem',
+                      }}
+                    />
+                  </div>
+                </>
+              )}
             </div>
           </>
         );
       })}
-      
     </div>
   );
 };
 
-export default View
+export default View;
