@@ -138,8 +138,9 @@ export default function Bingo() {
       case 'admin':
         return <Admin onlineUsers={onlineUsers} bingoName={bingoName} usersBoard={usersBoard} calledNumbers={calledNumbers} />;
       case 'user':
-      case 'moderator':
         return <TicketBingo bingoName={bingoName} calledNumbers={calledNumbers} usersBoard={usersBoard} username={user?.username} board={board} />;
+      case 'moderator':
+        return <View bingoName={bingoName} calledNumbers={calledNumbers} usersBoard={usersBoard} />;
       case 'guest':
         return null;
       default:
@@ -267,15 +268,7 @@ export default function Bingo() {
                   )}
                 </div>
               </div>
-              {(mode && mode === 'view') ? (
-                  <View
-                    bingoName={bingoName}
-                    calledNumbers={calledNumbers}
-                    usersBoard={usersBoard}
-                  />
-                ) : (
-                  renderTicket(user?.role)
-                )}
+              {renderTicket(user?.role)}
             </Tab>
             <Tab eventKey="ranking" title="🥇Ranking">
               <Ranking isTopFive={false} usersRanking={usersRanking} />

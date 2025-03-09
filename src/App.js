@@ -9,10 +9,6 @@ const PrivateRoute = ({ children }) => {
   return localStorage.getItem('token') ? children : <Navigate to="/login" />;
 };
 
-const PrivateRouteV2 = () => {
-  return localStorage.getItem('token') ? <Navigate to="/bingo" /> : <Navigate to="/login" />;
-};
-
 function App() {
   return (
     <AuthProvider>
@@ -29,14 +25,13 @@ function App() {
             }
           />
           <Route
-            path="/view"
+            path="*"
             element={
               <PrivateRoute>
                 <Bingo />
               </PrivateRoute>
             }
           />
-          <Route path="*" element={<PrivateRouteV2 />} />
         </Routes>
       </Router>
     </AuthProvider>

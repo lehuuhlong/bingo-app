@@ -21,12 +21,12 @@ const Register = () => {
 
   return (
     <div>
-      <h2>Đăng ký</h2>
+      <h2>Registration</h2>
       {message && <p>{message}</p>}
       <form onSubmit={handleRegister}>
         <input type="text" placeholder="Account" value={username} onChange={(e) => setUsername(e.target.value)} required />
         <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-        <button type="submit">Đăng ký</button>
+        <button type="submit">Registration</button>
       </form>
     </div>
   );
