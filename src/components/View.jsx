@@ -33,34 +33,31 @@ const View = (props) => {
   };
 
   return (
-    <div className="row mb-3">
+    <div className="row mb-3 text-center">
       {Object.keys(usersBoard).map((key) => {
         const userBoard = usersBoard[key];
         return (
-          <>
-            <div className="col-4 mb-3">
-              {userBoard.board.length > 0 && (
-                <>
-                  <div className="text-center mb-1">
-                    <strong>{userBoard.username}</strong>
-                  </div>
-                  <div className="bg-gradient-light p-3 rounded shadow">
-                    <Board
-                      key={userBoard.username}
-                      bingoName={bingoName}
-                      bingoCells={checkBingo(userBoard.board)}
-                      board={userBoard.board}
-                      calledNumbers={calledNumbers}
-                      boardStyle={{
-                        circle: '20px',
-                        numSize: '1rem',
-                      }}
-                    />
-                  </div>
-                </>
-              )}
-            </div>
-          </>
+          <div className="col-4 mb-3" key={key}>
+            {userBoard.board.length > 0 && (
+              <div>
+                <div className="text-center mb-1">
+                  <strong>{userBoard.username}</strong>
+                </div>
+                <div className="bg-gradient-light p-3 rounded shadow">
+                  <Board
+                    bingoName={bingoName}
+                    bingoCells={checkBingo(userBoard.board)}
+                    board={userBoard.board}
+                    calledNumbers={calledNumbers}
+                    boardStyle={{
+                      circle: '20px',
+                      numSize: '1rem',
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
         );
       })}
     </div>
