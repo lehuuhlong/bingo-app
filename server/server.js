@@ -10,7 +10,7 @@ const statisticsRoutes = require('./routes/statisticsRoutes');
 const authRoutes = require('./routes/authRoutes');
 const User = require('./models/User');
 const saveBingoNumber = require('./service/saveBingoNumber');
-const moment = require('moment');
+const moment = require('moment-timezone');
 
 const app = express();
 const server = http.createServer(app);
@@ -92,6 +92,7 @@ io.on('connection', (socket) => {
     bingoNames = [];
     usersNearlyBingo = [];
     usersBoard = {};
+    users = {};
     isBingo = false;
     for (let userId in usersBoard) {
       usersBoard[userId].board = generateBoard();
@@ -181,7 +182,7 @@ function checkBingo(board, calledNumbers) {
 }
 
 function sendMessageAuto(username, nickname, message) {
-  let time = moment().tz('Asia/Bangkok').format('HH:mm');
+  let time = moment().tz('Asia/Ho_Chi_Minh').format('HH:mm');
   chats.push({ username, nickname, message, time, role: 'admin' });
   io.emit('chatMessage', { username, nickname, message, time, role: 'admin' });
 }

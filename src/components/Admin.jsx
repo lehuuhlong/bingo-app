@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import AddPoint from './AddPoint';
 import { refundPoint, minusPoint, takeAttendance } from '../services/userService';
 import socket from '../services/socket';
-import moment from 'moment';
+import { chatMessage } from '../services/chatMessage';
 
 const Admin = (props) => {
   const { onlineUsers, bingoName, usersBoard, calledNumbers } = props;
@@ -20,10 +20,8 @@ const Admin = (props) => {
 
   const startAutoCall = () => {
     if (bingoName.length) return;
-
-    let username = 'Admin Bingo';
     let message = calledNumbers.length === 0 ? 'Game Start! 🔥🔥🔥' : '🚀 Game Continues... 🚀';
-    socket.emit('chatMessage', { username, nickname: username, message, time: moment().format('HH:mm'), role: 'admin' });
+    chatMessage('admin', 'Admin Bingo', message, 'admin');
     if (!isAutoCalling) {
       setIsAutoCalling(true);
 
@@ -42,9 +40,8 @@ const Admin = (props) => {
     setIsAutoCalling(false);
     if (bingoName.length) return;
 
-    let username = 'Admin Bingo';
     let message = '⚠️ Game Stop!';
-    socket.emit('chatMessage', { username, nickname: username, message, time: moment().format('HH:mm'), role: 'admin' });
+    chatMessage('admin', 'Admin Bingo', message, 'admin');
   };
 
   // Refund point
@@ -75,6 +72,11 @@ const Admin = (props) => {
       alert('No user is online to take attendance');
       return;
     }
+
+    let pointReceive = onlineUsers.length * 20 * 0.95 - (onlineUsers.length - 1) * 2;
+    let message = `Điểm danh thành công với ${onlineUsers.length} users. Có thể thắng: ${pointReceive} Point`;
+    chatMessage('admin', 'Admin Bingo', message, 'admin');
+
     setIsTakeAttendance(true);
 
     socket.emit('takeAttendance', onlineUsers.length);
@@ -97,10 +99,10 @@ const Admin = (props) => {
         <button className="btn btn-info" onClick={handleTakeAttendance} disabled={isTakeAttendance}>
           Take Attendance
         </button>
-        <button className="btn btn-info" onClick={handleTicketPoint} disabled={isTicketBingo}>
+        <button className="btn btn-info" onClick={handleTicketPoint} disabled={isTicketBingo || !isTakeAttendance}>
           Ticket point
         </button>
-        <button className="btn btn-success" onClick={handleRefundPoint} disabled={isRefundPoint}>
+        <button className="btn btn-success" onClick={handleRefundPoint} disabled={isRefundPoint || !isTakeAttendance}>
           Refund point
         </button>
         <button className="btn btn-warning" onClick={() => socket.emit('resetNumber')}>

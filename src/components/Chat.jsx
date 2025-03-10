@@ -4,7 +4,7 @@ import ProgressBar from 'react-bootstrap/ProgressBar';
 import Spinner from 'react-bootstrap/Spinner';
 import Tooltip from 'react-bootstrap/Tooltip';
 import socket from '../services/socket';
-import moment from 'moment';
+import { chatMessage } from '../services/chatMessage';
 
 const Chat = (props) => {
   const { user } = props;
@@ -42,8 +42,7 @@ const Chat = (props) => {
 
   const sendMessage = () => {
     if (message.trim().length) {
-      let time = moment().format('HH:mm');
-      socket.emit('chatMessage', { username: user?.username, nickname: user?.nickname, message, time, role: user?.role });
+      chatMessage(user?.username, user?.nickname, message, user?.role);
       setMessage('');
     }
   };
