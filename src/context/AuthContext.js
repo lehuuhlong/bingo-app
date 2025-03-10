@@ -1,13 +1,20 @@
 import { createContext, useState, useEffect } from 'react';
 import { postLogin, postLoginGuess } from '../services/authService';
 import { setAuthToken } from '../services/setAuthToken';
-import socket from '../services/socket';
 import { getUserById } from '../services/userService';
 
 export const AuthContext = createContext();
 
+const userClass = {
+  username: '',
+  nickname: '',
+  role: '',
+  isPassword: false,
+  isLogin: false,
+};
+
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(userClass);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('token');
@@ -16,8 +23,7 @@ export const AuthProvider = ({ children }) => {
       setAuthToken(parsedUser.token);
       const fetchUser = async () => {
         const data = await getUserById(parsedUser.user.username);
-        setUser({ ...data, nickname: parsedUser.user.nickname, isPassword: parsedUser.user.isPassword });
-        socket.emit('setUsername', { username: data.username, nickname: parsedUser.user.nickname, role: data.role });
+        setUser({ ...data, nickname: parsedUser.user.nickname, isPassword: parsedUser.user.isPassword, isLogin: true });
       };
 
       fetchUser();
@@ -28,7 +34,7 @@ export const AuthProvider = ({ children }) => {
     const res = await postLogin(username, password);
 
     // Save user to localStorage and context
-    let userData = { ...res.user, nickname };
+    let userData = { ...res.user, nickname, isLogin: true };
     let token = { ...res, user: userData };
     localStorage.setItem('token', JSON.stringify(token));
     setAuthToken(res.token);
@@ -44,7 +50,7 @@ export const AuthProvider = ({ children }) => {
     }
 
     // Save user to localStorage and context
-    let userData = { ...res.user, nickname };
+    let userData = { ...res.user, nickname, isLogin: true };
     let token = { ...res, user: userData };
     localStorage.setItem('token', JSON.stringify(token));
     setAuthToken(res.token);
@@ -53,8 +59,8 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     localStorage.removeItem('token');
+    setUser(userClass);
     setAuthToken(null);
-    setUser(null);
     window.location.reload();
   };
 

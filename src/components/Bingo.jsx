@@ -22,6 +22,7 @@ import View from './View';
 export default function Bingo() {
   const { user, logout } = useContext(AuthContext);
   const [board, setBoard] = useState([]);
+  const [isCallSocket, setIsCallSocket] = useState(false);
   const [usersBoard, setUsersBoard] = useState({});
   const [calledNumbers, setCalledNumbers] = useState([]);
   const [onlineUsers, setOnlineUsers] = useState([]);
@@ -32,6 +33,13 @@ export default function Bingo() {
 
   const buttonBingoRef = useRef(null);
   const buttonResetRef = useRef(null);
+
+  useEffect(() => {
+    if (user.isLogin && !isCallSocket) {
+      socket.emit('setUsername', { username: user.username, nickname: user.nickname, role: user.role });
+      setIsCallSocket(true);
+    }
+  }, [user, isCallSocket]);
 
   useEffect(() => {
     fetchUsersRanking();
@@ -170,7 +178,7 @@ export default function Bingo() {
             style={{ position: 'absolute', top: 10, right: 20, textDecoration: 'none' }}
             onClick={logout}
           >
-            ⏻Logout
+            🚀Logout
           </Link>
           <Tabs defaultActiveKey="bingo" className="mb-3">
             <Tab eventKey="bingo" title="🔥Bingo">

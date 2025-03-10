@@ -1,12 +1,12 @@
 import { useState, useContext, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import socket from '../services/socket';
 
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [nickname, setNickname] = useState('');
+  const [message, setMessage] = useState('');
   const { login, loginGuess, user } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -18,10 +18,9 @@ const Login = () => {
   const handleSubmit = async () => {
     try {
       await login(username, password, nickname);
-      socket.emit('setUsername', { username, nickname, role: user?.role });
       navigate('/bingo');
     } catch (err) {
-      alert('Invalid username or password');
+      setMessage('Invalid username or password');
     }
   };
 
@@ -29,20 +28,20 @@ const Login = () => {
     try {
       await loginGuess(username, nickname);
       if (!user?.isPassword) {
-        // Set username for socket
-        socket.emit('setUsername', { username, nickname, role: user?.role });
         navigate('/bingo');
       } else {
         navigate('/login');
+        setMessage('Please input password');
       }
     } catch (err) {
-      alert('Invalid username');
+      setMessage('Invalid username');
     }
   };
 
   return (
     <div className="container mt-5">
       <h2 className="text-center">Login</h2>
+      {message && <h6 className="text-info">{message}</h6>}
       <div className="form-group">
         <label htmlFor="account" className="font-weight-bold">
           Account
