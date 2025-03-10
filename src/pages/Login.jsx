@@ -16,6 +16,16 @@ const Login = () => {
   }, [user]);
 
   const handleSubmit = async () => {
+    if (username.length < 3) {
+      setMessage('Username must be longer than 4 characters');
+      return;
+    }
+
+    if (nickname.trim().length < 1) {
+      setMessage('Nickname must be longer than 4 characters');
+      return;
+    }
+
     try {
       await login(username, password, nickname);
       navigate('/bingo');
@@ -25,12 +35,21 @@ const Login = () => {
   };
 
   const handleCheckGuess = async () => {
+    if (username.length < 3) {
+      setMessage('Username must be longer than 4 characters');
+      return;
+    }
+
+    if (nickname.trim().length < 1) {
+      setMessage('Nickname must be longer than 4 characters');
+      return;
+    }
+
     try {
       await loginGuess(username, nickname);
       if (!user?.isPassword) {
         navigate('/bingo');
       } else {
-        navigate('/login');
         setMessage('Please input password');
       }
     } catch (err) {
