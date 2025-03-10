@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import AddPoint from './AddPoint';
-import { refundPoint, minusPoint, takeAttendance } from '../services/userService';
+import { refundPoint, minusPoint, takeAttendance, postCloseBingo, postBingoPoint } from '../services/userService';
 import socket from '../services/socket';
 import { chatMessage } from '../services/chatMessage';
 
@@ -10,13 +10,25 @@ const Admin = (props) => {
   const [isTakeAttendance, setIsTakeAttendance] = useState(false);
   const [isTicketBingo, setIsTicketBingo] = useState(false);
   const [isRefundPoint, setIsRefundPoint] = useState(false);
+  const [isSaveData, setIsSaveData] = useState(false);
   const [usersAttendance, setUsersAttendance] = useState([]);
+  const [nearlyBingoName, setNearlyBingoName] = useState([]);
   const autoCallInterval = useRef(null);
 
   useEffect(() => {
     if (!bingoName.length) return;
     stopAutoCall();
   }, [bingoName]);
+
+  useEffect(() => {
+    socket.on('nearlyBingo', (name) => {
+      setNearlyBingoName(name);
+    });
+
+    return () => {
+      socket.off('nearlyBingo');
+    };
+  }, []);
 
   const startAutoCall = () => {
     if (bingoName.length) return;
@@ -85,6 +97,21 @@ const Admin = (props) => {
     await takeAttendance(onlineUsers);
   };
 
+  const handleSaveData = async () => {
+    if (bingoName.length === 0) {
+      alert('No user is bingo');
+      return;
+    }
+    setIsSaveData(true);
+
+    // Set user have close bingo to DB
+    await postCloseBingo(nearlyBingoName);
+
+    // Set user have bingo to DB
+    let pointReceive = (usersAttendance.length * 20 * 0.95 - (onlineUsers.length - 1) * 2) / bingoName.length;
+    await postBingoPoint(bingoName, Math.floor(pointReceive));
+  };
+
   return (
     <div className="card shadow bg-light p-2">
       <h4 className="text-secondary text-center">⚙️Control Center</h4>
@@ -102,8 +129,11 @@ const Admin = (props) => {
         <button className="btn btn-info" onClick={handleTicketPoint} disabled={isTicketBingo || !isTakeAttendance}>
           Ticket point
         </button>
-        <button className="btn btn-success" onClick={handleRefundPoint} disabled={isRefundPoint || !isTakeAttendance}>
+        <button className="btn btn-success" onClick={handleRefundPoint} disabled={isRefundPoint || !isTakeAttendance || bingoName.length === 0}>
           Refund point
+        </button>
+        <button className="btn btn-success" onClick={handleSaveData} disabled={isSaveData || bingoName.length === 0}>
+          Save data
         </button>
         <button className="btn btn-warning" onClick={() => socket.emit('resetNumber')}>
           Restart game

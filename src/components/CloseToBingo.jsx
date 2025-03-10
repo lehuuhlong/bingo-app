@@ -9,8 +9,8 @@ const CloseToBingo = (props) => {
   const [nearlyBingoName, setNearlyBingoName] = useState([]);
 
   useEffect(() => {
-    socket.on('nearlyBingo', (number) => {
-      setNearlyBingoName(number);
+    socket.on('nearlyBingo', (name) => {
+      setNearlyBingoName(name);
     });
 
     return () => {

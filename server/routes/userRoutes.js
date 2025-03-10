@@ -63,11 +63,49 @@ router.post('/refund-point', async (req, res) => {
       username,
       point: 2,
       type: 'Refund Point',
-      date: new Date().toISOString(),
     }));
 
     await Transaction.insertMany(transactions);
     res.json({ message: 'Add 2 points successfully', result });
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+router.post('/bingo-point', async (req, res) => {
+  const { users, point } = req.body;
+
+  if (!users || users.length === 0) {
+    return res.status(400).json({ error: 'Invalid user list!' });
+  }
+
+  try {
+    const result = await User.updateMany({ username: { $in: users } }, { $inc: { bingoCount: 1, pointBingo: point } });
+
+    const transactions = users.map((username) => ({
+      username,
+      point: point,
+      type: 'Bingo Reward',
+    }));
+
+    await Transaction.insertMany(transactions);
+    res.json({ message: 'Add Bingo points successfully', result });
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+router.post('/close-bingo', async (req, res) => {
+  const { users } = req.body;
+
+  if (!users || users.length === 0) {
+    return res.status(400).json({ error: 'Invalid user list!' });
+  }
+
+  try {
+    const result = await User.updateMany({ username: { $in: users } }, { $inc: { closeBingo: 1 } });
+
+    res.json({ message: 'Update Close Bingo successfully', result });
   } catch (error) {
     res.status(500).json({ message: 'Server Error' });
   }
@@ -87,7 +125,6 @@ router.post('/minus-point', async (req, res) => {
       username,
       point: -20,
       type: 'Ticket Bingo',
-      date: new Date().toISOString(),
     }));
 
     await Transaction.insertMany(transactions);
@@ -133,8 +170,18 @@ router.post('/add-point', async (req, res) => {
       case 'Add Point':
       case 'Refund Point':
       case 'Ticket Bingo':
+        existingUser.point += point;
+        break;
       case 'Gift Point':
         existingUser.point += point;
+        await User.updateOne({ username: 'admin' }, { $inc: { point: -point } });
+        const transaction = new Transaction({
+          username: 'admin',
+          point: -point,
+          type,
+          note: 'Gift to ' + username,
+        });
+        await transaction.save();
         break;
       default:
         return res.status(400).json({ message: 'Invalid Type!' });

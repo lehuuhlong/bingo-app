@@ -30,10 +30,20 @@ export const refundPoint = async (users) => {
   return res.data;
 };
 
+export const postCloseBingo = async (users) => {
+  const res = await api.post('/user/close-bingo', { users });
+  return res.data;
+};
+
+export const postBingoPoint = async (users, point) => {
+  const res = await api.post('/user/bingo-point', { users, point });
+  return res.data;
+};
+
 export const takeAttendance = async (users) => {
   const res = await api.post('/user/take-attendance', { users });
   return res.data;
-}
+};
 
 export const minusPoint = async (users) => {
   const res = await api.post('/user/minus-point', { users });
