@@ -13,11 +13,11 @@ export const AuthProvider = ({ children }) => {
     const storedUser = localStorage.getItem('token');
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
-      socket.emit('setUsername', { username: parsedUser.user.username, nickname: parsedUser.user.nickname, role: parsedUser.user.role });
       setAuthToken(parsedUser.token);
       const fetchUser = async () => {
         const data = await getUserById(parsedUser.user.username);
         setUser({ ...data, nickname: parsedUser.user.nickname, isPassword: parsedUser.user.isPassword });
+        socket.emit('setUsername', { username: data.username, nickname: parsedUser.user.nickname, role: data.role });
       };
 
       fetchUser();
