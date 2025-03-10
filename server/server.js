@@ -181,7 +181,7 @@ function checkBingo(board, calledNumbers) {
 }
 
 function sendMessageAuto(username, nickname, message) {
-  let time = moment().format('HH:mm');
+  let time = moment().tz('Asia/Bangkok').format('HH:mm');
   chats.push({ username, nickname, message, time, role: 'admin' });
   io.emit('chatMessage', { username, nickname, message, time, role: 'admin' });
 }
