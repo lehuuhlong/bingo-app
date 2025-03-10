@@ -17,6 +17,7 @@ import UserTable from './UserTable';
 import CloseToBingo from './CloseToBingo';
 import { Link, useNavigate } from 'react-router-dom';
 import Setting from './Setting';
+import View from './View';
 
 export default function Bingo() {
   const { user, logout } = useContext(AuthContext);
@@ -136,8 +137,9 @@ export default function Bingo() {
       case 'admin':
         return <Admin onlineUsers={onlineUsers} bingoName={bingoName} usersBoard={usersBoard} calledNumbers={calledNumbers} />;
       case 'user':
-      case 'moderator':
         return <TicketBingo bingoName={bingoName} calledNumbers={calledNumbers} usersBoard={usersBoard} username={user?.username} board={board} />;
+      case 'moderator':
+        return <View bingoName={bingoName} calledNumbers={calledNumbers} usersBoard={usersBoard} />;
       case 'guest':
         return null;
       default:

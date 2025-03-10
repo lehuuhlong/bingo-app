@@ -43,8 +43,8 @@ let usersNearlyBingo = [];
 io.on('connection', (socket) => {
   console.log('A user connected:', socket.id);
 
-  socket.on('setUsername', async ({ username, nickname }) => {
-    if (username !== 'admin') {
+  socket.on('setUsername', async ({ username, nickname, role }) => {
+    if (role === 'user') {
       let point = await addUser(username);
       let userBoard = [];
       let bingoCells = [];

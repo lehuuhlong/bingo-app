@@ -15,22 +15,22 @@ const Login = () => {
     setNickname(user?.nickname);
   }, [user]);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async () => {
     try {
       await login(username, password, nickname);
-      socket.emit('setUsername', { username, nickname });
+      socket.emit('setUsername', { username, nickname, role: user?.role });
       navigate('/bingo');
     } catch (err) {
       alert('Invalid username or password');
     }
   };
 
-  const handleCheckGuess = async (e) => {
+  const handleCheckGuess = async () => {
     try {
       await loginGuess(username, nickname);
       if (!user?.isPassword) {
         // Set username for socket
-        socket.emit('setUsername', { username, nickname });
+        socket.emit('setUsername', { username, nickname, role: user?.role });
         navigate('/bingo');
       } else {
         navigate('/login');
