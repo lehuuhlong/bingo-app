@@ -30,7 +30,7 @@ router.get('/all', async (req, res) => {
 
     const count = await User.countDocuments();
 
-    res.json({
+    res.status(200).json({
       users,
       totalPages: Math.ceil(count / limit),
       currentPage: parseInt(page),
@@ -43,7 +43,7 @@ router.get('/all', async (req, res) => {
 router.get('/ranking', async (req, res) => {
   try {
     const users = await User.find({ bingoCount: { $gt: 0 } }).sort({ bingoCount: -1, pointBingo: -1 });
-    res.json(users);
+    res.status(200).json(users);
   } catch (error) {
     res.status(500).json({ message: 'Server Error' });
   }
@@ -201,6 +201,23 @@ router.post('/add-point', async (req, res) => {
     res.json(existingUser);
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
+  }
+});
+
+router.get('/total-point-user', async (req, res) => {
+  try {
+    const totalPoint = await User.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalPoints: { $sum: '$point' },
+        },
+      },
+    ]);
+
+    res.status(200).json({ totalPoint });
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error' });
   }
 });
 

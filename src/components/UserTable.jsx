@@ -1,16 +1,26 @@
 import React, { useEffect, useState } from 'react';
-import { getUsers } from '../services/userService';
+import { getTotalPoints, getUsers } from '../services/userService';
 import CustomPagination from './CustomPagination';
 
 const UserTable = () => {
   const [users, setUsers] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [totalPoints, setTotalPoints] = useState(0);
+
   const itemsPerPage = 10;
 
   useEffect(() => {
     fetchUsers(1);
+    fetchTotalPoints();
   }, []);
+
+  useEffect(() => {}, []);
+
+  const fetchTotalPoints = async () => {
+    const data = await getTotalPoints();
+    setTotalPoints(data.totalPoint[0].totalPoints);
+  };
 
   const fetchUsers = async (page) => {
     try {
@@ -26,6 +36,7 @@ const UserTable = () => {
   return (
     <div className="mt-3">
       <h4 className="text-secondary text-center">📋User List</h4>
+      <h5 className="text-danger text-center"> Total Points: {totalPoints}📌</h5>
       <table className="table table-hover variant table-bordered shadow-sm text-center">
         <thead className="table-secondary">
           <tr>

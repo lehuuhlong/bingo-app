@@ -1,10 +1,5 @@
 import { api } from './api';
 
-export const getUsersPoint = async () => {
-  const res = await api.get('/point');
-  return res.data;
-};
-
 export const getUserById = async (username) => {
   const res = await api.get(`/user/id/${username}`);
   return res.data;
@@ -12,6 +7,11 @@ export const getUserById = async (username) => {
 
 export const getUsers = async (page) => {
   const res = await api.get(`/user/all?page=${page}&limit=10`);
+  return res.data;
+};
+
+export const getTotalPoints = async (page) => {
+  const res = await api.get('/user/total-point-user');
   return res.data;
 };
 
