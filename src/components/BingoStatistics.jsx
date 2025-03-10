@@ -16,7 +16,7 @@ const BingoStatistics = () => {
 
   const fetchStatistics = async (page) => {
     try {
-      if (parseInt(numberSearch) < 75 || numberSearch === '') {
+      if (parseInt(numberSearch) < 76 || numberSearch === '') {
         const response = await getStatisticsNumber(page, numberSearch);
         setNumbers(response.statistics);
         setTotalPages(response.totalPages);
