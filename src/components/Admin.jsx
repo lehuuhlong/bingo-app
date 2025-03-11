@@ -108,7 +108,7 @@ const Admin = (props) => {
     await postCloseBingo(nearlyBingoName);
 
     // Set user have bingo to DB
-    let pointReceive = (usersAttendance.length * 20 * 0.95 - (onlineUsers.length - 1) * 2) / bingoName.length;
+    let pointReceive = (usersAttendance.length * 20 * 0.95 - (usersAttendance.length - 1) * 2) / bingoName.length;
     await postBingoPoint(bingoName, Math.floor(pointReceive));
   };
 

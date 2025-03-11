@@ -10,7 +10,7 @@ export const getUsers = async (page) => {
   return res.data;
 };
 
-export const getTotalPoints = async (page) => {
+export const getTotalPoints = async () => {
   const res = await api.get('/user/total-point-user');
   return res.data;
 };
