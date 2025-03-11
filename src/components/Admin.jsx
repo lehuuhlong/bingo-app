@@ -1,34 +1,27 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import AddPoint from './AddPoint';
 import { refundPoint, minusPoint, takeAttendance, postCloseBingo, postBingoPoint } from '../services/userService';
 import socket from '../services/socket';
 import { chatMessage } from '../services/chatMessage';
+import { CallNumbersContext } from '../context/CallNumbersContext';
+import { CloseBingoContext } from '../context/CloseBingoContext';
 
 const Admin = (props) => {
-  const { onlineUsers, bingoName, usersBoard, calledNumbers } = props;
+  const { onlineUsers, bingoName, usersBoard } = props;
+  const { calledNumbers } = useContext(CallNumbersContext);
+  const { nearlyBingoName } = useContext(CloseBingoContext);
   const [isAutoCalling, setIsAutoCalling] = useState(false);
   const [isTakeAttendance, setIsTakeAttendance] = useState(false);
   const [isTicketBingo, setIsTicketBingo] = useState(false);
   const [isRefundPoint, setIsRefundPoint] = useState(false);
   const [isSaveData, setIsSaveData] = useState(false);
   const [usersAttendance, setUsersAttendance] = useState([]);
-  const [nearlyBingoName, setNearlyBingoName] = useState([]);
   const autoCallInterval = useRef(null);
 
   useEffect(() => {
     if (!bingoName.length) return;
     stopAutoCall();
   }, [bingoName]);
-
-  useEffect(() => {
-    socket.on('nearlyBingo', (name) => {
-      setNearlyBingoName(name);
-    });
-
-    return () => {
-      socket.off('nearlyBingo');
-    };
-  }, []);
 
   const startAutoCall = () => {
     if (bingoName.length) return;

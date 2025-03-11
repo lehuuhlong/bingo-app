@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useContext } from 'react';
+import { CallNumbersContext } from '../context/CallNumbersContext';
 
 const Board = (props) => {
-  const { bingoName, bingoCells, board, calledNumbers, boardStyle = { circle: '60px', numSize: '1.5rem' } } = props;
+  const { bingoName, bingoCells, board, boardStyle = { circle: '60px', numSize: '1.5rem' } } = props;
+  const { calledNumbers } = useContext(CallNumbersContext);
 
   return (
     <div
