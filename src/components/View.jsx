@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import Board from './Board';
+import { CallNumbersContext } from '../context/CallNumbersContext';
 
 const View = (props) => {
-  const { bingoName, calledNumbers, usersBoard } = props;
+  const { bingoName, usersBoard } = props;
+  const { calledNumbers } = useContext(CallNumbersContext);
 
   const checkBingo = (board) => {
     if (!board.length) return;
@@ -48,7 +50,6 @@ const View = (props) => {
                     bingoName={bingoName}
                     bingoCells={checkBingo(userBoard.board)}
                     board={userBoard.board}
-                    calledNumbers={calledNumbers}
                     boardStyle={{
                       circle: '20px',
                       numSize: '1rem',

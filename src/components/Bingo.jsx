@@ -18,18 +18,18 @@ import CloseToBingo from './CloseToBingo';
 import { Link, useNavigate } from 'react-router-dom';
 import Setting from './Setting';
 import View from './View';
+import LotteryNumber from './LotteryNumber';
+import Board from './Board';
 
 export default function Bingo() {
+  const navigate = useNavigate();
   const { user, logout } = useContext(AuthContext);
   const [board, setBoard] = useState([]);
   const [isCallSocket, setIsCallSocket] = useState(false);
   const [usersBoard, setUsersBoard] = useState({});
-  const [calledNumbers, setCalledNumbers] = useState([]);
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [bingoName, setBingoName] = useState([]);
-  const [currentSpinningNumber, setCurrentSpinningNumber] = useState('🌟');
   const [usersRanking, setUsersRanking] = useState([]);
-  const navigate = useNavigate();
 
   const buttonBingoRef = useRef(null);
   const buttonResetRef = useRef(null);
@@ -51,21 +51,6 @@ export default function Bingo() {
   };
 
   useEffect(() => {
-    socket.on('numberCalled', (newCalledNumbers) => {
-      if (newCalledNumbers?.length === 0) return;
-      const latestNumber = newCalledNumbers[newCalledNumbers.length - 1];
-
-      let randomInterval = setInterval(() => {
-        setCurrentSpinningNumber(Math.floor(Math.random() * 75) + 1);
-      }, 100);
-
-      setTimeout(() => {
-        clearInterval(randomInterval);
-        setCurrentSpinningNumber(latestNumber);
-        setCalledNumbers(newCalledNumbers);
-      }, 5000);
-    });
-
     socket.on('updateUsers', (users) => {
       setOnlineUsers(users);
     });
@@ -73,8 +58,8 @@ export default function Bingo() {
     socket.on('resetNumber', (usersBoard) => {
       // buttonResetRef.current.click();
       setUsersBoard(usersBoard);
-      setCalledNumbers([]);
-      setCurrentSpinningNumber('🌟');
+      // setCalledNumbers([]);
+      // setCurrentSpinningNumber('🌟');
       setBingoName([]);
       // setIsBingo(false);
       // setNearlyBingoName([]);
@@ -101,7 +86,6 @@ export default function Bingo() {
     });
 
     return () => {
-      socket.off('numberCalled');
       socket.off('updateUsers');
       socket.off('isBingo');
       socket.off('bingoNames');
@@ -143,11 +127,11 @@ export default function Bingo() {
   const renderTicket = (role) => {
     switch (role) {
       case 'admin':
-        return <Admin onlineUsers={onlineUsers} bingoName={bingoName} usersBoard={usersBoard} calledNumbers={calledNumbers} />;
+        return <Admin onlineUsers={onlineUsers} bingoName={bingoName} usersBoard={usersBoard} />;
       case 'user':
-        return <TicketBingo bingoName={bingoName} calledNumbers={calledNumbers} usersBoard={usersBoard} username={user?.username} board={board} />;
+        return <TicketBingo bingoName={bingoName} usersBoard={usersBoard} username={user?.username} board={board} />;
       case 'moderator':
-        return <View bingoName={bingoName} calledNumbers={calledNumbers} usersBoard={usersBoard} />;
+        return <View bingoName={bingoName} usersBoard={usersBoard} />;
       case 'guest':
         return null;
       default:
@@ -188,93 +172,26 @@ export default function Bingo() {
                   <div className="bg-gradient-light p-3 rounded shadow">
                     <div className="row">
                       {bingoName.map((name, index) => (
-                        <div className={bingoName.length > 1 ? 'col-lg-6' : 'col'} key={index}>
+                        <div className={`${bingoName.length > 1 ? 'col-lg-6' : 'col'} mb-3`} key={index}>
                           <h6 className="text-info mt-2">
                             Winner: {usersBoard[name]?.nickname} - {name} - Point: 🎉
                           </h6>
-                          <div className="d-grid" style={{ gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px', display: 'inline-grid' }}>
-                            {usersBoard[name]?.board.flat().map((num, index) => (
-                              <div
-                                key={index}
-                                className={`border p-3 rounded-circle fw-bold d-flex align-items-center justify-content-center shadow-sm ${
-                                  bingoName.length > 0
-                                    ? usersBoard[name]?.bingoCells.includes(num)
-                                      ? 'bg-success text-white'
-                                      : calledNumbers.includes(num)
-                                      ? 'bg-secondary text-white'
-                                      : 'bg-light text-dark'
-                                    : calledNumbers.includes(num)
-                                    ? 'bg-success text-white'
-                                    : 'bg-light text-dark'
-                                }`}
-                                style={{ width: '50px', height: '50px', fontSize: '1.2rem', cursor: 'pointer', transition: 'all 0.3s' }}
-                              >
-                                {num}
-                              </div>
-                            ))}
-                          </div>
+                          <Board
+                            board={usersBoard[name]?.board}
+                            bingoName={bingoName}
+                            bingoCells={usersBoard[name]?.bingoCells}
+                            boardStyle={{
+                              circle: '50px',
+                              numSize: '1.2rem',
+                            }}
+                          />
                         </div>
                       ))}
                     </div>
                   </div>
                 </div>
               )}
-              <div className="mb-4 text-center">
-                <h4 className="text-secondary">🎲 Lottery number 🎲</h4>
-                <div className="d-flex flex-wrap gap-2 justify-content-center bg-light p-3 rounded shadow">
-                  {calledNumbers.map(
-                    (number, index) =>
-                      number !== '🌟' && (
-                        <div
-                          key={index}
-                          className={`mr-1 mb-1 rounded-circle d-flex align-items-center justify-content-center number-ball ${
-                            bingoName.length > 0
-                              ? numberBingCells(number)
-                                ? 'bg-success text-white'
-                                : 'bg-secondary text-white'
-                              : 'bg-info text-white'
-                          }`}
-                          style={{
-                            width: '50px',
-                            height: '50px',
-                            fontSize: '1.2rem',
-                            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
-                            animation: 'scaleIn 1s ease-in-out',
-                          }}
-                        >
-                          <p
-                            style={{
-                              margin: 0,
-                              animation: 'spin 1s ease-in-out',
-                            }}
-                          >
-                            {number}
-                          </p>
-                        </div>
-                      )
-                  )}
-                  {currentSpinningNumber && bingoName.length === 0 && (
-                    <div
-                      className="number-ball"
-                      style={{
-                        width: '50px',
-                        height: '50px',
-                        fontSize: '1.2rem',
-                        borderRadius: '50%',
-                        backgroundColor: '#ffc107',
-                        color: '#000000',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        animation: 'spin 1s linear infinite',
-                        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
-                      }}
-                    >
-                      {currentSpinningNumber}
-                    </div>
-                  )}
-                </div>
-              </div>
+              <LotteryNumber numberBingCells={numberBingCells} bingoName={bingoName} />
               {renderTicket(user?.role)}
             </Tab>
             <Tab eventKey="ranking" title="🥇Ranking">

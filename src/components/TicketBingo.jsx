@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import socket from '../services/socket';
 import ToastReset from '../toast/ToastReset';
 import Board from './Board';
+import { CallNumbersContext } from '../context/CallNumbersContext';
 
 const TicketBingo = (props) => {
-  const { bingoName, calledNumbers, usersBoard, username, board } = props;
+  const { bingoName, usersBoard, username, board } = props;
+  const { calledNumbers } = useContext(CallNumbersContext);
   const [isBingo, setIsBingo] = useState(false);
   const [show, setShow] = useState(false);
   const [bingoCells, setBingoCells] = useState([]);
@@ -122,7 +124,7 @@ const TicketBingo = (props) => {
       </button>
       {isBingo && <div className="alert alert-success text-center">🎉 Bingo! 🎉</div>}
       <div className="bg-gradient-light p-3 rounded shadow">
-        <Board bingoName={bingoName} bingoCells={bingoCells} board={board} calledNumbers={calledNumbers} />
+        <Board bingoName={bingoName} bingoCells={bingoCells} board={board} />
         {board.length === 0 && (
           <h5>
             Opps!!! You're late! <br /> Please wait the next lucky-draw

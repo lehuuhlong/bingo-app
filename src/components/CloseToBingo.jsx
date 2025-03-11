@@ -1,23 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
-import socket from '../services/socket';
+import { CloseBingoContext } from '../context/CloseBingoContext';
 
 const CloseToBingo = (props) => {
   const { bingoName, usersBoard } = props;
-  const [nearlyBingoName, setNearlyBingoName] = useState([]);
-
-  useEffect(() => {
-    socket.on('nearlyBingo', (name) => {
-      setNearlyBingoName(name);
-    });
-
-    return () => {
-      socket.off('nearlyBingo');
-    };
-  }, []);
-
+  const { nearlyBingoName } = useContext(CloseBingoContext);
+  console.log('first');
   const numberBingoCells = (num) => {
     let isNumber = false;
     for (let name of bingoName) {
