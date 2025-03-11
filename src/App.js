@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
-import Bingo from './components/Bingo';
+import Bingo from './pages/Bingo';
 import Register from './pages/Register';
 import Login from './pages/Login';
 import { AuthProvider } from './context/AuthContext';
