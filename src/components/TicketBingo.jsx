@@ -3,18 +3,39 @@ import socket from '../services/socket';
 import ToastReset from '../toast/ToastReset';
 import Board from './Board';
 import { CallNumbersContext } from '../context/CallNumbersContext';
+import { AuthContext } from '../context/AuthContext';
 
 const TicketBingo = (props) => {
-  const { bingoName, usersBoard, username, board } = props;
+  const { bingoName, usersBoard } = props;
+  const { user } = useContext(AuthContext);
   const { calledNumbers } = useContext(CallNumbersContext);
   const [isBingo, setIsBingo] = useState(false);
   const [show, setShow] = useState(false);
   const [bingoCells, setBingoCells] = useState([]);
+  const [board, setBoard] = useState([]);
   const [nearlyBingoNumbers, setNearlyBingoNumbers] = useState([]);
 
   useEffect(() => {
+    socket.on('userBoard', (userBoard) => {
+      setBoard(userBoard);
+    });
+
+    return () => {
+      socket.off('userBoard');
+    };
+  }, []);
+
+  useEffect(() => {
+    for (let userId in usersBoard) {
+      if (usersBoard[userId]?.username === user?.username) {
+        setBoard(usersBoard[userId]?.board);
+      }
+    }
+  }, [usersBoard]);
+
+  useEffect(() => {
     if (isBingo) {
-      socket.emit('isBingo', { username, bingoCells });
+      socket.emit('isBingo', { username: user?.username, bingoCells });
     }
   }, [isBingo]);
 
@@ -27,7 +48,7 @@ const TicketBingo = (props) => {
 
   useEffect(() => {
     if (nearlyBingoNumbers.length === 0) return;
-    socket.emit('nearlyBingo', { username, nearlyBingoNumbers });
+    socket.emit('nearlyBingo', { username: user?.username, nearlyBingoNumbers });
   }, [nearlyBingoNumbers]);
 
   const checkBingo = () => {
@@ -101,11 +122,11 @@ const TicketBingo = (props) => {
   };
 
   const handleResetBingo = () => {
-    if (calledNumbers.length > 0 || usersBoard[username]?.countReset === 0) return;
+    if (calledNumbers.length > 0 || usersBoard[user?.username]?.countReset === 0) return;
     setShow(true);
 
     // Call socket to reset bingo
-    socket.emit('resetBingo', username);
+    socket.emit('resetBingo', user?.username);
 
     setTimeout(() => {
       setShow(false);
@@ -118,9 +139,9 @@ const TicketBingo = (props) => {
       <button
         className="btn btn-warning mb-2"
         onClick={handleResetBingo}
-        disabled={calledNumbers.length > 0 || usersBoard[username]?.countReset === 0}
+        disabled={calledNumbers.length > 0 || usersBoard[user?.username]?.countReset === 0}
       >
-        Reset your bingo! (Remain: {usersBoard[username]?.countReset})
+        Reset your bingo! (Remain: {usersBoard[user?.username]?.countReset})
       </button>
       {isBingo && <div className="alert alert-success text-center">🎉 Bingo! 🎉</div>}
       <div className="bg-gradient-light p-3 rounded shadow">
@@ -132,7 +153,7 @@ const TicketBingo = (props) => {
         )}
       </div>
 
-      <ToastReset isDisplay={show} countResetBingo={usersBoard[username]?.countReset} />
+      <ToastReset isDisplay={show} countResetBingo={usersBoard[user?.username]?.countReset} />
     </div>
   );
 };

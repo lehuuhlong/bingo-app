@@ -1,9 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
+import { AuthContext } from '../context/AuthContext';
 
 export default function MemberOnline(props) {
-  const { onlineUsers, usersBoard, user } = props;
+  const { onlineUsers, usersBoard } = props;
+  const { user } = useContext(AuthContext);
+
   const [onlineArranged, setOnlineArranged] = useState([]);
 
   useEffect(() => {

@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { getTransactions, getTransactionsById } from '../services/transactionService';
 import CustomPagination from './CustomPagination';
+import { AuthContext } from '../context/AuthContext';
 
-const TransactionTable = (props) => {
-  const { user } = props;
+const TransactionTable = () => {
+  const { user } = useContext(AuthContext);
+
   const [transactions, setTransactions] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);

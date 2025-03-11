@@ -24,7 +24,6 @@ import Board from '../components/Board';
 export default function Bingo() {
   const navigate = useNavigate();
   const { user, logout } = useContext(AuthContext);
-  const [board, setBoard] = useState([]);
   const [isCallSocket, setIsCallSocket] = useState(false);
   const [usersBoard, setUsersBoard] = useState({});
   const [onlineUsers, setOnlineUsers] = useState([]);
@@ -73,10 +72,6 @@ export default function Bingo() {
       setBingoName(username);
     });
 
-    socket.on('userBoard', (userBoard) => {
-      setBoard(userBoard);
-    });
-
     socket.on('usersBoard', (usersBoard) => {
       setUsersBoard(usersBoard);
     });
@@ -94,14 +89,6 @@ export default function Bingo() {
       socket.off('nearlyBingo');
     };
   }, []);
-
-  useEffect(() => {
-    for (let userId in usersBoard) {
-      if (usersBoard[userId]?.username === user?.username) {
-        setBoard(usersBoard[userId]?.board);
-      }
-    }
-  }, [usersBoard]);
 
   const numberBingCells = (num) => {
     let isNumber = false;
@@ -129,7 +116,7 @@ export default function Bingo() {
       case 'admin':
         return <Admin onlineUsers={onlineUsers} bingoName={bingoName} usersBoard={usersBoard} />;
       case 'user':
-        return <TicketBingo bingoName={bingoName} usersBoard={usersBoard} username={user?.username} board={board} />;
+        return <TicketBingo bingoName={bingoName} usersBoard={usersBoard} />;
       case 'moderator':
         return <View bingoName={bingoName} usersBoard={usersBoard} />;
       case 'guest':
@@ -152,7 +139,7 @@ export default function Bingo() {
             <h5 className="text-center text-danger">{numberWithCommas(totalAmountJackpot())} Point</h5>
           </div>
           <div className="member-online-hide">
-            <MemberOnline onlineUsers={onlineUsers} usersBoard={usersBoard} user={user} />
+            <MemberOnline onlineUsers={onlineUsers} usersBoard={usersBoard} />
           </div>
         </div>
         <div className="col-lg-7">
@@ -206,7 +193,7 @@ export default function Bingo() {
               </Tab>
             )}
             <Tab eventKey="history" title="📋History">
-              {user?.role && <TransactionTable user={user} />}
+              {user?.role && <TransactionTable />}
             </Tab>
             <Tab eventKey="setting" title="⚙️Setting">
               <Setting />
@@ -219,10 +206,10 @@ export default function Bingo() {
 
         <div className="col-lg-3">
           <CloseToBingo bingoName={bingoName} usersBoard={usersBoard} />
-          <Chat user={user} />
+          <Chat />
           <Ranking isTopFive={true} usersRanking={usersRanking} />
           <div className="member-online-show">
-            <MemberOnline onlineUsers={onlineUsers} usersBoard={usersBoard} user={user} />
+            <MemberOnline onlineUsers={onlineUsers} usersBoard={usersBoard} />
           </div>
         </div>
       </div>

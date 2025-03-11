@@ -1,13 +1,15 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import ProgressBar from 'react-bootstrap/ProgressBar';
 import Spinner from 'react-bootstrap/Spinner';
 import Tooltip from 'react-bootstrap/Tooltip';
 import socket from '../services/socket';
 import { chatMessage } from '../services/chatMessage';
+import { AuthContext } from '../context/AuthContext';
 
-const Chat = (props) => {
-  const { user } = props;
+const Chat = () => {
+  const { user } = useContext(AuthContext);
+
   const [message, setMessage] = useState('');
   const [minTicket, setMinTicket] = useState(0);
   const [maxTicket, setMaxTicket] = useState(1);
