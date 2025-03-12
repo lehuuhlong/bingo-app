@@ -39,6 +39,7 @@ let bingoNames = [];
 let chats = [];
 let isBingo = false;
 let usersNearlyBingo = [];
+let countdown = 0;
 
 io.on('connection', (socket) => {
   console.log('A user connected:', socket.id);
@@ -68,12 +69,13 @@ io.on('connection', (socket) => {
       users[socket.id] = username;
     }
 
+    socket.emit('numberCalled', calledNumbers);
+    socket.emit('bingoNames', bingoNames);
+    socket.emit('chats', chats);
+    socket.emit('usersBoard', usersBoard);
+    socket.emit('nearlyBingo', usersNearlyBingo);
+    socket.emit('countdown', countdown);
     io.emit('updateUsers', Object.values(users));
-    io.emit('numberCalled', calledNumbers);
-    io.emit('bingoNames', bingoNames);
-    io.emit('chats', chats);
-    io.emit('usersBoard', usersBoard);
-    io.emit('nearlyBingo', usersNearlyBingo);
   });
 
   socket.on('callNumber', async () => {
@@ -94,6 +96,7 @@ io.on('connection', (socket) => {
     usersBoard = {};
     users = {};
     isBingo = false;
+    countdown = 0;
     for (let userId in usersBoard) {
       usersBoard[userId].board = generateBoard();
       usersBoard[userId].nearlyBingos = [];
@@ -127,6 +130,19 @@ io.on('connection', (socket) => {
     let time = moment().tz('Asia/Ho_Chi_Minh').format('HH:mm');
     chats.push({ username, nickname, message, time, role });
     io.emit('chatMessage', { username, nickname, message, time, role });
+  });
+
+  socket.on('countdown', (time) => {
+    countdown = time;
+
+    const interval = setInterval(() => {
+      countdown--;
+      if (countdown <= 0) {
+        clearInterval(interval);
+      }
+    }, 1000);
+
+    io.emit('countdown', time);
   });
 
   socket.on('nearlyBingo', ({ username, nearlyBingoNumbers }) => {

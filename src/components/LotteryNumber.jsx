@@ -1,4 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import moment from 'moment';
 import socket from '../services/socket';
 import { CallNumbersContext } from '../context/CallNumbersContext';
 
@@ -6,6 +8,7 @@ const LotteryNumber = (props) => {
   const { numberBingCells, bingoName } = props;
   const { calledNumbers, setCalledNumbers } = useContext(CallNumbersContext);
   const [currentSpinningNumber, setCurrentSpinningNumber] = useState('🌟');
+  const [countdown, setCountdown] = useState(0);
 
   useEffect(() => {
     socket.on('numberCalled', (newCalledNumbers) => {
@@ -23,13 +26,48 @@ const LotteryNumber = (props) => {
       }, 5000);
     });
 
+    socket.on('countdown', (time) => {
+      setCountdown(time);
+    });
+
     return () => {
       socket.off('numberCalled');
+      socket.off('countdown');
     };
   }, []);
 
+  useEffect(() => {
+    if (countdown > 0) {
+      const timer = setInterval(() => {
+        setCountdown((prev) => Math.max(prev - 1, 0));
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [countdown]);
+
   return (
     <div className="mb-4 text-center">
+      <AnimatePresence>
+        {countdown > 0 && (
+          <motion.h4
+            className="text-secondary"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.5 }}
+          >
+            Start in <span className="text-danger">{moment.utc(countdown * 1000).format('mm:ss')} </span>
+            <span
+              style={{
+                display: 'inline-block',
+                animation: 'spin 2s linear infinite',
+              }}
+            >
+              ⏳
+            </span>
+          </motion.h4>
+        )}
+      </AnimatePresence>
       <h4 className="text-secondary">
         🎲 Lottery number {calledNumbers.length > 0 && <span className="text-danger">:{calledNumbers.length}</span>} 🎲
       </h4>
