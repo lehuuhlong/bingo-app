@@ -26,7 +26,7 @@ const AddPoint = () => {
   };
 
   return (
-    <div className="container mt-5">
+    <div className="container mt-3">
       <h5>Add Points</h5>
       <form onSubmit={handleSubmit} className="mb-4">
         <div className="input-group">
