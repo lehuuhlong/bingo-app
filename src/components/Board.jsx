@@ -14,7 +14,7 @@ const Board = (props) => {
         display: 'inline-grid',
       }}
     >
-      {board.flat().map((num, index) => (
+      {board?.flat().map((num, index) => (
         <div
           key={index}
           className={`border p-3 rounded-circle fw-bold d-flex align-items-center justify-content-center shadow-sm ${
