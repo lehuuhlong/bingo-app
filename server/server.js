@@ -98,7 +98,7 @@ io.on('connection', (socket) => {
       usersBoard[userId].board = generateBoard();
       usersBoard[userId].nearlyBingos = [];
     }
-    sendMessageAuto('Admin Bingo', 'Admin Bingo', '✔️ Game Over! Go to the next game');
+    sendMessageAuto('admin', 'Admin Bingo', '✔️ Game Over! Go to the next game');
     io.emit('resetNumber', usersBoard);
   });
 
@@ -109,7 +109,7 @@ io.on('connection', (socket) => {
       usersBoard[username].bingoCells = bingoCells;
       io.emit('isBingo', bingoNames);
       io.emit('usersBoard', usersBoard);
-      sendMessageAuto('Admin Bingo', 'Admin Bingo', 'Bingo: ' + username + ' 🎉');
+      sendMessageAuto('admin', 'Admin Bingo', 'Bingo: ' + username + ' 🎉');
     }
   });
 
@@ -123,7 +123,8 @@ io.on('connection', (socket) => {
     io.emit('usersBoard', usersBoard);
   });
 
-  socket.on('chatMessage', ({ username, nickname, message, time, role }) => {
+  socket.on('chatMessage', ({ username, nickname, message, role }) => {
+    let time = moment().tz('Asia/Ho_Chi_Minh').format('HH:mm');
     chats.push({ username, nickname, message, time, role });
     io.emit('chatMessage', { username, nickname, message, time, role });
   });
@@ -135,7 +136,7 @@ io.on('connection', (socket) => {
     }
     usersBoard[username] = { ...usersBoard[username], nearlyBingos: nearlyBingoNumbers };
     let message = '🎯 User: ' + usersBoard[username]?.nickname + ' có số gần trúng Bingo: ' + nearlyBingoNumbers;
-    sendMessageAuto('Admin Bingo', 'Admin Bingo', message);
+    sendMessageAuto('admin', 'Admin Bingo', message);
     io.emit('nearlyBingo', usersNearlyBingo);
     io.emit('usersBoard', usersBoard);
   });
