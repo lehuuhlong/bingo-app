@@ -72,7 +72,7 @@ io.on('connection', (socket) => {
     socket.emit('numberCalled', calledNumbers);
     socket.emit('bingoNames', bingoNames);
     socket.emit('chats', chats);
-    socket.emit('usersBoard', usersBoard);
+    io.emit('usersBoard', usersBoard);
     socket.emit('nearlyBingo', usersNearlyBingo);
     socket.emit('countdown', countdown);
     io.emit('updateUsers', Object.values(users));
