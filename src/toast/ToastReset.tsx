@@ -1,5 +1,13 @@
-export default function ToastReset(props) {
-  const { isDisplay } = props;
+import React from 'react';
+
+interface Props {
+  isDisplay: boolean;
+  countResetBingo: number;
+}
+
+export const ToastReset = (props: Props) => {
+  const { isDisplay, countResetBingo } = props;
+
   return (
     <div className="position-fixed bottom-0 right-0 p-3 toast-reset">
       <div
@@ -13,12 +21,19 @@ export default function ToastReset(props) {
         <div className="toast-header">
           <strong className="mr-auto">Bingo Game</strong>
           <small>just now</small>
-          <button type="button" className="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+          <button
+            type="button"
+            className="ml-2 mb-1 close"
+            data-dismiss="toast"
+            aria-label="Close"
+          >
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
-        <div className="toast-body">Refund points for successful members</div>
+        <div className="toast-body">
+          Your bingo ticket has been reset!({countResetBingo} left)
+        </div>
       </div>
     </div>
   );
-}
+};

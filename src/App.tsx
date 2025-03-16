@@ -1,13 +1,25 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import './App.css';
+import React from 'react';
+
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from 'react-router-dom';
+
 import Bingo from './pages/Bingo';
 import Register from './pages/Register';
 import Login from './pages/Login';
 import { AuthProvider } from './context/AuthContext';
 import { CallNumbersProvider } from './context/CallNumbersContext';
 import { CloseBingoProvider } from './context/CloseBingoContext';
+import './App.css';
 
-const PrivateRoute = ({ children }) => {
+interface PrivateRouteProps {
+  children: Readonly<React.ReactNode>;
+}
+
+const PrivateRoute = ({ children }: PrivateRouteProps) => {
   return localStorage.getItem('token') ? children : <Navigate to="/login" />;
 };
 
