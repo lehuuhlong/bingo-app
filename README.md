@@ -6,9 +6,9 @@ This project was deloyed in https://bingo-app-8c71.onrender.com
 
 In the project directory, you can run:
 
-### `cd server && node server.js`
+### `cd server && npm run dev`
 
-Runs the app in the server mode
+Runs the app in the server mode and run on [http://localhost:4000](http://localhost:4000)
 
 ### `npm start`
 
@@ -20,11 +20,9 @@ You may also see any lint errors in the console.
 
 ### `npm run build`
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Builds the app for production using Vite.\
+The build is optimized for the best performance.
 
-The build is minified and the filenames include the hashes.\
 Your app is ready to be deployed!
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
+See the section about [deployment](https://vitejs.dev/guide/static-deploy.html) for more information.
