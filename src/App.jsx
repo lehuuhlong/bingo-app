@@ -1,9 +1,4 @@
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
 import Bingo from './pages/Bingo';
 import Register from './pages/Register';
@@ -13,7 +8,7 @@ import { CallNumbersProvider } from './context/CallNumbersContext';
 import { CloseBingoProvider } from './context/CloseBingoContext';
 
 const PrivateRoute = ({ children }) => {
-  return localStorage.getItem('token') ? children : <Navigate to='/login' />;
+  return localStorage.getItem('token') ? children : <Navigate to="/login" />;
 };
 
 function App() {

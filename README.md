@@ -6,9 +6,9 @@ This project was deloyed in https://bingo-app-8c71.onrender.com
 
 In the project directory, you can run:
 
-### `cd server && node server.js`
+### `cd server && npm run dev`
 
-Runs the app in the server mode
+Runs the app in the server mode and run on [http://localhost:4000](http://localhost:4000)
 
 ### `npm start`
 
