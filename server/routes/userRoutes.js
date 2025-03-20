@@ -1,4 +1,5 @@
 const express = require('express');
+const { authenticate, isAdmin } = require('../middlewares/auth');
 const User = require('../models/User');
 const Transaction = require('../models/Transaction');
 
@@ -19,7 +20,7 @@ router.get('/id/:username', async (req, res) => {
   }
 });
 
-router.get('/all', async (req, res) => {
+router.get('/all', authenticate, isAdmin, async (req, res) => {
   const { page = 1, limit = 10 } = req.query;
   try {
     const users = await User.find()
@@ -49,7 +50,7 @@ router.get('/ranking', async (req, res) => {
   }
 });
 
-router.post('/refund-point', async (req, res) => {
+router.post('/refund-point', authenticate, isAdmin, async (req, res) => {
   const { users } = req.body;
 
   if (!users || users.length === 0) {
@@ -72,7 +73,7 @@ router.post('/refund-point', async (req, res) => {
   }
 });
 
-router.post('/bingo-point', async (req, res) => {
+router.post('/bingo-point', authenticate, isAdmin, async (req, res) => {
   const { users, point } = req.body;
 
   if (!users || users.length === 0) {
@@ -95,7 +96,7 @@ router.post('/bingo-point', async (req, res) => {
   }
 });
 
-router.post('/close-bingo', async (req, res) => {
+router.post('/close-bingo', authenticate, isAdmin, async (req, res) => {
   const { users } = req.body;
 
   if (!users || users.length === 0) {
@@ -111,7 +112,7 @@ router.post('/close-bingo', async (req, res) => {
   }
 });
 
-router.post('/minus-point', async (req, res) => {
+router.post('/minus-point', authenticate, isAdmin, async (req, res) => {
   const { users } = req.body;
 
   if (!users || users.length === 0) {
@@ -134,7 +135,7 @@ router.post('/minus-point', async (req, res) => {
   }
 });
 
-router.post('/take-attendance', async (req, res) => {
+router.post('/take-attendance', authenticate, isAdmin, async (req, res) => {
   const { users } = req.body;
 
   if (!users || users.length === 0) {
@@ -150,7 +151,7 @@ router.post('/take-attendance', async (req, res) => {
   }
 });
 
-router.post('/add-point', async (req, res) => {
+router.post('/add-point', authenticate, isAdmin, async (req, res) => {
   const { username, point, type, note } = req.body;
 
   if (!username || point === undefined) {
@@ -204,7 +205,7 @@ router.post('/add-point', async (req, res) => {
   }
 });
 
-router.get('/total-point-user', async (req, res) => {
+router.get('/total-point-user', authenticate, isAdmin, async (req, res) => {
   try {
     const totalPoint = await User.aggregate([
       {
