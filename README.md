@@ -1,6 +1,6 @@
 # Copyright by LE HUU HOANG LONG
 
-This project was deloyed in https://bingo-app-8c71.onrender.com
+This project was deloyed in 
 
 ## Available Scripts
 
