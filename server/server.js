@@ -166,19 +166,24 @@ io.on('connection', (socket) => {
 
 function generateBoard() {
   let board = [];
-  let numbers = new Set();
   for (let i = 0; i < 5; i++) {
-    let row = [];
-    while (row.length < 5) {
-      let num = Math.floor(Math.random() * 75) + 1;
-      if (!numbers.has(num)) {
-        numbers.add(num);
-        row.push(num);
-      }
-    }
-    board.push(row);
+    board.push(generateRandomNumbers(0,75,5));
   }
   return board;
+}
+
+function generateRandomNumbers(min, max, count){
+   
+  //create an array with all numbers in range
+  const numbers = Array.from({length: max - min + 1}, (_,i)=> i + min);
+
+  //shuffle the array
+  for(let i = numbers.length - 1; i >  0; i--){
+     const j = Math.floor(Math.random() * (i + 1));
+     [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
+  }
+
+  return numbers.slice(0,count);
 }
 
 function checkBingo(board, calledNumbers) {
