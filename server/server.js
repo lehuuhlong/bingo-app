@@ -14,6 +14,8 @@ const moment = require('moment-timezone');
 
 const app = express();
 const server = http.createServer(app);
+
+// Socket.io
 const io = new Server(server, {
   cors: {
     origin: process.env.CLIENT_URL,
@@ -31,7 +33,6 @@ app.use('/api/user', userRoutes);
 app.use('/api/transaction', transactionRoutes);
 app.use('/api/statistics', statisticsRoutes);
 
-// Socket.io
 let users = {};
 let usersBoard = {};
 let calledNumbers = [];
@@ -50,13 +51,15 @@ io.on('connection', (socket) => {
       let userBoard = [];
       let bingoCells = [];
       let nearlyBingos = [];
-      let countReset = 3;
+      let countReset = 1;
+      let countResetRow = [1, 1, 1, 1, 1];
       for (let userId in usersBoard) {
         if (usersBoard[userId].username === username) {
           userBoard = usersBoard[userId].board;
           bingoCells = usersBoard[userId].bingoCells;
           nearlyBingos = usersBoard[userId].nearlyBingos;
           countReset = usersBoard[userId].countReset;
+          countResetRow = usersBoard[userId].countResetRow;
           break;
         }
       }
@@ -64,7 +67,7 @@ io.on('connection', (socket) => {
         userBoard = generateBoard();
       }
 
-      usersBoard[username] = { username, board: userBoard, bingoCells, nearlyBingos, nickname, countReset, point };
+      usersBoard[username] = { username, board: userBoard, bingoCells, nearlyBingos, nickname, countReset, point, countResetRow };
       socket.emit('userBoard', userBoard);
       users[socket.id] = username;
     }
@@ -121,7 +124,19 @@ io.on('connection', (socket) => {
     let countReset = usersBoard[name]?.countReset;
     if (!name || bingoNames.length > 0 || calledNumbers.length > 0 || countReset === 0) return;
     userBoard = generateBoard();
-    usersBoard[name] = { ...usersBoard[name], board: userBoard, countReset: countReset - 1 };
+    let countResetRow = [1, 1, 1, 1, 1];
+    usersBoard[name] = { ...usersBoard[name], board: userBoard, countReset: countReset - 1, countResetRow };
+    socket.emit('userBoard', userBoard);
+    io.emit('usersBoard', usersBoard);
+  });
+
+  socket.on('resetBingoRow', ({ name, row }) => {
+    let userBoard = [];
+    let countResetRow = usersBoard[name]?.countResetRow;
+    if (!name || bingoNames.length > 0 || calledNumbers.length > 0 || countResetRow[row] === 0) return;
+    countResetRow[row] = countResetRow[row] - 1;
+    userBoard = resetBingoRow(usersBoard[name]?.board, row);
+    usersBoard[name] = { ...usersBoard[name], board: userBoard, countResetRow: countResetRow };
     socket.emit('userBoard', userBoard);
     io.emit('usersBoard', usersBoard);
   });
@@ -166,25 +181,41 @@ io.on('connection', (socket) => {
 
 function generateBoard() {
   let board = [];
+  let numbers = new Set();
   for (let i = 0; i < 5; i++) {
-    board.push(generateRandomNumbers(0,75,5));
+    let row = [];
+    while (row.length < 5) {
+      let num = Math.floor(Math.random() * 75) + 1;
+      if (!numbers.has(num)) {
+        numbers.add(num);
+        row.push(num);
+      }
+    }
+    board.push(row);
   }
   return board;
 }
 
-function generateRandomNumbers(min, max, count){
-   
-  //create an array with all numbers in range
-  const numbers = Array.from({length: max - min + 1}, (_,i)=> i + min);
+const resetBingoRow = (board, rowIndex) => {
+  let usedNumbers = new Set();
 
-  //shuffle the array
-  for(let i = numbers.length - 1; i >  0; i--){
-     const j = Math.floor(Math.random() * (i + 1));
-     [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
+  board.forEach((row, i) => {
+    if (i !== rowIndex) {
+      row.forEach((num) => {
+        usedNumbers.add(num);
+      });
+    }
+  });
+
+  let availableNumbers = [];
+  for (let i = 1; i <= 75; i++) {
+    if (!usedNumbers.has(i)) availableNumbers.push(i);
   }
 
-  return numbers.slice(0,count);
-}
+  availableNumbers.sort(() => Math.random() - 0.5);
+  board[rowIndex] = availableNumbers.splice(0, 5);
+  return board;
+};
 
 function checkBingo(board, calledNumbers) {
   if (board?.length) {
