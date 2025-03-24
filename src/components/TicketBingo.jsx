@@ -14,6 +14,7 @@ const TicketBingo = (props) => {
   const [bingoCells, setBingoCells] = useState([]);
   const [board, setBoard] = useState([]);
   const [nearlyBingoNumbers, setNearlyBingoNumbers] = useState([]);
+  const [row, setRow] = useState([0, 1, 2, 3, 4]);
 
   useEffect(() => {
     socket.on('userBoard', (userBoard) => {
@@ -133,6 +134,14 @@ const TicketBingo = (props) => {
     }, 3000);
   };
 
+  const handleResetBingoRow = (row) => {
+    if (calledNumbers.length > 0 || usersBoard[user?.username]?.countResetRow[row] === 0) return;
+    let name = user?.username;
+
+    // Call socket to reset bingo
+    socket.emit('resetBingoRow', { name, row });
+  };
+
   return (
     <div className="text-center mb-4">
       <h4 className="text-secondary">🎲 Ticket Bingo 🎲</h4>
@@ -143,6 +152,20 @@ const TicketBingo = (props) => {
       >
         Reset your bingo! (Remain: {usersBoard[user?.username]?.countReset})
       </button>
+      <div>
+        <h6 className="text-secondary">Reset row bingo</h6>
+        {row.map((item) => (
+          <button
+            key={item}
+            style={{ width: '40px', height: '40px' }}
+            className="btn btn-info mb-2 mr-2 rounded-circle"
+            onClick={() => handleResetBingoRow(item)}
+            disabled={calledNumbers.length > 0 || usersBoard[user?.username]?.countResetRow[item] === 0}
+          >
+            {item + 1}
+          </button>
+        ))}
+      </div>
       {isBingo && <div className="alert alert-success text-center">🎉 Bingo! 🎉</div>}
       <div className="bg-gradient-light p-3 rounded shadow">
         <Board bingoName={bingoName} bingoCells={bingoCells} board={board} />
