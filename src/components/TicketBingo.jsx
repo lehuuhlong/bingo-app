@@ -26,8 +26,6 @@ const TicketBingo = (props) => {
     };
   }, []);
 
-  console.log(row);
-
   useEffect(() => {
     for (let userId in usersBoard) {
       if (usersBoard[userId]?.username === user?.username) {
