@@ -157,6 +157,7 @@ const TicketBingo = (props) => {
         {row.map((item) => (
           <button
             key={item}
+            style={{ width: '40px', height: '40px' }}
             className="btn btn-info mb-2 mr-2 rounded-circle"
             onClick={() => handleResetBingoRow(item)}
             disabled={calledNumbers.length > 0 || usersBoard[user?.username]?.countResetRow[item] === 0}
