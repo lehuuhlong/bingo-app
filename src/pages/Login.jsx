@@ -6,6 +6,8 @@ const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [nickname, setNickname] = useState('');
+  const [focused, setFocused] = useState('');
+  const [btnHover, setBtnHover] = useState(false);
   const [message, setMessage] = useState('');
   const { login, loginGuess, user } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -93,6 +95,9 @@ const Login = () => {
           </h2>
           <small style={{ opacity: 0.9 }}>Sign in to join the game</small>
         </div>
+        <div className="text-center mt-3">
+          <small style={{ color: '#e02c14' }}>*** Please enter your account correctly to receive points. ***</small>
+        </div>
 
         <div style={{ padding: '20px 24px' }}>
           {message && (
@@ -101,9 +106,13 @@ const Login = () => {
             </div>
           )}
 
-          <div className="mb-3 form-floating">
-            <label className="form-label text-info" htmlFor="account">Account</label>
+          <div className="mb-3">
+            <label className="form-label text-info" htmlFor="account">
+              Account
+            </label>
             <input
+              autoFocus
+              aria-label="Account"
               type="text"
               id="account"
               maxLength="11"
@@ -116,13 +125,28 @@ const Login = () => {
                   handleCheckGuess();
                 }
               }}
-              onChange={(e) => setUsername(e.target.value)}
+              onChange={(e) => {
+                setMessage('');
+                setUsername(e.target.value);
+              }}
+              onFocus={() => setFocused('account')}
+              onBlur={() => setFocused('')}
+              style={{
+                borderRadius: 8,
+                transition: 'box-shadow 160ms, border-color 160ms, transform 160ms',
+                boxShadow: focused === 'account' ? '0 6px 18px rgba(37,117,252,0.08)' : 'none',
+                borderColor: focused === 'account' ? '#2575fc' : '#e6e9ef',
+                padding: '10px 12px',
+              }}
             />
           </div>
 
-          <div className="mb-3 form-floating">
-            <label className="form-label text-info" htmlFor="nickname">Nickname in the game</label>
+          <div className="mb-4">
+            <label className="form-label text-info" htmlFor="nickname">
+              Nickname in the game
+            </label>
             <input
+              aria-label="Nickname"
               type="text"
               id="nickname"
               maxLength="17"
@@ -135,13 +159,29 @@ const Login = () => {
                   handleCheckGuess();
                 }
               }}
-              onChange={(e) => setNickname(e.target.value)}
+              onChange={(e) => {
+                setMessage('');
+                setNickname(e.target.value);
+              }}
+              onFocus={() => setFocused('nickname')}
+              onBlur={() => setFocused('')}
+              style={{
+                borderRadius: 8,
+                transition: 'box-shadow 160ms, border-color 160ms',
+                boxShadow: focused === 'nickname' ? '0 6px 18px rgba(37,117,252,0.06)' : 'none',
+                borderColor: focused === 'nickname' ? '#2575fc' : '#e6e9ef',
+                padding: '10px 12px',
+              }}
             />
           </div>
 
           {user?.isPassword && (
-            <div className="mb-3 form-floating">
+            <div className="mb-4">
+              <label className="form-label text-info" htmlFor="password">
+                Password
+              </label>
               <input
+                aria-label="Password"
                 type="password"
                 id="password"
                 maxLength="17"
@@ -154,9 +194,20 @@ const Login = () => {
                     handleSubmit();
                   }
                 }}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setMessage('');
+                  setPassword(e.target.value);
+                }}
+                onFocus={() => setFocused('password')}
+                onBlur={() => setFocused('')}
+                style={{
+                  borderRadius: 8,
+                  transition: 'box-shadow 160ms, border-color 160ms',
+                  boxShadow: focused === 'password' ? '0 6px 18px rgba(37,117,252,0.06)' : 'none',
+                  borderColor: focused === 'password' ? '#2575fc' : '#e6e9ef',
+                  padding: '10px 12px',
+                }}
               />
-              <label htmlFor="password">Password</label>
             </div>
           )}
           <div className="d-grid gap-2">
@@ -164,12 +215,18 @@ const Login = () => {
               <button
                 className="btn"
                 onClick={handleSubmit}
+                onMouseEnter={() => setBtnHover(true)}
+                onMouseLeave={() => setBtnHover(false)}
                 style={{
-                  background: 'linear-gradient(90deg, #6a11cb, #2575fc)',
-                  color: '#fff',
-                  border: 'none',
+                  background: 'transparent',
+                  width: '100%',
+                  color: '#2575fc',
+                  border: '1px solid #cfe0ff',
                   padding: '10px 14px',
-                  borderRadius: 8,
+                  borderRadius: 10,
+                  transform: btnHover ? 'translateY(-2px)' : 'none',
+                  boxShadow: btnHover ? '0 12px 26px rgba(37,117,252,0.08)' : 'none',
+                  transition: 'transform 160ms, box-shadow 160ms',
                 }}
               >
                 Login
@@ -178,21 +235,23 @@ const Login = () => {
               <button
                 className="btn"
                 onClick={handleCheckGuess}
+                onMouseEnter={() => setBtnHover(true)}
+                onMouseLeave={() => setBtnHover(false)}
                 style={{
                   background: 'transparent',
+                  width: '100%',
                   color: '#2575fc',
                   border: '1px solid #cfe0ff',
                   padding: '10px 14px',
-                  borderRadius: 8,
+                  borderRadius: 10,
+                  transform: btnHover ? 'translateY(-2px)' : 'none',
+                  boxShadow: btnHover ? '0 12px 26px rgba(37,117,252,0.08)' : 'none',
+                  transition: 'transform 160ms, box-shadow 160ms',
                 }}
               >
-                Check Account
+                Check
               </button>
             )}
-          </div>
-
-          <div className="text-center mt-3">
-            <small style={{ color: '#e02c14' }}>*** Please enter your account correctly to receive points. ***</small>
           </div>
         </div>
       </div>
