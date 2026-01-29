@@ -10,13 +10,8 @@ export const postLoginGuess = async (username) => {
   return res.data;
 };
 
-export const postRegister = async (username, password) => {
-  const res = await api.post('/auth/register', { username, password });
-  return res.data;
-};
-
-export const changePassword = async (username, password, newpassword) => {
-  const res = await api.post('/auth/change-password', { username, password, newpassword });
+export const changePassword = async (username, password, newPassword) => {
+  const res = await api.post('/auth/change-password', { username, password, newPassword });
   return res.data;
 };
 
