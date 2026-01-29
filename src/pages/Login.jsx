@@ -11,23 +11,25 @@ const Login = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    setUsername(user?.username);
-    setNickname(user?.nickname);
+    setUsername(user?.username || '');
+    setNickname(user?.nickname || '');
   }, [user]);
 
   const handleSubmit = async () => {
-    if (username.length < 3) {
-      setMessage('Username must be longer than 4 characters');
+    const u = username.trim();
+    const n = nickname.trim();
+    if (u.length < 3) {
+      setMessage('Username must be at least 3 characters');
       return;
     }
 
-    if (nickname.trim().length < 1) {
-      setMessage('Nickname must be longer than 4 characters');
+    if (n.length < 1) {
+      setMessage('Nickname must not be empty');
       return;
     }
 
     try {
-      await login(username, password, nickname);
+      await login(u, password, n);
       navigate('/bingo');
     } catch (err) {
       setMessage('Invalid username or password');
@@ -35,18 +37,20 @@ const Login = () => {
   };
 
   const handleCheckGuess = async () => {
-    if (username.length < 3) {
-      setMessage('Username must be longer than 4 characters');
+    const u = username.trim();
+    const n = nickname.trim();
+    if (u.length < 3) {
+      setMessage('Username must be at least 3 characters');
       return;
     }
 
-    if (nickname.trim().length < 1) {
-      setMessage('Nickname must be longer than 4 characters');
+    if (n.length < 1) {
+      setMessage('Nickname must not be empty');
       return;
     }
 
     try {
-      await loginGuess(username, nickname);
+      await loginGuess(u, n);
       if (!user?.isPassword) {
         navigate('/bingo');
       } else {
@@ -58,82 +62,140 @@ const Login = () => {
   };
 
   return (
-    <div className="container mt-5">
-      <h2 className="text-center">Login</h2>
-      {message && <h6 className="text-info">{message}</h6>}
-      <div className="form-group">
-        <label htmlFor="account" className="font-weight-bold">
-          Account
-        </label>
-        <input
-          type="text"
-          id="account"
-          maxLength="11"
-          className="form-control mb-2"
-          placeholder="Ex: LongLHH1"
-          value={username}
-          onKeyPress={(event) => {
-            if (event.key === 'Enter') {
-              handleCheckGuess();
-            }
+    <div className="container min-vh-100 d-flex align-items-center justify-content-center">
+      <div className="card shadow-lg p-0" style={{ maxWidth: '460px', width: '100%', borderRadius: '12px', overflow: 'hidden' }}>
+        <div
+          style={{
+            background: 'linear-gradient(90deg, rgb(158, 159, 233) 0%, rgb(170, 200, 252) 100%)',
+            color: '#fff',
+            padding: '20px 24px',
+            textAlign: 'center',
           }}
-          onChange={(e) => setUsername(e.target.value.trim())}
-        />
-        <small id="accountHelp" className="form-text text-danger">
-          *** Please enter your account correctly to receive points. ***
-        </small>
-      </div>
-
-      <div className="form-group">
-        <label htmlFor="nickname" className="font-weight-bold">
-          Nickname in the game
-        </label>
-        <input
-          type="text"
-          maxLength="17"
-          id="nickname"
-          className="form-control mb-2"
-          placeholder="Ex: Long Lém Lĩnh"
-          value={nickname}
-          onKeyPress={(event) => {
-            if (event.key === 'Enter') {
-              handleCheckGuess();
-            }
-          }}
-          onChange={(e) => setNickname(e.target.value)}
-        />
-      </div>
-      {user?.isPassword && (
-        <div className="form-group">
-          <label htmlFor="password" className="font-weight-bold">
-            Password
-          </label>
-          <input
-            type="password"
-            maxLength="17"
-            id="password"
-            className="form-control mb-2"
-            placeholder="Password"
-            value={password}
-            onKeyPress={(event) => {
-              if (event.key === 'Enter') {
-                handleSubmit();
-              }
+        >
+          <div
+            style={{
+              width: 64,
+              height: 64,
+              borderRadius: '50%',
+              margin: '0 auto 8px',
+              background: 'rgba(255,255,255,0.15)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontWeight: 700,
+              fontSize: 20,
             }}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+          >
+            B
+          </div>
+          <h2 className="mb-1" style={{ fontWeight: 600 }}>
+            Bingo
+          </h2>
+          <small style={{ opacity: 0.9 }}>Sign in to join the game</small>
         </div>
-      )}
 
-      {user?.isPassword ? (
-        <button className="btn btn-primary" onClick={handleSubmit}>
-          Login
-        </button>
-      ) : (
-        <button className="btn btn-primary" onClick={handleCheckGuess}>
-          Check
-        </button>
-      )}
+        <div style={{ padding: '20px 24px' }}>
+          {message && (
+            <div className="alert alert-warning py-2" role="alert">
+              {message}
+            </div>
+          )}
+
+          <div className="mb-3 form-floating">
+            <label className="form-label text-info" htmlFor="account">Account</label>
+            <input
+              type="text"
+              id="account"
+              maxLength="11"
+              className="form-control"
+              placeholder="Ex: LongLHH1"
+              value={username}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') {
+                  event.preventDefault();
+                  handleCheckGuess();
+                }
+              }}
+              onChange={(e) => setUsername(e.target.value)}
+            />
+          </div>
+
+          <div className="mb-3 form-floating">
+            <label className="form-label text-info" htmlFor="nickname">Nickname in the game</label>
+            <input
+              type="text"
+              id="nickname"
+              maxLength="17"
+              className="form-control"
+              placeholder="Ex: Long Lươn Lẹo"
+              value={nickname}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') {
+                  event.preventDefault();
+                  handleCheckGuess();
+                }
+              }}
+              onChange={(e) => setNickname(e.target.value)}
+            />
+          </div>
+
+          {user?.isPassword && (
+            <div className="mb-3 form-floating">
+              <input
+                type="password"
+                id="password"
+                maxLength="17"
+                className="form-control"
+                placeholder="Password"
+                value={password}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') {
+                    event.preventDefault();
+                    handleSubmit();
+                  }
+                }}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <label htmlFor="password">Password</label>
+            </div>
+          )}
+          <div className="d-grid gap-2">
+            {user?.isPassword ? (
+              <button
+                className="btn"
+                onClick={handleSubmit}
+                style={{
+                  background: 'linear-gradient(90deg, #6a11cb, #2575fc)',
+                  color: '#fff',
+                  border: 'none',
+                  padding: '10px 14px',
+                  borderRadius: 8,
+                }}
+              >
+                Login
+              </button>
+            ) : (
+              <button
+                className="btn"
+                onClick={handleCheckGuess}
+                style={{
+                  background: 'transparent',
+                  color: '#2575fc',
+                  border: '1px solid #cfe0ff',
+                  padding: '10px 14px',
+                  borderRadius: 8,
+                }}
+              >
+                Check Account
+              </button>
+            )}
+          </div>
+
+          <div className="text-center mt-3">
+            <small style={{ color: '#e02c14' }}>*** Please enter your account correctly to receive points. ***</small>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
